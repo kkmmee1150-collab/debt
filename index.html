@@ -35,6 +35,7 @@ b{font-weight:600}
 .hero.neg{background:var(--acc);color:var(--onacc)}
 .hero p{font-size:14px;opacity:.92}
 .hero .big{font-size:44px;font-weight:700;line-height:1.25;margin:2px 0 4px}
+.hero .link{display:block;background:none;border:0;color:inherit;font:inherit;font-size:14px;text-decoration:underline;opacity:.9;margin-top:8px;min-height:44px;padding:0;cursor:pointer}
 .hero .btn{background:var(--on);color:var(--pri);margin-top:20px}
 .hero .btn:disabled{opacity:.7}
 .big2{font-size:32px;font-weight:700;line-height:1.3}
@@ -98,9 +99,9 @@ input.err{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
 .res{margin-top:4px}.res p{margin-top:6px}
 .lg{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:8px}
 .lg i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-left:8px}.lg i:first-child{margin-left:0}
-svg{display:block;width:100%;height:auto}
+svg:not(.ic){display:block;width:100%;height:auto}
 svg text{font-size:11px;fill:var(--mu)}svg text.sv{fill:var(--tx);font-weight:600}svg .ax{stroke:var(--bd)}
-.ic{flex:none;vertical-align:middle}
+.ic{flex:none;display:inline-block;vertical-align:middle}
 .tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
 .ti{display:flex;max-width:600px;margin:0 auto}
 .tabs button{flex:1;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:0;color:var(--mu);font:inherit;font-size:12px;cursor:pointer}
@@ -136,6 +137,7 @@ svg text{font-size:11px;fill:var(--mu)}svg text.sv{fill:var(--tx);font-weight:60
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <input type="file" id="file" accept="image/*" hidden>
 <script>
+
 
 var KEY="debtapp1";
 var CATS=["อาหาร","เดินทาง","ค่าน้ำไฟ","ของใช้","อื่นๆ"];
@@ -349,6 +351,75 @@ document.getElementById("file").onchange=function(e){var fl=e.target.files[0];e.
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
 window.addEventListener('online',flush);flush();
 
+
+
+
+
+
+/* ---- feedback ---- */
+
+
+
+
+
+/* ---- transactions (undo instead of confirm) ---- */
+
+
+
+
+
+
+
+
+
+
+
+/* ---- daily budget ---- */
+
+
+
+
+function budCard(){var b=budInfo();
+ if(!b)return`<section class="card span2"><h2>งบใช้จ่ายรายวัน</h2><p class="sub" style="margin-bottom:16px">ใส่เงินที่เหลือใช้ได้จริงตอนนี้ แอปจะหารเฉลี่ยให้ว่าใช้ได้วันละเท่าไร</p><button class="btn s" onclick="openSheet('bud')">ตั้งงบคงเหลือ</button></section>`;
+ var over=b.todayLeft<0,dead=b.rem<=0;
+ return`<section class="card span2"><div class="li" style="border:0;padding:0 0 4px"><h2 style="margin:0">ใช้ได้วันละ</h2><button class="btn t sm" style="color:var(--pri)" onclick="openSheet('bud')">แก้งบ</button></div><div class="big2 num" style="color:${dead?"var(--acc)":"var(--tx)"}">${f(Math.max(0,b.per))} ฿</div><p class="sub">งบคงเหลือ ${f(b.rem)} ฿ · อีก ${b.days} วัน${b.pay?" (ถึงวันเงินเดือนออก)":" (ถึงสิ้นเดือน)"}</p>`+(dead?`<p style="margin-top:12px;color:var(--acc)">งบหมดแล้ว ลองปรับงบหรือชะลอการใช้จ่าย</p>`:`<div class="bar${over?" a":""}" style="margin:16px 0 8px"><i style="width:${Math.min(100,b.per>0?b.spentToday/b.per*100:100)}%"></i></div><p class="sub">${over?`วันนี้เกินงบ ${f(-b.todayLeft)} ฿ พรุ่งนี้จะเฉลี่ยใหม่ให้`:`วันนี้ใช้ไป ${f(b.spentToday)} · เหลือ ${f(b.todayLeft)} ฿`}</p>`)+`</section>`}
+
+/* ---- ui helpers ---- */
+
+
+
+
+
+
+
+/* ---- sheet ---- */
+
+
+
+/* ---- charts ---- */
+
+
+
+
+
+/* ---- banner / quick / buy ---- */
+
+
+
+
+
+
+/* ---- views ---- */
+
+
+
+
+
+
+
+
+
+
 /* ===== redesigned views ===== */
 var COL={"อาหาร":"var(--pri)","เดินทาง":"#3d8f7a","ค่าน้ำไฟ":"var(--g2)","ของใช้":"#b4b9be","อื่นๆ":"var(--g1)","จ่ายหนี้":"var(--acc)","เงินออม":"var(--pri2)"};
 var GC=["var(--pri)","var(--g2)","#6f7882","#b4b9be","#4b8f7e","#8a9199"];
@@ -389,11 +460,6 @@ function budInfo(){var B=S.bud;if(!B||B.amt==null)return null;var sp=0,st=0,td=t
  var rem=B.amt-sp,d=daysLeft(),per=(rem+st)/d;return{rem:rem,days:d,per:per,spentToday:st,todayLeft:per-st,pay:B.pay}}
 function saveBud(){var a=parseFloat(document.getElementById("bud-amt").value);if(isNaN(a)){fieldErr("bud-amt","ใส่จำนวนเงินก่อน");return}var p=parseInt(document.getElementById("bud-pay").value)||0;if(p<0||p>28)p=0;S.bud={amt:a,at:Date.now(),pay:p};save();sheet=null;render();var b=budInfo();toast(`ตั้งงบแล้ว ใช้ได้วันละ ${f(Math.max(0,b.per))} ฿`)}
 function clearBud(){S.bud={amt:null,at:0,pay:0};save();sheet=null;render();toast("ล้างงบแล้ว")}
-function budCard(){var b=budInfo();
- if(!b)return`<section class="card span2"><h2>งบใช้จ่ายรายวัน</h2><p class="sub" style="margin-bottom:16px">ใส่เงินที่เหลือใช้ได้จริงตอนนี้ แอปจะหารเฉลี่ยให้ว่าใช้ได้วันละเท่าไร</p><button class="btn s" onclick="openSheet('bud')">ตั้งงบคงเหลือ</button></section>`;
- var over=b.todayLeft<0,dead=b.rem<=0;
- return`<section class="card span2"><div class="li" style="border:0;padding:0 0 4px"><h2 style="margin:0">ใช้ได้วันละ</h2><button class="btn t sm" style="color:var(--pri)" onclick="openSheet('bud')">แก้งบ</button></div><div class="big2 num" style="color:${dead?"var(--acc)":"var(--tx)"}">${f(Math.max(0,b.per))} ฿</div><p class="sub">งบคงเหลือ ${f(b.rem)} ฿ · อีก ${b.days} วัน${b.pay?" (ถึงวันเงินเดือนออก)":" (ถึงสิ้นเดือน)"}</p>`+(dead?`<p style="margin-top:12px;color:var(--acc)">งบหมดแล้ว ลองปรับงบหรือชะลอการใช้จ่าย</p>`:`<div class="bar${over?" a":""}" style="margin:16px 0 8px"><i style="width:${Math.min(100,b.per>0?b.spentToday/b.per*100:100)}%"></i></div><p class="sub">${over?`วันนี้เกินงบ ${f(-b.todayLeft)} ฿ พรุ่งนี้จะเฉลี่ยใหม่ให้`:`วันนี้ใช้ไป ${f(b.spentToday)} · เหลือ ${f(b.todayLeft)} ฿`}</p>`)+`</section>`}
-
 /* ---- ui helpers ---- */
 function li(l,v,o){o=o||{};var tap=o.fn?` onclick="${o.fn}" role="button" tabindex="0" onkeydown="if(event.key==='Enter')${o.fn}"`:"";return`<div class="li${o.fn?" tap":""}"${tap}><span class="l">${l}${o.sub?`<small>${o.sub}</small>`:""}</span><span class="v"${o.c?` style="color:${o.c}"`:""}>${v}${o.fn?ic("chev",16):""}</span></div>`}
 function empty(t,s){return`<div class="empty"><b>${t}</b><span>${s}</span></div>`}
@@ -401,7 +467,7 @@ function fld(lb,inner,e){return`<label class="fld"><span class="lb">${lb}</span>
 function det(id,title,sub,body){return`<details class="card dt"${OPEN[id]?" open":""} ontoggle="OPEN['${id}']=this.open"><summary><span><b>${title}</b>${sub?`<small>${sub}</small>`:""}</span>${ic("chev",18)}</summary><div class="db">${body}</div></details>`}
 function mdet(id,title,body){return`<details class="more"${OPEN[id]?" open":""} ontoggle="OPEN['${id}']=this.open"><summary>${title}</summary>${body}</details>`}
 function header(){
- var T={home:["ภาพรวม",mname(mk())],plan:["แผนปิดหนี้","ลำดับและยอดที่ควรจ่าย"],log:["บันทึก","รายจ่ายและสลิป"],debt:["หนี้และบัตร",""],stat:["สถิติ","6 เดือนล่าสุด"],set:["ตั้งค่า",""]}[tab];
+ var T={home:["ภาพรวม",mname(mk())],plan:["แผนปิดหนี้","ลำดับและยอดที่ควรจ่าย"],log:["บันทึก","รายจ่ายและสลิป"],debt:["หนี้และบัตร",""],stat:["สถิติ","เดือนนี้และย้อนหลัง"],set:["ตั้งค่า",""]}[tab];
  var pq=(S.q||[]).length&&S.sh&&S.sh.url?`<span class="sync">รอซิงก์ ${S.q.length}</span>`:"";
  return`<div><h1>${T[0]}</h1>${T[1]?`<p class="sub">${T[1]}</p>`:""}</div><div class="tr">${pq}<button class="ib${tab=="set"?" on":""}" aria-label="${tab=="set"?"ปิดตั้งค่า":"ตั้งค่า"}" onclick="setTab('${tab=="set"?"home":"set"}')">${ic(tab=="set"?"x":"gear",22)}</button></div>`}
 
@@ -471,22 +537,27 @@ function shCard(){var sh=S.sh||{url:"",token:""};
  return`<p class="sub">ทุกรายการที่บันทึก แก้ หรือลบ จะส่งขึ้นชีตอัตโนมัติ ถ้าออฟไลน์จะเก็บคิวไว้ส่งทีหลัง</p>`+fld("Web App URL",`<input placeholder="https://script.google.com/macros/s/.../exec" value="${esc(sh.url)}" onchange="setSh('url',this.value)">`)+fld("รหัสลับ (TOKEN)",`<input type="password" placeholder="ตรงกับในสคริปต์" value="${esc(sh.token)}" onchange="setSh('token',this.value)">`)+`<div class="row2"><button class="btn s sm" onclick="sheetAll()">ส่งข้อมูลทั้งหมด</button><a class="btn s sm" href="https://docs.google.com/spreadsheets/d/1OPhUbn0HF_m1C7gHdd5FDlXuKwA3qob5lv7F6uLEcj8/edit" target="_blank" rel="noopener">เปิดชีต</a></div><p class="sub" id="shst" style="margin-top:12px">${esc(S.shMsg||"ยังไม่ได้เชื่อมต่อ")} · คิวค้าง ${(S.q||[]).length}</p>`}
 
 /* ---- views ---- */
-function home(){
- var c=calc(),tot=S.debts.reduce(function(a,d){return a+d.bal},0),st=streakInfo().cur;
- var open=S.debts.filter(function(d){return d.bal>0}),tgt=prio(open.map(function(d){return{id:d.id,name:d.name,bal:d.bal,apr:d.apr||0}}),S.plan.strat)[0];
- var h=closeBanner()+`<section class="hero span2${c.left<0?" neg":""}" onclick="openSheet('left')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openSheet('left')"><p>เหลือใช้เดือนนี้</p><div class="big num">${f(c.left)} ฿</div><p>${c.left<0?"ใช้เกินแผนแล้ว แตะดูรายละเอียด":`ใช้ได้วันละ ${f(Math.max(0,c.perDay))} ฿ · อีก ${c.days} วัน`}</p></section>`;
- h+=`<button class="btn span2" onclick="setTab('log')">${ic("plus")}บันทึกรายจ่าย</button>`;
- if(st)h+=`<p class="sub span2" style="text-align:center">บันทึกต่อเนื่อง ${st} วัน</p>`;
- h+=budCard();
+function monthDetail(){
+ var c=calc();
  var r=li("รายได้","+"+f(c.inc),{fn:"openSheet('inc')",c:"var(--pri)"});
  S.groups.forEach(function(g){r+=li(esc(g.name),"−"+f(gsum(g.id)),{fn:`openSheet('grp',${g.id})`})});
  r+=li("จ่ายหนี้","−"+f(c.commit),{fn:"openSheet('debt')",c:"var(--acc)"})+li("ใช้จ่ายอื่น","−"+f(c.spent),{fn:"openSheet('spent')"});
- h+=`<section class="card"><h2>เดือนนี้</h2>${r}</section>`;
- h+=`<section class="card" onclick="openSheet('left')"><h2>เงินไหลไปไหน</h2>${waterfall(c)}</section>`;
- h+=`<section class="card"><h2>เงินคงเหลือรายวัน</h2>${daily(c)}<p class="sub lg"><i style="background:var(--pri)"></i>จริง<i style="background:var(--g2)"></i>แผนให้พอดีสิ้นเดือน</p></section>`;
+ var h=`<section class="card"><h2>เดือนนี้</h2>${r}</section><section class="card" onclick="openSheet('left')"><h2>เงินไหลไปไหน</h2>${waterfall(c)}</section><section class="card"><h2>เงินคงเหลือรายวัน</h2>${daily(c)}<p class="sub lg"><i style="background:var(--pri)"></i>จริง<i style="background:var(--g2)"></i>แผนให้พอดีสิ้นเดือน</p></section>`;
  var cats=Object.keys(c.by).sort(function(a,b){return c.by[b]-c.by[a]});
- h+=`<section class="card"><h2>ใช้ไปกับอะไร</h2>`+(cats.length?cats.map(function(k){return`<div class="cat" onclick="openSheet('cat','${k}')" role="button" tabindex="0"><div class="li" style="border:0;padding:8px 0 6px"><span class="l">${k}</span><span class="v">${f(c.by[k])}${ic("chev",16)}</span></div><div class="bar"><i style="width:${c.by[k]/c.spent*100}%;background:${COL[k]||"var(--g1)"}"></i></div></div>`}).join(""):empty("ยังไม่มีรายจ่ายเดือนนี้","กดบันทึกรายจ่ายด้านบนได้เลย"))+`</section>`;
- h+=`<section class="card"><h2>หนี้คงเหลือรวม</h2><div class="big2 num" style="color:var(--acc)">${f(tot)} ฿</div>`+(tgt?`<p class="sub">ปิดก่อน: <b>${esc(tgt.name)}</b> (เหลือ ${f(tgt.bal)} ฿)</p>`:`<p class="sub" style="color:var(--pri)">ปิดหนี้ครบแล้ว</p>`)+`<div style="margin-top:16px"><button class="btn s sm" onclick="setTab('plan')">ดูแผนปิดหนี้</button></div></section>`;
+ h+=`<section class="card"><h2>ใช้ไปกับอะไร</h2>`+(cats.length?cats.map(function(k){return`<div class="cat" onclick="openSheet('cat','${k}')" role="button" tabindex="0"><div class="li" style="border:0;padding:8px 0 6px"><span class="l">${k}</span><span class="v">${f(c.by[k])}${ic("chev",16)}</span></div><div class="bar"><i style="width:${c.by[k]/c.spent*100}%;background:${COL[k]||"var(--g1)"}"></i></div></div>`}).join(""):empty("ยังไม่มีรายจ่ายเดือนนี้","กดบันทึกรายจ่ายได้เลย"))+`</section>`;
+ return h}
+function home(){
+ var c=calc(),b=budInfo(),tot=S.debts.reduce(function(a,d){return a+d.bal},0),mins=0,pd=0;
+ S.debts.forEach(function(d){if(d.bal>0){mins+=d.min;pd+=Math.min(paid(d.id),d.min)}});
+ var val,lab,sub;
+ if(b){val=b.todayLeft;lab="วันนี้ใช้ได้อีก";sub=`งบคงเหลือ ${f(b.rem)} ฿ · อีก ${b.days} วัน`}
+ else{val=c.perDay;lab="ใช้ได้วันละ";sub=`เหลือเดือนนี้ ${f(c.left)} ฿ · อีก ${c.days} วัน`}
+ var neg=val<0;
+ var h=closeBanner()+`<section class="hero span2${neg?" neg":""}" onclick="openSheet('left')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openSheet('left')"><p>${lab}</p><div class="big num">${neg?"−":""}${f(Math.abs(val))} ฿</div><p>${neg?"เกินงบแล้ว · ":""}${sub}</p><button class="link" onclick="event.stopPropagation();openSheet('bud')">${b?"แก้งบคงเหลือ":"ตั้งงบคงเหลือเอง"}</button></section>`;
+ h+=`<button class="btn span2" onclick="setTab('log')">${ic("plus")}บันทึกรายจ่าย</button>`;
+ var q=(S.quick||[]).filter(function(x){return x.amt>0}).slice(0,4);
+ if(q.length)h+=`<div class="chips span2">${q.map(function(x){return`<button class="chip" onclick="quickGo(${x.id})">${esc(x.name)} <b class="num">${f(x.amt)}</b></button>`}).join("")}</div>`;
+ h+=`<section class="card span2">`+li("หนี้คงเหลือ",f(tot)+" ฿",{fn:"setTab('debt')",c:"var(--acc)"})+li("จ่ายหนี้เดือนนี้",`${f(pd)} / ${f(mins)} ฿`,{fn:"setTab('debt')"})+`</section>`;
  return h}
 function log(){
  var h="",bi=budInfo();
@@ -536,7 +607,7 @@ function stat(){
  var ms=monthsBack(6).map(mstat),mx=1,st=streakInfo(),tdp=0,tsv=0,tsp=0,n=0;
  ms.forEach(function(m){mx=Math.max(mx,m.inc,m.sp,m.dp,m.sv);tdp+=m.dp;tsv+=m.sv;tsp+=m.sp;if(m.sp>0)n++});
  var S4=[["บันทึกต่อเนื่อง",st.cur+" วัน","สูงสุด "+st.best+" วัน"],["จ่ายหนี้ 6 เดือน",f(tdp)+" ฿",""],["ออม 6 เดือน",f(tsv)+" ฿",""],["ใช้จ่ายเฉลี่ย/เดือน",f(n?tsp/n:0)+" ฿",""]];
- var h=closeBanner()+`<section class="card span2"><div class="g2 stg">${S4.map(function(x){return`<div class="st"><span>${x[0]}</span><b class="num">${x[1]}</b>${x[2]?`<small>${x[2]}</small>`:""}</div>`}).join("")}</div></section>`;
+ var h=closeBanner()+monthDetail()+`<section class="card span2"><div class="g2 stg">${S4.map(function(x){return`<div class="st"><span>${x[0]}</span><b class="num">${x[1]}</b>${x[2]?`<small>${x[2]}</small>`:""}</div>`}).join("")}</div></section>`;
  h+=`<section class="card"><h2>6 เดือนย้อนหลัง</h2>${barChart(ms,mx)}<p class="sub">* รายได้เดือนที่ยังไม่ปิดประมาณจากเงินเดือนปัจจุบัน</p></section>`;
  var cl=ms.filter(function(m){return S.hist[m.k]&&S.hist[m.k].debt!=null});
  h+=`<section class="card"><h2>ปิดเดือน</h2>`+(cl.length>=2?`<div class="big2 num" style="color:var(--pri)">หนี้ลดลง ${f(S.hist[cl[0].k].debt-S.hist[cl[cl.length-1].k].debt)} ฿</div><p class="sub" style="margin-bottom:12px">จาก ${mname(cl[0].k)} ถึง ${mname(cl[cl.length-1].k)}</p>`:"")+`<p class="sub" style="margin-bottom:16px">สรุปเดือนนี้ และยกยอดเงินเหลือ (หรือที่ขาด) ไปเดือนหน้า</p><button class="btn" onclick="closeMonth(mk())">ปิดเดือนนี้</button></section>`;
@@ -561,6 +632,7 @@ function render(){
 document.addEventListener("keydown",function(e){if(e.key=="Escape"&&sheet)closeSheet()});
 
 render();
+
 
 </script>
 </body>
