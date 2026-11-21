@@ -64,6 +64,7 @@ function cp(o){return JSON.parse(JSON.stringify(o))}
 var S;try{S=JSON.parse(localStorage.getItem(KEY))||cp(def)}catch(e){S=cp(def)}
 if(S.v!=2){var oldRent=S.rent||0,d2=cp(def);S.v=2;S.groups=d2.groups;S.fixed=d2.fixed;S.fixed[0].amt=oldRent;delete S.rent;if(!S.debts.some(function(x){return x.name.toLowerCase()=="ufund"}))S.debts.push({id:Date.now(),name:"UFUND",bal:0,min:0});save()}
 if(!S.plan)S.plan={living:3500,save:500,strat:"apr"};S.debts.forEach(function(d){if(d.apr==null)d.apr=/this shop/i.test(d.name)?0:16});
+if(!S.sh)S.sh={url:"",token:""};if(!S.q)S.q=[];
 var tab="home",cat="อาหาร",pend=null,busy=false,msg="",sheet=null;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
@@ -88,12 +89,12 @@ function addTx(amt,c,note,date,debt){
  if(!(amt>0))return;
  var t={id:Date.now()+Math.random(),date:date||today(),amt:amt,cat:debt?"จ่ายหนี้":c,note:note||""};
  if(debt){var d=S.debts.filter(function(x){return x.id==debt})[0];if(d){t.debt=debt;d.bal=Math.max(0,d.bal-amt);t.note=d.name}}
- S.tx.unshift(t);save();render()}
+ S.tx.unshift(t);qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});if(t.debt)syncDebts();save();render()}
 function pay(id,def){var d=S.debts.filter(function(x){return x.id==id})[0];var a=parseFloat(prompt("จ่าย "+d.name+" กี่บาท?",def!=null?Math.round(def):d.min));if(a>0)addTx(a,"","",null,id)}
-function delTx(id){if(!confirm("ลบรายการนี้? (ถ้าเป็นการจ่ายหนี้ ยอดหนี้จะคืนกลับ)"))return;var t=S.tx.filter(function(x){return x.id==id})[0];if(t&&t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal+=t.amt}S.tx=S.tx.filter(function(x){return x.id!=id});save();render()}
-function editTx(id){var t=S.tx.filter(function(x){return x.id==id})[0];if(!t)return;var a=parseFloat(prompt("แก้จำนวนเงิน",t.amt));if(isNaN(a)||a<0)return;if(t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal=Math.max(0,d.bal+t.amt-a)}t.amt=a;save();render()}
+function delTx(id){if(!confirm("ลบรายการนี้? (ถ้าเป็นการจ่ายหนี้ ยอดหนี้จะคืนกลับ)"))return;var t=S.tx.filter(function(x){return x.id==id})[0];if(t&&t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal+=t.amt}qAdd({a:"del",id:String(t?t.id:id)});if(t&&t.debt)syncDebts();S.tx=S.tx.filter(function(x){return x.id!=id});save();render()}
+function editTx(id){var t=S.tx.filter(function(x){return x.id==id})[0];if(!t)return;var a=parseFloat(prompt("แก้จำนวนเงิน",t.amt));if(isNaN(a)||a<0)return;if(t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal=Math.max(0,d.bal+t.amt-a)}t.amt=a;qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});if(t.debt)syncDebts();save();render()}
 function quick(){addTx(parseFloat(document.getElementById("amt").value),cat,document.getElementById("note").value)}
-function bulk(){document.getElementById("bulk").value.split("\n").forEach(function(l){var m=l.match(/(\d[\d,]*\.?\d*)\s*$/);if(!m)return;var a=parseFloat(m[1].replace(/,/g,"")),n=l.replace(m[0],"").trim();if(a>0)S.tx.unshift({id:Date.now()+Math.random(),date:today(),amt:a,cat:guess(n),note:n})});save();render()}
+function bulk(){document.getElementById("bulk").value.split("\n").forEach(function(l){var m=l.match(/(\d[\d,]*\.?\d*)\s*$/);if(!m)return;var a=parseFloat(m[1].replace(/,/g,"")),n=l.replace(m[0],"").trim();if(a>0){var t={id:Date.now()+Math.random(),date:today(),amt:a,cat:guess(n),note:n};S.tx.unshift(t);qAdd({a:"upsert",id:String(t.id),row:txRowData(t)})}});save();render()}
 function setTab(t){sheet=null;tab=t;render();window.scrollTo(0,0)}
 function setCat(c){cat=c;render()}
 function setNum(k,v){S[k]=parseFloat(v)||0;save();render()}
@@ -105,8 +106,8 @@ function addF(g){S.fixed.push({id:Date.now(),g:g,name:"รายการให�
 function setG(id,v){S.groups.filter(function(g){return g.id==id})[0].name=v;save();render()}
 function addG(){S.groups.push({id:Date.now(),name:"หมวดใหม่"});save();render()}
 function delG(id){if(S.groups.length<2){alert("ต้องเหลืออย่างน้อย 1 หมวด");return}var o=S.groups.filter(function(g){return g.id!=id})[0].id;if(!confirm("ลบหมวดนี้? รายการข้างในจะย้ายไปหมวดอื่น"))return;S.fixed.forEach(function(x){if(x.g==id)x.g=o});S.groups=S.groups.filter(function(g){return g.id!=id});save();render()}
-function setDebt(id,k,v){var d=S.debts.filter(function(x){return x.id==id})[0];d[k]=k=="name"?v:(parseFloat(v)||0);save();render()}
-function addDebt(){S.debts.push({id:Date.now(),name:"บัตร/หนี้ใหม่",bal:0,min:0,apr:16});save();render()}
+function setDebt(id,k,v){var d=S.debts.filter(function(x){return x.id==id})[0];d[k]=k=="name"?v:(parseFloat(v)||0);syncDebts();save();render()}
+function addDebt(){S.debts.push({id:Date.now(),name:"บัตร/หนี้ใหม่",bal:0,min:0,apr:16});syncDebts();save();render()}
 function delDebt(id){if(!confirm("ลบหนี้นี้และประวัติการจ่ายของมัน?"))return;S.debts=S.debts.filter(function(x){return x.id!=id});S.tx=S.tx.filter(function(t){return t.debt!=id});save();render()}
 
 /* ---- sheet (card details) ---- */
@@ -188,6 +189,26 @@ function plan(){
  +(P.save>0?'<div class="mu" style="margin-top:8px">ออมต่อเนื่อง 12 เดือน ≈ '+f(P.save*12)+' ฿ · เงินสำรองฉุกเฉิน 1 เดือน (ประจำ + กินอยู่ ≈ '+f(tg)+' ฿) ครบในประมาณ '+Math.ceil(tg/P.save)+' เดือน</div>':'<div class="mu" style="margin-top:8px">ตั้งเงินออมต่อเดือนเพื่อสร้างเงินสำรองฉุกเฉิน</div>')+'</div>';
  return h}
 
+
+/* ---- Google Sheet sync ---- */
+var flushing=false;
+function txRowData(t){return[String(t.id),t.date,t.cat,t.note,t.amt,t.debt?"จ่ายหนี้":(t.cat=="เงินออม"?"ออม":"ใช้จ่าย")]}
+function debtRows(){return[["ชื่อ","คงเหลือ","ขั้นต่ำ/เดือน","ดอก%/ปี","อัปเดต"]].concat(S.debts.map(function(d){return[d.name,d.bal,d.min,d.apr||0,today()]}))}
+function syncDebts(){qAdd({a:"debts",rows:debtRows()})}
+function qAdd(op){if(!S.q)S.q=[];if(!S.sh||!S.sh.url)return;if(op.a=="debts")S.q=S.q.filter(function(o){return o.a!="debts"});S.q.push(op);save();flush()}
+function shNote(m){S.shMsg=m;var e=document.getElementById("shst");if(e)e.textContent=m+" · คิวค้าง "+(S.q||[]).length}
+async function flush(){
+ if(flushing||!S.sh||!S.sh.url||!S.q||!S.q.length)return;
+ flushing=true;var n=S.q.length,ok=false;
+ try{var r=await fetch(S.sh.url,{method:"POST",body:JSON.stringify({token:S.sh.token,ops:S.q.slice(0,n)})});var j=await r.json();
+  if(j.ok){S.q.splice(0,n);ok=true;shNote("ซิงก์ล่าสุด "+new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"}))}else shNote("ชีตปฏิเสธ: เช็กรหัสลับ (TOKEN)")}
+ catch(e){shNote("ส่งไม่สำเร็จ (ออฟไลน์/URL ผิด) จะลองใหม่")}
+ flushing=false;save();if(ok&&S.q.length)flush()}
+function setSh(k,v){if(!S.sh)S.sh={url:"",token:""};S.sh[k]=v.trim();save();flush()}
+function sheetAll(){if(!S.sh||!S.sh.url){alert("ใส่ Web App URL ก่อน");return}S.q=S.tx.slice().reverse().map(function(t){return{a:"upsert",id:String(t.id),row:txRowData(t)}});S.q.push({a:"debts",rows:debtRows()});save();flush();alert("เริ่มส่งข้อมูลทั้งหมดแล้ว ดูสถานะในช่องซิงก์")}
+function shCard(){var sh=S.sh||{url:"",token:""};
+ return'<div class="card"><h2>ซิงก์ Google Sheet</h2><div class="mu">ทุกรายการที่บันทึก แก้ หรือลบ จะส่งขึ้นชีตอัตโนมัติ ถ้าออฟไลน์จะเก็บคิวไว้ส่งทีหลัง</div><input placeholder="Web App URL (https://script.google.com/macros/s/.../exec)" value="'+esc(sh.url)+'" onchange="setSh(\'url\',this.value)" style="margin-top:8px"><input type="password" placeholder="รหัสลับ (TOKEN) ตรงกับในสคริปต์" value="'+esc(sh.token)+'" onchange="setSh(\'token\',this.value)" style="margin-top:8px"><div class="g2" style="margin-top:8px"><button class="g" onclick="sheetAll()">ส่งข้อมูลทั้งหมดขึ้นชีต</button><a href="https://docs.google.com/spreadsheets/d/1OPhUbn0HF_m1C7gHdd5FDlXuKwA3qob5lv7F6uLEcj8/edit" target="_blank" rel="noopener" style="text-decoration:none"><button class="g" style="width:100%">📄 เปิดชีต</button></a></div><div class="mu" id="shst" style="margin-top:6px">'+esc(S.shMsg||"ยังไม่ได้เชื่อมต่อ")+' · คิวค้าง '+(S.q||[]).length+'</div></div>'}
+
 /* ---- views ---- */
 function kpi(c,val,label,fn){return'<div class="kpi" style="--c:'+c+'" onclick="'+fn+'"><b>'+f(val)+'</b><span>'+esc(label)+' ›</span></div>'}
 function home(){
@@ -238,7 +259,7 @@ function sets(){
  h+='<button class="g" onclick="addG()" style="width:100%;margin-bottom:14px">+ เพิ่มหมวดใหม่</button><div class="card"><h2>บัตร / หนี้ (ดอกเบี้ย % ต่อปี ถ้าไม่ทราบใช้ 16 หรือ 0 ถ้าเป็นผ่อนสินค้า)</h2>';
  S.debts.forEach(function(d){var I=function(k,l){return'<div><div class="mu">'+l+'</div><input type="number" inputmode="decimal" value="'+(d[k]||0)+'" onchange="setDebt('+d.id+',\''+k+'\',this.value)"></div>'};h+='<div style="margin-bottom:14px"><div class="fx" style="grid-template-columns:1fr 36px"><input value="'+esc(d.name)+'" onchange="setDebt('+d.id+',\'name\',this.value)" style="font-weight:700"><button class="x del" onclick="delDebt('+d.id+')">✕</button></div><div class="g2" style="grid-template-columns:repeat(3,1fr)">'+I("bal","คงเหลือ")+I("min","ขั้นต่ำ/เดือน")+I("apr","ดอก %/ปี")+'</div></div>'});
  h+='<button class="g" onclick="addDebt()" style="width:100%">+ เพิ่มบัตร/หนี้</button></div>'
- +'<div class="card"><h2>สแกนสลิป</h2><div class="mu">ไม่ใส่คีย์ = ใช้ OCR ฟรีในเครื่อง (แม่นปานกลาง) · ใส่ Claude API key = แม่นกว่า คิดค่าใช้จ่ายน้อยมากต่อรูป คีย์เก็บในเครื่องนี้เท่านั้น</div><input type="password" placeholder="sk-ant-... (ไม่บังคับ)" value="'+esc(getKey())+'" onchange="saveKey(this.value)" style="margin-top:8px"></div>'
+ +shCard()+'<div class="card"><h2>สแกนสลิป</h2><div class="mu">ไม่ใส่คีย์ = ใช้ OCR ฟรีในเครื่อง (แม่นปานกลาง) · ใส่ Claude API key = แม่นกว่า คิดค่าใช้จ่ายน้อยมากต่อรูป คีย์เก็บในเครื่องนี้เท่านั้น</div><input type="password" placeholder="sk-ant-... (ไม่บังคับ)" value="'+esc(getKey())+'" onchange="saveKey(this.value)" style="margin-top:8px"></div>'
  +'<div class="card"><h2>สำรองข้อมูล</h2><div class="g2"><button class="g" onclick="backup()">ดาวน์โหลดสำรอง</button><button class="g" onclick="document.getElementById(\'rf\').click()">กู้ข้อมูล</button></div><input type="file" id="rf" accept=".json" hidden onchange="restore(this.files[0])"></div><div class="mu">ข้อมูลเก็บในเครื่องนี้เท่านั้น ควรสำรองเป็นระยะ</div>';
  return h}
 /* ---- slip reading ---- */
@@ -288,6 +309,7 @@ function render(){
  document.getElementById("tabs").innerHTML=T.map(function(t){return'<button class="'+(t[0]==tab?"on":"")+'" onclick="setTab(\''+t[0]+'\')"><span>'+t[1]+'</span>'+t[2]+'</button>'}).join("")}
 document.getElementById("file").onchange=function(e){var fl=e.target.files[0];e.target.value="";if(fl){tab="log";scan(fl)}};
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
+window.addEventListener('online',flush);flush();
 render();
 </script>
 </body>
