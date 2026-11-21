@@ -3,64 +3,144 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0d9488"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
-<title>ปิดหนี้ + รายรับรายจ่าย</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b6b57">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<title>ปิดหนี้</title>
 <style>
-:root{--bg:#f3f5f9;--card:#fff;--tx:#18202b;--mu:#6b7686;--bd:#e6e9ef;--inc:#16a34a;--rent:#2563eb;--debt:#e11d48;--exp:#d97706;--left:#0d9488;--sh:0 2px 10px rgba(20,30,50,.06);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1217;--card:#18202a;--tx:#eef1f5;--mu:#93a0b2;--bd:#27313d;--inc:#4ade80;--rent:#60a5fa;--debt:#fb7185;--exp:#fbbf24;--left:#2dd4bf;--sh:none;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0e1217;--card:#18202a;--tx:#eef1f5;--mu:#93a0b2;--bd:#27313d;--inc:#4ade80;--rent:#60a5fa;--debt:#fb7185;--exp:#fbbf24;--left:#2dd4bf;--sh:none;color-scheme:dark}
-*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 "Sarabun","Noto Sans Thai",system-ui,sans-serif;max-width:560px;margin:0 auto;padding:14px 14px 96px}
-.hero{border-radius:22px;padding:20px;color:#fff;background:linear-gradient(135deg,#0d9488,#2563eb);box-shadow:var(--sh);margin-bottom:14px}
-.hero.neg{background:linear-gradient(135deg,#e11d48,#d97706)}
-.hero .big{font-size:40px;font-weight:800;line-height:1.1}.hero small{opacity:.85}
-.pill{display:inline-block;background:rgba(255,255,255,.2);border-radius:99px;padding:3px 12px;font-size:13px;margin-top:8px}
-.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:var(--sh);border:1px solid var(--bd)}
-h2{font-size:16px;margin:0 0 10px}.mu{color:var(--mu);font-size:14px}
-.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
-.kpi{background:var(--card);border-radius:16px;padding:12px 14px;border:1px solid var(--bd);border-left:5px solid var(--c);box-shadow:var(--sh)}
-.kpi b{display:block;font-size:20px;color:var(--c)}.kpi span{font-size:13px;color:var(--mu)}
-.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--bd)}.row:last-child{border:0}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;background:var(--c)}
-input,textarea,select{width:100%;padding:12px;border:1px solid var(--bd);border-radius:12px;background:var(--bg);color:var(--tx);font:inherit}
-button{font:inherit;border:0;border-radius:12px;padding:12px 16px;background:var(--left);color:#fff;cursor:pointer;font-weight:600}
-button.g{background:var(--bg);color:var(--tx);border:1px solid var(--bd)}button.x{background:none;color:var(--mu);padding:4px 8px;font-weight:400}
-button.scan{width:100%;padding:16px;font-size:17px;background:linear-gradient(135deg,#7c3aed,#2563eb)}
-button:disabled{opacity:.4}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.chips button{padding:8px 14px;border-radius:99px;font-weight:500}
-.chips button.on{background:var(--c);color:#fff;border-color:var(--c)}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.bar{height:10px;background:var(--bd);border-radius:9px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--c)}
-.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px);max-width:560px;margin:0 auto}
-.tabs button{flex:1;background:none;color:var(--mu);border-radius:0;padding:10px 4px;font-size:12px;font-weight:500}.tabs button span{display:block;font-size:22px}.tabs button.on{color:var(--left);font-weight:700}
-svg{width:100%;height:auto;display:block}svg text{fill:var(--mu);font-size:10px;font-family:inherit}
-.pend{border:2px solid #7c3aed}.sp{animation:s 1s linear infinite;display:inline-block}@keyframes s{to{transform:rotate(360deg)}}
-.tag{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--bg);color:var(--mu)}
-
-.kpi,.card.k,.hero{cursor:pointer}
+:root{--bg:#f6f5f2;--card:#fff;--tx:#1d1f23;--mu:#5d646d;--bd:#e6e3dc;--soft:#f1efea;--pri:#0b6b57;--pri2:#86bfae;--pt:#e2f0eb;--acc:#c2410c;--at:#fcece4;--g1:#cdd1d5;--g2:#939ba3;--on:#fff;--onacc:#fff;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#111312;--card:#1a1d1b;--tx:#ecebe6;--mu:#a4aab1;--bd:#2b2f2d;--soft:#222624;--pri:#4cc2a1;--pri2:#2f7d69;--pt:#173a31;--acc:#ff9466;--at:#3a2219;--g1:#444a4f;--g2:#79828a;--on:#08201a;--onacc:#2a1006;color-scheme:dark}}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--tx);font:16px/1.7 "Sarabun","Noto Sans Thai","Leelawadee UI",system-ui,sans-serif;word-break:normal;overflow-wrap:break-word;line-break:strict;padding-top:env(safe-area-inset-top,0px)}
+h1{font-size:24px;line-height:1.35;font-weight:700;text-wrap:balance}
+h2{font-size:15px;font-weight:600;color:var(--mu);margin-bottom:12px;text-wrap:balance}
+h3{font-size:18px;font-weight:700;text-wrap:balance}
+p,small{text-wrap:pretty}
+.sub{color:var(--mu);font-size:14px;line-height:1.6}
+b{font-weight:600}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.wrap{max-width:600px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 20px 16px}
+.tr{display:flex;align-items:center;gap:8px}
+.sync{font-size:13px;color:var(--acc)}
+.page{display:grid;gap:16px;padding:0 20px calc(112px + env(safe-area-inset-bottom,0px));grid-template-columns:minmax(0,1fr)}
+.card,.note{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:20px;min-width:0}
+.note{background:var(--at);border-color:transparent}
+.note p{margin:4px 0 14px}
+.note .row2{margin-top:0}
+.bchip{background:var(--pt);color:var(--pri);border-radius:14px;padding:12px 16px;font-size:15px}.bchip.over{background:var(--at);color:var(--acc)}
+.card.dim{opacity:.65}
+.card.pend{border:2px solid var(--pri)}
+.hero{background:var(--pri);color:var(--on);border-radius:20px;padding:24px;cursor:pointer}
+.hero.neg{background:var(--acc);color:var(--onacc)}
+.hero p{font-size:14px;opacity:.92}
+.hero .big{font-size:44px;font-weight:700;line-height:1.25;margin:2px 0 4px}
+.hero .btn{background:var(--on);color:var(--pri);margin-top:20px}
+.hero .btn:disabled{opacity:.7}
+.big2{font-size:32px;font-weight:700;line-height:1.3}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;padding:0 20px;border:1px solid transparent;border-radius:12px;background:var(--pri);color:var(--on);font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+.btn.s{background:transparent;color:var(--tx);border-color:var(--bd)}
+.btn.t{background:none;color:var(--acc);width:auto}
+.btn.sm{min-height:44px;padding:0 16px;font-size:15px;width:auto}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:active:not(:disabled){transform:scale(.98)}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border:0;border-radius:12px;background:none;color:var(--mu);cursor:pointer;flex:none}
+.ib.sm{width:36px;height:36px}.ib.on{background:var(--soft);color:var(--tx)}
+:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+.row2{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px;align-items:center}
+.row2 .btn{flex:1 1 140px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.li{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--bd)}
+.li:last-child{border:0}
+.li.tap{cursor:pointer}
+.li .l{min-width:0;flex:1}.li .l small{display:block;font-size:13.5px;color:var(--mu);font-weight:400}
+.li .v{display:flex;align-items:center;gap:2px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums;flex:none}
+.li.tot{border-top:2px solid var(--bd);border-bottom:0;margin-top:4px;font-weight:700;font-size:17px}
+.cat{cursor:pointer}
+.bar{height:8px;background:var(--soft);border-radius:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pri);border-radius:8px}.bar.a i{background:var(--acc)}
+.fld{display:block;margin-bottom:16px}
+.lb{display:block;font-size:13.5px;color:var(--mu);margin-bottom:6px}
+input,select,textarea{width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);font:inherit}
+textarea{margin:12px 0}
+input.amt{font-size:28px;font-weight:700;min-height:60px}
+input.err{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+.em{display:block;color:var(--acc);font-size:13.5px;min-height:0;margin-top:4px}.em:empty{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.card>.chips:last-child{margin-bottom:0}
+.chip{min-height:44px;padding:0 16px;border-radius:99px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit;cursor:pointer}
+.chip.on{background:var(--pri);border-color:var(--pri);color:var(--on)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--soft);border-radius:12px;padding:4px}
+.seg button{min-height:42px;border:0;background:none;border-radius:9px;font:inherit;color:var(--mu);cursor:pointer}
+.seg button.on{background:var(--card);color:var(--tx);font-weight:600;box-shadow:0 0 0 1px var(--bd)}
+.rk{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;margin-right:10px;border-radius:50%;background:var(--soft);color:var(--mu);font-size:13px;font-weight:600}
+.rk.on{background:var(--pri);color:var(--on)}
+.tag{font-size:13px;padding:2px 10px;border-radius:99px;background:var(--soft);color:var(--mu)}.tag.ok{background:var(--pt);color:var(--pri)}
+.empty{display:grid;gap:4px;text-align:center;padding:20px 8px;color:var(--mu);font-size:14px}.empty b{color:var(--tx);font-size:16px}
+.busy{display:flex;gap:16px;align-items:center}
+.spin{width:22px;height:22px;border:3px solid var(--g1);border-top-color:var(--pri);border-radius:50%;animation:s .8s linear infinite;flex:none}
+@keyframes s{to{transform:rotate(360deg)}}
+.more{margin-top:16px;border-top:1px solid var(--bd);padding-top:4px}
+.more summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--mu);font-size:14px}
+.dt summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;min-height:44px}
+.dt summary::-webkit-details-marker,.more summary::-webkit-details-marker{display:none}
+.dt summary small{display:block;color:var(--mu);font-size:13.5px;font-weight:400}
+.dt[open] summary .ic{transform:rotate(90deg)}.dt summary .ic{color:var(--mu);flex:none}
+.db{padding-top:16px}
+.grp{padding:16px 0;border-top:1px solid var(--bd)}.grp:first-child{border-top:0;padding-top:0}
+.gh{display:flex;align-items:center;gap:12px;margin-bottom:12px}.gh input{font-weight:600}
+.fxr{display:grid;grid-template-columns:1fr 104px 44px;gap:8px;margin-bottom:12px}
+.fxr select{grid-column:1/-1;min-height:40px;font-size:14px;color:var(--mu)}
+.st{display:grid;gap:2px}.st span{font-size:13.5px;color:var(--mu)}.st b{font-size:24px;line-height:1.3}.st small{font-size:13px;color:var(--mu)}
+.stg{gap:20px 12px}
+.mr{padding:16px 0;border-bottom:1px solid var(--bd)}.mr:last-child{border:0}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 4px}.g4 span{font-size:12.5px;color:var(--mu);display:grid}.g4 b{font-size:15px;color:var(--tx)}
+.res{margin-top:4px}.res p{margin-top:6px}
+.lg{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:8px}
+.lg i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-left:8px}.lg i:first-child{margin-left:0}
+svg{display:block;width:100%;height:auto}
+svg text{font-size:11px;fill:var(--mu)}svg text.sv{fill:var(--tx);font-weight:600}svg .ax{stroke:var(--bd)}
+.ic{flex:none;vertical-align:middle}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
+.ti{display:flex;max-width:600px;margin:0 auto}
+.tabs button{flex:1;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:0;color:var(--mu);font:inherit;font-size:12px;cursor:pointer}
+.tabs button.on{color:var(--pri);font-weight:700}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
-.sh{background:var(--card);width:100%;max-width:560px;max-height:84vh;overflow:auto;border-radius:22px 22px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px))}
-.hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.hd h2{margin:0;font-size:18px}
-.tabs{z-index:10}
-.fx{display:grid;grid-template-columns:1fr 100px 36px;gap:8px;margin-bottom:8px}.fx select{grid-column:1/-1;padding:8px;font-size:14px;color:var(--mu)}
-.fx input{padding:10px}.del{color:var(--debt)!important}
-.gh{display:flex;gap:8px;align-items:center;margin-bottom:10px}.gh input{font-weight:700}
-.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;padding:10px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:60;pointer-events:none;font-size:14px}.toast.on{opacity:1;transform:translateX(-50%)}
-.bounce{font-size:64px;animation:bn 1s ease infinite}@keyframes bn{50%{transform:scale(1.2) rotate(8deg)}}
-.tabs button{font-size:11px}
+.sh{background:var(--card);width:100%;max-width:560px;max-height:86vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px))}
+.sh .btn{margin-top:16px}.sh .fld:last-of-type{margin-bottom:8px}
+.hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.sh.cele{text-align:center}.sh.cele h3{font-size:22px;margin:8px 0}.sh.cele .sub{font-size:15px}
+.bounce{font-size:64px;line-height:1.2;animation:bn 1s ease infinite}@keyframes bn{50%{transform:scale(1.15) rotate(6deg)}}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);display:flex;align-items:center;gap:16px;max-width:calc(100% - 32px);background:#23262a;color:#fff;padding:12px 18px;border-radius:14px;opacity:0;pointer-events:none;transition:.2s;z-index:60;font-size:15px}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{background:none;border:0;color:#8fe0c3;font:inherit;font-weight:600;cursor:pointer;min-height:36px;padding:0 4px}
+@media(min-width:900px){
+ .wrap{max-width:980px;padding-top:56px}
+ .page{grid-template-columns:repeat(2,minmax(0,1fr));padding-bottom:48px;align-items:start}
+ .span2{grid-column:1/-1}
+ .tabs{top:0;bottom:auto;border-top:0;border-bottom:1px solid var(--bd)}
+ .ti{max-width:980px;gap:8px}
+ .tabs button{flex:0 0 auto;flex-direction:row;gap:8px;min-height:56px;padding:0 20px;font-size:15px}
+ .ov{align-items:center}.sh{border-radius:20px;max-height:80vh}
+ .toast{bottom:32px}
+ .btn{width:auto;min-width:200px}.btn.span2{justify-self:start}
+ .row2 .btn,.card>.btn,.hero .btn{width:auto}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div id="app"></div>
+<div class="wrap"><header class="top" id="hd"></header><main id="app" class="page"></main></div>
+<nav class="tabs" id="tabs" aria-label="เมนูหลัก"></nav>
 <div id="sheet"></div>
-<div id="toast" class="toast"></div>
-<div class="tabs" id="tabs"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 <input type="file" id="file" accept="image/*" hidden>
 <script>
+
 var KEY="debtapp1";
 var CATS=["อาหาร","เดินทาง","ค่าน้ำไฟ","ของใช้","อื่นๆ"];
-var COL={"อาหาร":"#f97316","เดินทาง":"#3b82f6","ค่าน้ำไฟ":"#06b6d4","ของใช้":"#a855f7","อื่นๆ":"#94a3b8","จ่ายหนี้":"#e11d48","เงินออม":"#0d9488"};
-var GC=["#2563eb","#a855f7","#0891b2","#ca8a04","#db2777","#65a30d"];
+
+
 var def={v:2,salary:16390,ot:0,groups:[{id:1,name:"ค่าห้อง"},{id:2,name:"ค่าใช้จ่ายประจำ"}],
 fixed:[{id:11,g:1,name:"ห้อง",amt:5000},{id:12,g:1,name:"ส่วนกลาง",amt:0},{id:13,g:1,name:"ไฟฟ้า",amt:0},{id:14,g:1,name:"น้ำ",amt:0},{id:15,g:1,name:"เน็ตห้อง",amt:0},{id:16,g:2,name:"โทนสับ2",amt:0},{id:17,g:2,name:"เน็ตโทรสับ",amt:0},{id:18,g:2,name:"จัดฟัน",amt:0}],
 debts:[{id:1,name:"KTC",bal:26185,min:810},{id:2,name:"AEON",bal:6211,min:600},{id:3,name:"Umay",bal:21493,min:650},{id:4,name:"UCHOOSE",bal:23482.91,min:2500},{id:5,name:"This shop",bal:14619,min:2346},{id:6,name:"UFUND",bal:0,min:0}],tx:[]};
@@ -68,7 +148,7 @@ function cp(o){return JSON.parse(JSON.stringify(o))}
 var S;try{S=JSON.parse(localStorage.getItem(KEY))||cp(def)}catch(e){S=cp(def)}
 if(S.v!=2){var oldRent=S.rent||0,d2=cp(def);S.v=2;S.groups=d2.groups;S.fixed=d2.fixed;S.fixed[0].amt=oldRent;delete S.rent;if(!S.debts.some(function(x){return x.name.toLowerCase()=="ufund"}))S.debts.push({id:Date.now(),name:"UFUND",bal:0,min:0});save()}
 if(!S.plan)S.plan={living:3500,save:500,strat:"apr"};S.debts.forEach(function(d){if(d.apr==null)d.apr=/this shop/i.test(d.name)?0:16});
-if(!S.sh)S.sh={url:"",token:""};if(!S.q)S.q=[];if(!S.seen)S.seen={};if(!S.hist)S.hist={};if(!S.carry)S.carry={};if(!S.quick)S.quick=[{id:1,name:"ข้าว",amt:60,cat:"อาหาร"},{id:2,name:"ค่ารถ",amt:40,cat:"เดินทาง"},{id:3,name:"น้ำ/ขนม",amt:30,cat:"อาหาร"}];
+if(!S.sh)S.sh={url:"",token:""};if(!S.q)S.q=[];if(!S.bud)S.bud={amt:null,at:0,pay:0};if(!S.seen)S.seen={};if(!S.hist)S.hist={};if(!S.carry)S.carry={};if(!S.quick)S.quick=[{id:1,name:"ข้าว",amt:60,cat:"อาหาร"},{id:2,name:"ค่ารถ",amt:40,cat:"เดินทาง"},{id:3,name:"น้ำ/ขนม",amt:30,cat:"อาหาร"}];
 var tab="home",cat="อาหาร",pend=null,busy=false,msg="",sheet=null;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
@@ -89,18 +169,14 @@ function calc(k,incO){
 function guess(n){if(/ข้าว|กิน|น้ำ|กาแฟ|อาหาร|ขนม|เซเว่น/.test(n))return"อาหาร";if(/รถ|bts|mrt|แท็กซี่|วิน|เดินทาง|น้ำมัน|grab/i.test(n))return"เดินทาง";if(/ไฟ|ประปา|เน็ต|โทรศัพท์|เติมเงิน/.test(n))return"ค่าน้ำไฟ";return"อื่นๆ"}
 
 /* ---- transactions ---- */
-function addTx(amt,c,note,date,debt){
- if(!(amt>0))return;
- var t={id:Date.now()+Math.random(),date:date||today(),amt:amt,cat:debt?"จ่ายหนี้":c,note:note||""};
- if(debt){var d=S.debts.filter(function(x){return x.id==debt})[0];if(d){t.debt=debt;d.bal=Math.max(0,d.bal-amt);t.note=d.name}}
- S.tx.unshift(t);qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});if(t.debt)syncDebts();checkCele(t);save();render()}
+
 function pay(id,def){var d=S.debts.filter(function(x){return x.id==id})[0];var a=parseFloat(prompt("จ่าย "+d.name+" กี่บาท?",def!=null?Math.round(def):d.min));if(a>0)addTx(a,"","",null,id)}
-function delTx(id){if(!confirm("ลบรายการนี้? (ถ้าเป็นการจ่ายหนี้ ยอดหนี้จะคืนกลับ)"))return;var t=S.tx.filter(function(x){return x.id==id})[0];if(t&&t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal+=t.amt}qAdd({a:"del",id:String(t?t.id:id)});if(t&&t.debt)syncDebts();S.tx=S.tx.filter(function(x){return x.id!=id});save();render()}
+
 function editTx(id){var t=S.tx.filter(function(x){return x.id==id})[0];if(!t)return;var a=parseFloat(prompt("แก้จำนวนเงิน",t.amt));if(isNaN(a)||a<0)return;if(t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal=Math.max(0,d.bal+t.amt-a)}t.amt=a;qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});if(t.debt)syncDebts();save();render()}
-function quick(){addTx(parseFloat(document.getElementById("amt").value),cat,document.getElementById("note").value)}
-function bulk(){document.getElementById("bulk").value.split("\n").forEach(function(l){var m=l.match(/(\d[\d,]*\.?\d*)\s*$/);if(!m)return;var a=parseFloat(m[1].replace(/,/g,"")),n=l.replace(m[0],"").trim();if(a>0){var t={id:Date.now()+Math.random(),date:today(),amt:a,cat:guess(n),note:n};S.tx.unshift(t);qAdd({a:"upsert",id:String(t.id),row:txRowData(t)})}});save();render()}
+
+
 function setTab(t){sheet=null;tab=t;render();window.scrollTo(0,0)}
-function setCat(c){cat=c;render()}
+
 function setNum(k,v){S[k]=parseFloat(v)||0;save();render()}
 
 /* ---- editors: fixed items, groups, debts ---- */
@@ -118,35 +194,14 @@ function delDebt(id){if(!confirm("ลบหนี้นี้และประ�
 function openSheet(t,a){sheet={t:t,a:a};render()}
 function closeSheet(){sheet=null;render()}
 function goTab(t){setTab(t)}
-function row(l,v,c){return'<div class="row" style="--c:'+c+'"><span><i class="dot"></i>'+esc(l)+'</span><b style="color:'+c+'">'+v+'</b></div>'}
-function txRow(t){var c=COL[t.cat]||"#94a3b8";return'<div class="row" style="--c:'+c+'"><span><i class="dot"></i>'+t.date.slice(8)+'/'+t.date.slice(5,7)+' '+esc(t.note||t.cat)+' <span class="tag">'+t.cat+'</span></span><span style="white-space:nowrap"><b style="color:'+c+'">'+f(t.amt)+'</b><button class="x" onclick="editTx('+t.id+')">✎</button><button class="x del" onclick="delTx('+t.id+')">✕</button></span></div>'}
+
+
 function sortTx(a){return a.sort(function(x,y){return y.date<x.date?-1:y.date>x.date?1:y.id-x.id})}
-function sheetHTML(c){
- var t=sheet.t,a=sheet.a,ti="",b="";
- if(t=="cele")return'<div class="ov" onclick="closeSheet()"><div class="sh" onclick="event.stopPropagation()" style="text-align:center"><div class="bounce">'+a.emoji+'</div><h2 style="font-size:22px">'+esc(a.title)+'</h2><div class="mu" style="font-size:15px;margin-bottom:14px">'+esc(a.sub)+'</div><button onclick="closeSheet()" style="width:100%">เยี่ยมเลย!</button></div></div>';
- if(t=="left"){ti="เหลือใช้เดือนนี้";b=row("รายได้","+"+f(c.inc-c.carry),"var(--inc)")+(c.carry?row("ยกยอดจากเดือนก่อน",(c.carry>0?"+":"")+f(c.carry),"var(--left)"):"")+S.groups.map(function(g){return row(g.name,"-"+f(gsum(g.id)),gcol(g.id))}).join("")+row("จ่ายหนี้","-"+f(c.commit),"var(--debt)")+row("ใช้จ่ายอื่น","-"+f(c.spent),"var(--exp)")+'<div class="row"><b>เหลือ</b><b style="color:'+(c.left<0?"var(--debt)":"var(--left)")+'">'+f(c.left)+' ฿</b></div><div class="mu">ใช้ได้วันละ '+f(Math.max(0,c.perDay))+' ฿ อีก '+c.days+' วัน</div>'}
- if(t=="inc"){ti="รายได้";b='<div class="mu">เงินเดือน</div><input type="number" inputmode="decimal" value="'+S.salary+'" onchange="setNum(\'salary\',this.value)" style="margin-bottom:8px"><div class="mu">OT เดือนนี้</div><input type="number" inputmode="decimal" value="'+S.ot+'" onchange="setNum(\'ot\',this.value)"><div class="row"><b>รวม</b><b style="color:var(--inc)">'+f(c.inc)+' ฿</b></div>'}
- if(t=="grp"){var g=S.groups.filter(function(x){return x.id==a})[0];if(!g){sheet=null;return""}ti=g.name;b=S.fixed.filter(function(x){return x.g==g.id}).map(function(x){return row(x.name,f(x.amt),gcol(g.id))}).join("")+'<div class="row"><b>รวม</b><b>'+f(gsum(g.id))+' ฿</b></div><button onclick="goTab(\'set\')" style="width:100%;margin-top:8px">แก้ไข เพิ่ม ลบรายการ</button>'}
- if(t=="debt"){ti="หนี้และบัตร";b=S.debts.map(function(d){var p=paid(d.id);return'<div class="row"><span><b>'+esc(d.name)+'</b><div class="mu">ขั้นต่ำ '+f(d.min)+' · จ่ายแล้ว '+f(p)+(p>=d.min&&d.min>0?" ✓":"")+'</div></span><b style="color:var(--debt)">'+f(d.bal)+'</b></div>'}).join("")+'<button onclick="goTab(\'debt\')" style="width:100%;margin-top:8px;background:var(--debt)">ไปหน้าจ่ายหนี้</button>'}
- if(t=="spent"||t=="cat"){ti=t=="cat"?a:"ใช้จ่ายอื่นเดือนนี้";var l=sortTx(monthTx().filter(function(x){return !x.debt&&(t=="spent"||x.cat==a)}));b=l.length?l.map(txRow).join(""):'<div class="mu">ไม่มีรายการ</div>'}
- return'<div class="ov" onclick="closeSheet()"><div class="sh" onclick="event.stopPropagation()"><div class="hd"><h2>'+esc(ti)+'</h2><button class="x" onclick="closeSheet()" style="font-size:20px">✕</button></div>'+b+'</div></div>'}
+
 
 /* ---- charts ---- */
-function waterfall(c){
- var r1=c.inc-c.fx,r2=r1-c.commit,r3=r2-c.spent;
- var items=[["รายได้",0,c.inc,"var(--inc)",c.inc],["ประจำ",r1,c.inc,"var(--rent)",c.fx],["หนี้",r2,r1,"var(--debt)",c.commit],["ใช้จ่าย",r3,r2,"var(--exp)",c.spent],["เหลือ",Math.min(0,c.left),Math.max(0,c.left),c.left<0?"var(--debt)":"var(--left)",c.left]];
- var mx=Math.max(c.inc,1),mn=Math.min(0,c.left,r3),rng=(mx-mn)||1,H=120,y=function(v){return 14+(mx-v)/rng*H},s="";
- items.forEach(function(it,i){var lo=Math.min(it[1],it[2]),hi=Math.max(it[1],it[2]),x=14+i*60,top=y(hi),h=Math.max(2,y(lo)-top);
-  s+='<rect x="'+x+'" y="'+top+'" width="42" height="'+h+'" rx="6" fill="'+it[3]+'"/><text x="'+(x+21)+'" y="'+(top-4)+'" text-anchor="middle" style="fill:var(--tx);font-weight:700">'+(i&&i<4?"-":"")+f(it[4])+'</text><text x="'+(x+21)+'" y="152" text-anchor="middle">'+it[0]+'</text>'});
- return'<svg viewBox="0 0 320 160"><line x1="8" x2="312" y1="'+y(0)+'" y2="'+y(0)+'" stroke="var(--bd)"/>'+s+'</svg>'}
-function daily(c){
- var B=c.inc-c.fx-c.commit,now=new Date().getDate(),cum=0,per={};
- monthTx().forEach(function(t){if(!t.debt){var d=+t.date.slice(8);per[d]=(per[d]||0)+t.amt}});
- var vals=[B];for(var d=1;d<=now;d++){cum+=per[d]||0;vals.push(B-cum)}
- var mx=Math.max(B,1),mn=Math.min(0,Math.min.apply(null,vals)),rng=(mx-mn)||1,W=290,H=100;
- var X=function(d){return 20+d/c.dim*W},Y=function(v){return 10+(mx-v)/rng*H};
- var p=vals.map(function(v,i){return(i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)}).join(" "),last=vals[vals.length-1],col=last<0?"var(--debt)":"var(--left)";
- return'<svg viewBox="0 0 320 130"><line x1="20" x2="310" y1="'+Y(0)+'" y2="'+Y(0)+'" stroke="var(--debt)" stroke-dasharray="3 3" opacity=".5"/><line x1="'+X(0)+'" y1="'+Y(B)+'" x2="'+X(c.dim)+'" y2="'+Y(0)+'" stroke="var(--mu)" stroke-dasharray="4 4" opacity=".6"/><path d="'+p+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="'+X(vals.length-1)+'" cy="'+Y(last)+'" r="5" fill="'+col+'"/><text x="20" y="124">วันที่ 1</text><text x="310" y="124" text-anchor="end">วันที่ '+c.dim+'</text><text x="22" y="8">เหลือ '+f(last)+'</text></svg>'}
+
+
 
 
 /* ---- payoff plan ---- */
@@ -166,37 +221,8 @@ function simulate(strat,pool,roll,shock){
  return{months:m,exact:exact||m,done:!ds.some(function(d){return d.bal>0.5}),interest:interest,series:series}}
 function whenTxt(m){var d=new Date();d.setMonth(d.getMonth()+m);return d.toLocaleDateString("th-TH",{month:"long",year:"numeric"})}
 function durTxt(r){if(!r.done)return"เกิน 20 ปี";var y=Math.floor(r.months/12),m=r.months%12;return(y?y+" ปี ":"")+(m?m+" เดือน":"")}
-function lineChart(a,b,H){
- var pad=function(x){var r=x.slice(0,H+1);while(r.length<H+1)r.push(x[x.length-1]);return r},A=pad(a),B=pad(b),mx=Math.max(B[0],1),W=290,h=100;
- var X=function(i){return 20+i/H*W},Y=function(v){return 10+(mx-v)/mx*h};
- var path=function(x){return x.map(function(v,i){return(i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)}).join(" ")};
- return'<svg viewBox="0 0 320 135"><path d="'+path(B)+'" fill="none" stroke="var(--debt)" stroke-width="2.5" stroke-dasharray="5 4" opacity=".7"/><path d="'+path(A)+'" fill="none" stroke="var(--left)" stroke-width="3.5" stroke-linecap="round"/><text x="20" y="130">ตอนนี้</text><text x="310" y="130" text-anchor="end">อีก '+H+' เดือน</text><text x="24" y="9">หนี้รวม '+f(mx)+'</text></svg><div class="mu"><b style="color:var(--left)">━</b> ตามแผน · <b style="color:var(--debt)">╌</b> จ่ายขั้นต่ำอย่างเดียว</div>'}
-function plan(){
- var P=S.plan,cr=(S.carry&&S.carry[mk()])||0,inc=S.salary+S.ot+cr,fx=S.fixed.reduce(function(a,x){return a+x.amt},0);
- var open=S.debts.filter(function(d){return d.bal>0}),mins=open.reduce(function(a,d){return a+Math.min(d.min,d.bal)},0);
- var pool=inc-fx-mins-P.living-P.save;
- var ds=open.map(function(d){return{id:d.id,name:d.name,bal:d.bal,min:d.min,apr:d.apr||0}}),order=prio(ds,P.strat),rec={},left=Math.max(0,pool);
- order.forEach(function(d){rec[d.id]=Math.min(d.min,d.bal)});
- order.forEach(function(d){var x=Math.min(d.bal-rec[d.id],left);rec[d.id]+=x;left-=x});
- var h='<div class="card"><h2>เงินเดือนนี้ไปไหนบ้าง</h2>'+row("รายได้","+"+f(inc-cr),"var(--inc)")+(cr?row("ยกยอดจากเดือนก่อน",(cr>0?"+":"")+f(cr),"var(--left)"):"")+row("รายจ่ายประจำ (ห้อง ฯลฯ)","-"+f(fx),"var(--rent)")+row("จ่ายขั้นต่ำทุกบัญชี","-"+f(mins),"var(--debt)")
- +'<div class="g2" style="margin:10px 0"><div><div class="mu">งบกินอยู่ (ข้าว เดินทาง ฯลฯ)</div><input type="number" inputmode="decimal" value="'+P.living+'" onchange="setPlan(\'living\',this.value)"></div><div><div class="mu">เงินออมต่อเดือน</div><input type="number" inputmode="decimal" value="'+P.save+'" onchange="setPlan(\'save\',this.value)"></div></div>'
- +'<div class="row"><b>เหลือโปะหนี้เพิ่มได้</b><b style="font-size:20px;color:'+(pool<0?"var(--debt)":"var(--inc)")+'">'+f(pool)+' ฿</b></div></div>';
- if(pool<0)h+='<div class="card" style="border-color:var(--debt)"><b style="color:var(--debt)">เดือนนี้ขาดอีก '+f(-pool)+' ฿</b><div class="mu">ทางออก: เพิ่ม OT · ลดงบกินอยู่หรือเงินออมชั่วคราว (แต่ไม่ควรเหลือ 0) · ลดรายจ่ายประจำที่ตัดได้ · ติดต่อเจ้าหนี้ขอลดดอกหรือรวมหนี้ ห้ามโดดจ่ายขั้นต่ำเพราะจะโดนค่าปรับ</div></div>';
- h+=buyCard(P,pool,open);
- if(!open.length)return h+'<div class="card"><h2>ปิดหนี้ครบแล้ว 🎉</h2><div class="mu">เอาเงินที่เคยโปะไปเพิ่มเงินออมต่อ</div></div>';
- h+='<div class="card"><h2>ลำดับปิดหนี้</h2><select onchange="setPlan(\'strat\',this.value)" style="margin-bottom:8px"><option value="apr"'+(P.strat=="apr"?" selected":"")+'>ดอกเบี้ยสูงก่อน (เสียดอกน้อยสุด)</option><option value="bal"'+(P.strat=="bal"?" selected":"")+'>ยอดน้อยก่อน (ปิดไว ได้กำลังใจ)</option></select>';
- order.forEach(function(d,i){var r=rec[d.id],p=paid(d.id),need=Math.max(0,r-p),extra=r-Math.min(d.min,d.bal);
-  h+='<div class="row" style="align-items:flex-start"><span><b>'+(i+1)+'. '+esc(d.name)+'</b>'+(i==0&&extra>0?' <span class="tag" style="color:var(--debt)">เป้าหมายโปะ</span>':'')+(r>=d.bal?' 🎉':'')+'<div class="mu">เหลือ '+f(d.bal)+' · ดอก '+d.apr+'%/ปี (≈'+f(d.bal*d.apr/1200)+'/เดือน)'+(d.apr<=0?' · ผ่อน 0% ไม่ต้องรีบโปะ':'')+'</div><div class="mu">แนะนำจ่ายเดือนนี้ <b style="color:var(--debt)">'+f(r)+'</b>'+(extra>0?' (ขั้นต่ำ '+f(Math.min(d.min,d.bal))+' + โปะ '+f(extra)+')':'')+(p>0?' · จ่ายแล้ว '+f(p):'')+'</div></span><button onclick="pay('+d.id+','+Math.round(need)+')" '+(need<=0?"disabled":"")+' style="padding:8px 12px;background:var(--debt);white-space:nowrap">จ่าย '+f(need)+'</button></div>'});
- var pl=simulate(P.strat,pool,true),bs=simulate(P.strat,0,false),H=Math.min(60,Math.max(12,pl.months+3));
- h+='</div><div class="card"><h2>ปิดหนี้หมดเมื่อไหร่</h2><div style="font-size:26px;font-weight:800;color:var(--left)">'+(pl.done?whenTxt(pl.months):"ยังไม่ปิดใน 20 ปี")+'</div><div class="mu">ใช้เวลา '+durTxt(pl)+' · ดอกเบี้ยรวมประมาณ '+f(pl.interest)+' ฿</div>'
- +'<div class="mu" style="margin:6px 0 10px">ถ้าจ่ายขั้นต่ำอย่างเดียว: '+(bs.done?durTxt(bs)+' · ดอกรวม '+f(bs.interest)+' ฿':'ไม่ปิดภายใน 20 ปี')+(bs.interest>pl.interest?' → <b style="color:var(--inc)">ประหยัดดอก ≈ '+f(bs.interest-pl.interest)+' ฿</b>':'')+'</div>'+lineChart(pl.series,bs.series,H)+'<div class="mu">คำนวณจากดอกเบี้ยที่ตั้งไว้ รายรับเท่าเดือนนี้ และเงินโปะคงที่ทุกเดือน ตัวเลขจริงจะต่างได้เล็กน้อย</div></div>';
- var sp=0,sv=0;monthTx().forEach(function(t){if(t.debt)return;if(t.cat=="เงินออม")sv+=t.amt;else sp+=t.amt});
- var tg=fx+P.living;
- h+='<div class="card"><h2>ใช้ชีวิต + เงินเก็บ</h2><div class="row" style="border:0;padding-bottom:0"><span>ใช้จริงเดือนนี้ / งบกินอยู่</span><b style="color:'+(sp>P.living?"var(--debt)":"var(--exp)")+'">'+f(sp)+' / '+f(P.living)+'</b></div><div class="bar" style="--c:'+(sp>P.living?"var(--debt)":"var(--exp)")+'"><i style="width:'+Math.min(100,sp/Math.max(1,P.living)*100)+'%"></i></div>'
- +'<div class="row" style="border:0;padding-bottom:0;margin-top:8px"><span>ออมเดือนนี้ / เป้า</span><b style="color:var(--left)">'+f(sv)+' / '+f(P.save)+'</b></div><div class="bar" style="--c:var(--left)"><i style="width:'+Math.min(100,sv/Math.max(1,P.save)*100)+'%"></i></div>'
- +'<div style="height:10px"></div><button class="g" onclick="addTx('+Math.max(0,P.save-sv)+',\'เงินออม\',\'ออมเงิน\')" '+(P.save-sv<=0?"disabled":"")+' style="width:100%">บันทึกออมเดือนนี้ '+f(Math.max(0,P.save-sv))+' ฿</button>'
- +(P.save>0?'<div class="mu" style="margin-top:8px">ออมต่อเนื่อง 12 เดือน ≈ '+f(P.save*12)+' ฿ · เงินสำรองฉุกเฉิน 1 เดือน (ประจำ + กินอยู่ ≈ '+f(tg)+' ฿) ครบในประมาณ '+Math.ceil(tg/P.save)+' เดือน</div>':'<div class="mu" style="margin-top:8px">ตั้งเงินออมต่อเดือนเพื่อสร้างเงินสำรองฉุกเฉิน</div>')+'</div>';
- return h}
+
+
 
 
 /* ---- Google Sheet sync ---- */
@@ -215,13 +241,12 @@ async function flush(){
  flushing=false;save();if(ok&&S.q.length)flush()}
 function setSh(k,v){if(!S.sh)S.sh={url:"",token:""};S.sh[k]=v.trim();save();flush()}
 function sheetAll(){if(!S.sh||!S.sh.url){alert("ใส่ Web App URL ก่อน");return}S.q=S.tx.slice().reverse().map(function(t){return{a:"upsert",id:String(t.id),row:txRowData(t)}});S.q.push({a:"debts",rows:debtRows()});Object.keys(S.hist||{}).forEach(function(k){var h=S.hist[k];S.q.push({a:"month",key:k,row:[k,mname(k),h.inc,h.carry,h.fx,h.commit,h.spent,h.saved,h.left,h.debt]})});save();flush();alert("เริ่มส่งข้อมูลทั้งหมดแล้ว ดูสถานะในช่องซิงก์")}
-function shCard(){var sh=S.sh||{url:"",token:""};
- return'<div class="card"><h2>ซิงก์ Google Sheet</h2><div class="mu">ทุกรายการที่บันทึก แก้ หรือลบ จะส่งขึ้นชีตอัตโนมัติ ถ้าออฟไลน์จะเก็บคิวไว้ส่งทีหลัง</div><input placeholder="Web App URL (https://script.google.com/macros/s/.../exec)" value="'+esc(sh.url)+'" onchange="setSh(\'url\',this.value)" style="margin-top:8px"><input type="password" placeholder="รหัสลับ (TOKEN) ตรงกับในสคริปต์" value="'+esc(sh.token)+'" onchange="setSh(\'token\',this.value)" style="margin-top:8px"><div class="g2" style="margin-top:8px"><button class="g" onclick="sheetAll()">ส่งข้อมูลทั้งหมดขึ้นชีต</button><a href="https://docs.google.com/spreadsheets/d/1OPhUbn0HF_m1C7gHdd5FDlXuKwA3qob5lv7F6uLEcj8/edit" target="_blank" rel="noopener" style="text-decoration:none"><button class="g" style="width:100%">📄 เปิดชีต</button></a></div><div class="mu" id="shst" style="margin-top:6px">'+esc(S.shMsg||"ยังไม่ได้เชื่อมต่อ")+' · คิวค้าง '+(S.q||[]).length+'</div></div>'}
+
 
 
 /* ---- v5 features: streak, celebrate, quick, buy-check, stats, close month ---- */
 var buyAmt=0,SUG=[],TM=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-function toast(m){var e=document.getElementById("toast");if(!e)return;e.textContent=m;e.className="toast on";clearTimeout(toast.t);toast.t=setTimeout(function(){e.className="toast"},1900)}
+
 function mname(k){return new Date(+k.slice(0,4),+k.slice(5)-1,1).toLocaleDateString("th-TH",{month:"long",year:"numeric"})}
 function keyOf(y,m){var d=new Date(y,m,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
 function prevKey(k){return keyOf(+k.slice(0,4),+k.slice(5)-2)}
@@ -244,40 +269,21 @@ function checkCele(t){
  var s=streakInfo().cur;
  if([3,7,14,30,60,100].indexOf(s)>=0&&!S.seen["st"+s]){S.seen["st"+s]=1;sheet={t:"cele",a:{emoji:"🔥",title:"บันทึกต่อเนื่อง "+s+" วัน!",sub:"วินัยแบบนี้คือสิ่งที่ทำให้ปิดหนี้ได้จริง"}}}}
 /* quick buttons */
-function quickCard(){var q=S.quick||[];if(!q.length)return"";
- return'<div class="card"><h2>⚡ ปุ่มลัด</h2><div class="chips" style="margin:0">'+q.map(function(x){return'<button class="g" style="--c:'+(COL[x.cat]||"#94a3b8")+';border-color:var(--c);padding:10px 14px" onclick="quickGo('+x.id+')">'+esc(x.name)+' <b>'+f(x.amt)+'</b></button>'}).join("")+'</div></div>'}
-function quickGo(id){var x=S.quick.filter(function(y){return y.id==id})[0];if(!x)return;addTx(x.amt,x.cat,x.name);toast("บันทึกแล้ว: "+x.name+" "+f(x.amt))}
+
+
 function setQ(id,k,v){var x=S.quick.filter(function(y){return y.id==id})[0];x[k]=k=="amt"?(parseFloat(v)||0):v;save();render()}
 function delQ(id){S.quick=S.quick.filter(function(y){return y.id!=id});save();render()}
 function addQ(){S.quick.push({id:Date.now(),name:"รายการ",amt:0,cat:"อาหาร"});save();render()}
 function addQs(i){var p=SUG[i].split("|");S.quick.push({id:Date.now(),name:p[0],amt:parseFloat(p[1])||0,cat:p[2]});save();render()}
-function quickSet(){
- var h='<div class="card"><h2>จัดการปุ่มลัด</h2>';
- S.quick.forEach(function(x){h+='<div class="fx"><input value="'+esc(x.name)+'" onchange="setQ('+x.id+',\'name\',this.value)"><input type="number" inputmode="decimal" value="'+x.amt+'" onchange="setQ('+x.id+',\'amt\',this.value)"><button class="x del" onclick="delQ('+x.id+')">✕</button><select onchange="setQ('+x.id+',\'cat\',this.value)">'+CATS.map(function(c){return'<option'+(c==x.cat?" selected":"")+'>'+c+'</option>'}).join("")+'</select></div>'});
- h+='<button class="g" onclick="addQ()" style="width:100%">+ เพิ่มปุ่มลัด</button>';
- var cnt={};S.tx.forEach(function(t){if(t.debt||!t.note)return;var k=t.note+"|"+t.amt+"|"+t.cat;cnt[k]=(cnt[k]||0)+1});
- var have=S.quick.map(function(q){return q.name+"|"+q.amt+"|"+q.cat});
- SUG=Object.keys(cnt).filter(function(k){return cnt[k]>=3&&have.indexOf(k)<0}).sort(function(a,b){return cnt[b]-cnt[a]}).slice(0,5);
- if(SUG.length)h+='<div class="mu" style="margin-top:10px">ที่คุณบันทึกบ่อย (แตะเพื่อเพิ่มเป็นปุ่มลัด)</div><div class="chips">'+SUG.map(function(k,i){var p=k.split("|");return'<button class="g" onclick="addQs('+i+')">+ '+esc(p[0])+' '+f(+p[1])+'</button>'}).join("")+'</div>';
- return h+'</div>'}
+
 /* buy check */
 function setBuy(v){buyAmt=parseFloat(v)||0;render()}
-function buyCard(P,pool,open){
- if(!open.length)return"";
- var h='<div class="card"><h2>🛒 เช็กก่อนซื้อ</h2><input type="number" inputmode="decimal" placeholder="ราคาของที่จะซื้อ (บาท)" value="'+(buyAmt||"")+'" onchange="setBuy(this.value)">';
- if(buyAmt>0){
-  var a=simulate(P.strat,pool,true),b=simulate(P.strat,pool,true,buyAmt),days=Math.max(0,Math.round((b.exact-a.exact)*30)),ex=Math.max(0,b.interest-a.interest),over=buyAmt>Math.max(0,pool);
-  var col=over||days>14?"var(--debt)":days>3?"var(--exp)":"var(--inc)";
-  h+='<div style="margin-top:10px;font-size:22px;font-weight:800;color:'+col+'">ปิดหนี้ช้าลง ≈ '+days+' วัน</div><div class="mu">เสียดอกเพิ่มประมาณ '+f(ex)+' ฿ · ปิดหนี้หมด '+whenTxt(b.months)+(b.months>a.months?" (ขยับ "+(b.months-a.months)+" เดือน)":"")+'</div>';
-  h+=over?'<div class="mu" style="color:var(--debt)">มากกว่าเงินเหลือโปะเดือนนี้ ('+f(Math.max(0,pool))+' ฿) ต้องไปหักจากงบกินอยู่หรือเงินออม แนะนำรอไว้ก่อน</div>':'<div class="mu">'+(days<=3?"ซื้อได้ ผลกระทบน้อยมาก":days<=14?"ลองรอหรือหาของถูกกว่า":"ผลกระทบสูง แนะนำรอไว้ก่อน")+'</div>'}
- return h+'</div>'}
+
 /* stats + close month */
 function mstat(k){var cur=k==mk(),h=S.hist[k],sp=0,sv=0,dp=0;
  monthTx(k).forEach(function(t){if(t.debt)dp+=t.amt;else if(t.cat=="เงินออม")sv+=t.amt;else sp+=t.amt});
  return{k:k,inc:h?h.inc:(cur?S.salary+S.ot:S.salary),sp:sp,sv:sv,dp:dp,closed:!!h,est:!h&&!cur}}
-function closeBanner(){var pk=prevKey(mk());
- if(S.tx.some(function(t){return t.date.slice(0,7)==pk})&&!S.hist[pk])return'<div class="card" style="border-color:var(--exp)"><b>เดือน '+mname(pk)+' ยังไม่ได้ปิด</b><div class="mu">ปิดเดือนเพื่อสรุปและยกยอดเงินเหลือมาเดือนนี้</div><button onclick="closeMonth(\''+pk+'\')" style="margin-top:8px;width:100%">ปิดเดือน '+mname(pk)+'</button></div>';
- return""}
+
 function closeMonth(k){
  var h0=S.hist[k],def=h0?h0.inc:(k==mk()?S.salary+S.ot:S.salary),inc=parseFloat(prompt("รายได้เดือน "+mname(k)+" ที่ได้จริง (รวม OT)",def));
  if(isNaN(inc))return;
@@ -289,78 +295,15 @@ function closeMonth(k){
  S.carry[nk]=c.left;
  qAdd({a:"month",key:k,row:[k,mname(k),inc,c.carry,c.fx,c.commit,c.spent,sv,c.left,tot]});
  save();render();toast("ปิดเดือนแล้ว ยกยอด "+f(c.left)+" ฿")}
-function barChart(ms,mx){var s="";
- ms.forEach(function(m,i){var x0=14+i*50;
-  [[m.inc,"var(--inc)"],[m.sp,"var(--exp)"],[m.dp,"var(--debt)"],[m.sv,"var(--left)"]].forEach(function(v,j){var h=Math.max(0,v[0]/mx*110);s+='<rect x="'+(x0+j*10)+'" y="'+(135-h)+'" width="8" height="'+h+'" rx="2" fill="'+v[1]+'" opacity="'+(m.est&&j==0?".45":"1")+'"/>'});
-  s+='<text x="'+(x0+20)+'" y="152" text-anchor="middle">'+TM[+m.k.slice(5)-1]+'</text>'});
- return'<svg viewBox="0 0 320 160"><line x1="8" x2="312" y1="135" y2="135" stroke="var(--bd)"/>'+s+'</svg><div class="mu"><b style="color:var(--inc)">■</b> รายได้ <b style="color:var(--exp)">■</b> ใช้จ่าย <b style="color:var(--debt)">■</b> จ่ายหนี้ <b style="color:var(--left)">■</b> ออม</div>'}
-function stat(){
- var ms=monthsBack(6).map(mstat),mx=1,st=streakInfo(),tdp=0,tsv=0,tsp=0,n=0;
- ms.forEach(function(m){mx=Math.max(mx,m.inc,m.sp,m.dp,m.sv);tdp+=m.dp;tsv+=m.sv;tsp+=m.sp;if(m.sp>0)n++});
- var h=closeBanner()+'<div class="kpis"><div class="kpi" style="--c:var(--exp)"><b>🔥 '+st.cur+' วัน</b><span>บันทึกต่อเนื่อง (สูงสุด '+st.best+')</span></div><div class="kpi" style="--c:var(--debt)"><b>'+f(tdp)+'</b><span>จ่ายหนี้ 6 เดือน</span></div><div class="kpi" style="--c:var(--left)"><b>'+f(tsv)+'</b><span>ออม 6 เดือน</span></div><div class="kpi" style="--c:var(--exp)"><b>'+f(n?tsp/n:0)+'</b><span>ใช้จ่ายเฉลี่ย/เดือน</span></div></div>'
- +'<button onclick="closeMonth(mk())" style="width:100%;margin-bottom:14px">ปิดเดือนนี้ + ยกยอด</button>'
- +'<div class="card"><h2>6 เดือนย้อนหลัง</h2>'+barChart(ms,mx)+'<div class="mu">* รายได้เดือนที่ยังไม่ปิดประมาณจากเงินเดือนปัจจุบัน</div></div>';
- var cl=ms.filter(function(m){return S.hist[m.k]&&S.hist[m.k].debt!=null});
- if(cl.length>=2){var red=S.hist[cl[0].k].debt-S.hist[cl[cl.length-1].k].debt;h+='<div class="card"><h2>หนี้ลดลง</h2><div style="font-size:26px;font-weight:800;color:var(--inc)">'+f(red)+' ฿</div><div class="mu">จาก '+mname(cl[0].k)+' ถึง '+mname(cl[cl.length-1].k)+'</div></div>'}
- h+='<div class="card"><h2>รายเดือน</h2>';
- ms.slice().reverse().forEach(function(m){var hh=S.hist[m.k];
-  h+='<div class="row" style="display:block"><div style="display:flex;justify-content:space-between"><b>'+mname(m.k)+'</b><span class="tag">'+(m.closed?"ปิดแล้ว ✓":m.k==mk()?"เดือนนี้":"ยังไม่ปิด")+'</span></div><div class="mu">รายได้ '+f(m.inc)+(m.est?"*":"")+' · ใช้จ่าย '+f(m.sp)+' · จ่ายหนี้ '+f(m.dp)+' · ออม '+f(m.sv)+'</div>'+(hh?'<div class="mu">เหลือ '+f(hh.left)+' · หนี้คงเหลือตอนปิด '+f(hh.debt)+'</div>':'')+'</div>'});
- return h+'</div>'}
+
+
 
 /* ---- views ---- */
-function kpi(c,val,label,fn){return'<div class="kpi" style="--c:'+c+'" onclick="'+fn+'"><b>'+f(val)+'</b><span>'+esc(label)+' ›</span></div>'}
-function home(){
- var c=calc(),tot=S.debts.reduce(function(a,d){return a+d.bal},0),mon=new Date().toLocaleDateString("th-TH",{month:"long",year:"numeric"});
- var tgt=S.debts.filter(function(d){return d.bal>0}).sort(function(a,b){return a.bal-b.bal})[0];
- var h=closeBanner()+'<div class="hero'+(c.left<0?" neg":"")+'" onclick="openSheet(\'left\')"><small>'+mon+' · เหลือใช้เดือนนี้ ›</small><div class="big">'+f(c.left)+' ฿</div><span class="pill">วันละ '+f(Math.max(0,c.perDay))+' ฿ · อีก '+c.days+' วัน</span> <span class="pill">🔥 บันทึกต่อเนื่อง '+streakInfo().cur+' วัน</span></div><div class="kpis">'
- +kpi("var(--inc)",c.inc,"รายได้","openSheet('inc')");
- S.groups.forEach(function(g){h+=kpi(gcol(g.id),gsum(g.id),g.name,"openSheet('grp',"+g.id+")")});
- h+=kpi("var(--debt)",c.commit,"จ่ายหนี้เดือนนี้","openSheet('debt')")+kpi("var(--exp)",c.spent,"ใช้จ่ายอื่น","openSheet('spent')")+'</div>'
- +'<div class="card k" onclick="openSheet(\'left\')"><h2>กระแสเงินสดเดือนนี้</h2>'+waterfall(c)+'</div>'
- +'<div class="card"><h2>เงินคงเหลือรายวัน</h2>'+daily(c)+'<div class="mu">เส้นทึบ = จริง · เส้นประ = แผนใช้ให้พอดีสิ้นเดือน</div></div>';
- var cats=Object.keys(c.by).sort(function(a,b){return c.by[b]-c.by[a]});
- h+='<div class="card"><h2>ใช้ไปกับอะไร (แตะเพื่อดูรายการ)</h2>';
- if(!cats.length)h+='<div class="mu">ยังไม่มีรายจ่าย กดแท็บบันทึกได้เลย</div>';
- cats.forEach(function(k){h+='<div style="--c:'+(COL[k]||"#94a3b8")+';cursor:pointer" onclick="openSheet(\'cat\',\''+k+'\')"><div class="row" style="border:0;padding-bottom:0"><span><i class="dot"></i>'+k+'</span><b>'+f(c.by[k])+'</b></div><div class="bar"><i style="width:'+c.by[k]/c.spent*100+'%"></i></div></div>'});
- h+='</div><div class="card k" onclick="openSheet(\'debt\')"><h2>หนี้คงเหลือรวม ›</h2><div style="font-size:30px;font-weight:800;color:var(--debt)">'+f(tot)+' ฿</div>'
- +(tgt?'<div class="mu">โปะเพิ่มที่ <b>'+esc(tgt.name)+'</b> ก่อน (เหลือ '+f(tgt.bal)+')</div>':'<div style="color:var(--inc)">ปิดหนี้ครบแล้ว 🎉</div>')+'</div>';
- return h}
-function log(){
- var h='<button class="scan" onclick="document.getElementById(\'file\').click()" '+(busy?"disabled":"")+'>'+(busy?'<span class="sp">⏳</span> กำลังอ่านสลิป...':'📷 สแกนสลิป')+'</button><div style="height:14px"></div>';
- if(msg)h+='<div class="card" style="border-color:var(--debt)">'+esc(msg)+'</div>';
- h+=quickCard();
- if(pend){
-  h+='<div class="card pend"><h2>ตรวจสอบก่อนบันทึก</h2><div class="g2"><input type="number" inputmode="decimal" value="'+pend.amt+'" oninput="pf(\'amt\',this.value)"><input type="date" value="'+pend.date+'" oninput="pf(\'date\',this.value)"></div><div style="height:10px"></div><input value="'+esc(pend.note)+'" oninput="pf(\'note\',this.value)" placeholder="รายละเอียด"><div style="height:10px"></div><div class="g2"><select onchange="pf(\'cat\',this.value)">'
-  +CATS.map(function(c){return'<option'+(c==pend.cat?" selected":"")+'>'+c+'</option>'}).join("")+'</select><select onchange="pf(\'debt\',this.value)"><option value="0">ไม่ใช่จ่ายหนี้</option>'
-  +S.debts.map(function(d){return'<option value="'+d.id+'"'+(d.id==pend.debt?" selected":"")+'>จ่าย '+esc(d.name)+'</option>'}).join("")+'</select></div><div style="height:12px"></div><div class="g2"><button onclick="okPend()">บันทึก</button><button class="g" onclick="pend=null;render()">ยกเลิก</button></div></div>'}
- h+='<div class="card"><h2>พิมพ์บันทึก</h2><div class="g2"><input id="amt" type="number" inputmode="decimal" placeholder="จำนวนเงิน"><input id="note" placeholder="รายละเอียด"></div><div class="chips">';
- CATS.forEach(function(c){h+='<button class="'+(c==cat?"on":"g")+'" style="--c:'+COL[c]+'" onclick="setCat(\''+c+'\')">'+c+'</button>'});
- h+='</div><button onclick="quick()" style="width:100%">บันทึก</button><details style="margin-top:12px"><summary class="mu">วางหลายรายการ</summary><textarea id="bulk" rows="4" placeholder="ข้าว 60&#10;ค่ารถ 40" style="margin:8px 0"></textarea><button class="g" onclick="bulk()" style="width:100%">เพิ่มทั้งหมด</button></details></div><div class="card"><h2>รายการเดือนนี้ (✎ แก้ · ✕ ลบ)</h2>';
- var m=sortTx(monthTx());h+=m.length?m.map(txRow).join(""):'<div class="mu">ยังไม่มีรายการ</div>';
- return h+'</div>'}
-function debts(){
- var h='<div class="mu" style="margin:0 4px 10px">กดจ่ายผิด? ใช้ ↩ ยกเลิก หรือ ✎ แก้จำนวนในประวัติได้เลย ยอดหนี้จะปรับให้</div>';
- S.debts.forEach(function(d){var p=paid(d.id),ok=p>=d.min&&d.min>0;
-  var hist=sortTx(S.tx.filter(function(t){return t.debt==d.id})).slice(0,5);
-  h+='<div class="card" style="--c:'+(ok?"var(--inc)":"var(--debt)")+'"><div class="row" style="border:0;padding:0"><h2 style="margin:0">'+esc(d.name)+'</h2><b style="font-size:20px;color:var(--debt)">'+f(d.bal)+' ฿</b></div>'
-  +'<div class="mu">ดอก '+(d.apr||0)+'%/ปี ≈ '+f(d.bal*(d.apr||0)/1200)+'/เดือน · ขั้นต่ำ '+f(d.min)+' · จ่ายแล้ว <b style="color:var(--c)">'+f(p)+'</b> '+(ok?"✓":"")+'</div><div class="bar"><i style="width:'+Math.min(100,p/Math.max(1,d.min)*100)+'%"></i></div><div style="height:12px"></div>'
-  +'<div class="g2"><button onclick="pay('+d.id+')" '+(d.bal<=0?"disabled":"")+' style="background:var(--debt)">จ่ายหนี้</button><button class="g" onclick="delTx('+(hist[0]?hist[0].id:0)+')" '+(hist[0]?"":"disabled")+'>↩ ยกเลิกล่าสุด</button></div>';
-  if(hist.length){h+='<div class="mu" style="margin-top:10px">ประวัติการจ่าย</div>';hist.forEach(function(t){h+='<div class="row"><span class="mu">'+t.date.slice(8)+'/'+t.date.slice(5,7)+'</span><span><b>'+f(t.amt)+'</b><button class="x" onclick="editTx('+t.id+')">✎</button><button class="x del" onclick="delTx('+t.id+')">✕</button></span></div>'})}
-  h+='</div>'});
- return h}
-function sets(){
- var h='<div class="card"><h2>รายได้</h2><div class="mu">เงินเดือน</div><input type="number" inputmode="decimal" value="'+S.salary+'" onchange="setNum(\'salary\',this.value)" style="margin-bottom:8px"><div class="mu">OT เดือนนี้</div><input type="number" inputmode="decimal" value="'+S.ot+'" onchange="setNum(\'ot\',this.value)"></div>';
- S.groups.forEach(function(g){
-  h+='<div class="card" style="border-left:5px solid '+gcol(g.id)+'"><div class="gh"><input value="'+esc(g.name)+'" onchange="setG('+g.id+',this.value)"><b style="white-space:nowrap">'+f(gsum(g.id))+'</b></div>';
-  S.fixed.filter(function(x){return x.g==g.id}).forEach(function(x){
-   h+='<div class="fx"><input value="'+esc(x.name)+'" onchange="setF('+x.id+',\'name\',this.value)"><input type="number" inputmode="decimal" value="'+x.amt+'" onchange="setF('+x.id+',\'amt\',this.value)"><button class="x del" onclick="delF('+x.id+')">✕</button><select onchange="setF('+x.id+',\'g\',this.value)">'+S.groups.map(function(o){return'<option value="'+o.id+'"'+(o.id==g.id?" selected":"")+'>หมวด: '+esc(o.name)+'</option>'}).join("")+'</select></div>'});
-  h+='<div class="g2"><button class="g" onclick="addF('+g.id+')">+ เพิ่มรายการ</button><button class="g del" onclick="delG('+g.id+')">ลบหมวดนี้</button></div></div>'});
- h+='<button class="g" onclick="addG()" style="width:100%;margin-bottom:14px">+ เพิ่มหมวดใหม่</button><div class="card"><h2>บัตร / หนี้ (ดอกเบี้ย % ต่อปี ถ้าไม่ทราบใช้ 16 หรือ 0 ถ้าเป็นผ่อนสินค้า)</h2>';
- S.debts.forEach(function(d){var I=function(k,l){return'<div><div class="mu">'+l+'</div><input type="number" inputmode="decimal" value="'+(d[k]||0)+'" onchange="setDebt('+d.id+',\''+k+'\',this.value)"></div>'};h+='<div style="margin-bottom:14px"><div class="fx" style="grid-template-columns:1fr 36px"><input value="'+esc(d.name)+'" onchange="setDebt('+d.id+',\'name\',this.value)" style="font-weight:700"><button class="x del" onclick="delDebt('+d.id+')">✕</button></div><div class="g2" style="grid-template-columns:repeat(3,1fr)">'+I("bal","คงเหลือ")+I("min","ขั้นต่ำ/เดือน")+I("apr","ดอก %/ปี")+'</div></div>'});
- h+='<button class="g" onclick="addDebt()" style="width:100%">+ เพิ่มบัตร/หนี้</button></div>'
- +quickSet()+shCard()+'<div class="card"><h2>สแกนสลิป</h2><div class="mu">ไม่ใส่คีย์ = ใช้ OCR ฟรีในเครื่อง (แม่นปานกลาง) · ใส่ Claude API key = แม่นกว่า คิดค่าใช้จ่ายน้อยมากต่อรูป คีย์เก็บในเครื่องนี้เท่านั้น</div><input type="password" placeholder="sk-ant-... (ไม่บังคับ)" value="'+esc(getKey())+'" onchange="saveKey(this.value)" style="margin-top:8px"></div>'
- +'<div class="card"><h2>สำรองข้อมูล</h2><div class="g2"><button class="g" onclick="backup()">ดาวน์โหลดสำรอง</button><button class="g" onclick="document.getElementById(\'rf\').click()">กู้ข้อมูล</button></div><input type="file" id="rf" accept=".json" hidden onchange="restore(this.files[0])"></div><div class="mu">ข้อมูลเก็บในเครื่องนี้เท่านั้น ควรสำรองเป็นระยะ</div>';
- return h}
+
+
+
+
+
 /* ---- slip reading ---- */
 function shrink(file){return new Promise(function(res,rej){var img=new Image();img.onload=function(){var s=Math.min(1,1600/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);c.toBlob(function(b){b?res(b):rej()},"image/jpeg",.88)};img.onerror=rej;img.src=URL.createObjectURL(file)})}
 function b64(blob){return new Promise(function(r){var fr=new FileReader();fr.onload=function(){r(fr.result.split(",")[1])};fr.readAsDataURL(blob)})}
@@ -384,15 +327,16 @@ async function viaOCR(blob){
  else{var d2=t.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);if(d2)date=fixDate(d2[1],d2[2],d2[3])}
  var low=t.toLowerCase(),dd=S.debts.filter(function(d){return low.indexOf(d.name.toLowerCase())>=0})[0];
  return{amount:amt,date:date,note:"",category:guess(t),debt:dd?dd.name:null}}
-async function scan(file){
+var lastFile=null;
+async function scan(file){lastFile=file;
  busy=true;msg="";render();
  try{
   var blob=await shrink(file),j;
-  if(getKey()){try{j=await viaClaude(blob)}catch(e){msg="ใช้ Claude อ่านไม่สำเร็จ (เช็ก API key/อินเทอร์เน็ต) ใช้ OCR ฟรีแทน กรุณาตรวจตัวเลข"}}
+  if(getKey()){try{j=await viaClaude(blob)}catch(e){msg="ใช้ Claude ไม่สำเร็จ จึงอ่านด้วย OCR ฟรีแทน ตรวจตัวเลขก่อนบันทึก"}}
   if(!j)j=await viaOCR(blob);
   var dd=S.debts.filter(function(d){return j.debt&&d.name.toLowerCase()==String(j.debt).toLowerCase()})[0];
   pend={amt:parseFloat(j.amount)||0,date:/^\d{4}-\d{2}-\d{2}$/.test(j.date||"")?j.date:today(),note:j.note||j.receiver||"",cat:CATS.indexOf(j.category)>=0?j.category:"อื่นๆ",debt:dd?dd.id:0}
- }catch(e){msg="อ่านสลิปไม่สำเร็จ (โหมด OCR ต้องต่ออินเทอร์เน็ตครั้งแรก) ลองถ่ายให้ชัดขึ้น หรือพิมพ์บันทึกเอง"}
+ }catch(e){msg="อ่านสลิปไม่สำเร็จ ลองถ่ายให้ชัดขึ้น หรือพิมพ์เอง (OCR ต้องต่ออินเทอร์เน็ตครั้งแรก)"}
  busy=false;render()}
 function saveKey(v){try{localStorage.setItem("debtkey",v.trim())}catch(e){}}
 function backup(){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:"application/json"}));a.download="debt-backup-"+today()+".json";a.click()}
@@ -400,16 +344,224 @@ function restore(fl){var fr=new FileReader();fr.onload=function(){try{S=JSON.par
 
 function pf(k,v){pend[k]=(k=="amt"||k=="debt")?parseFloat(v)||0:v}
 function okPend(){addTx(pend.amt,pend.cat,pend.note,pend.date,pend.debt||null);pend=null;render()}
-function render(){
- var c=calc();
- document.getElementById("app").innerHTML=tab=="home"?home():tab=="plan"?plan():tab=="stat"?stat():tab=="log"?log():tab=="debt"?debts():sets();
- document.getElementById("sheet").innerHTML=sheet?sheetHTML(c):"";
- var T=[["home","📊","ภาพรวม"],["plan","🎯","แผน"],["log","➕","บันทึก"],["debt","💳","หนี้"],["stat","📈","สถิติ"],["set","⚙️","ตั้งค่า"]];
- document.getElementById("tabs").innerHTML=T.map(function(t){return'<button class="'+(t[0]==tab?"on":"")+'" onclick="setTab(\''+t[0]+'\')"><span>'+t[1]+'</span>'+t[2]+'</button>'}).join("")}
+
 document.getElementById("file").onchange=function(e){var fl=e.target.files[0];e.target.value="";if(fl){tab="log";scan(fl)}};
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
 window.addEventListener('online',flush);flush();
+
+/* ===== redesigned views ===== */
+var COL={"อาหาร":"var(--pri)","เดินทาง":"#3d8f7a","ค่าน้ำไฟ":"var(--g2)","ของใช้":"#b4b9be","อื่นๆ":"var(--g1)","จ่ายหนี้":"var(--acc)","เงินออม":"var(--pri2)"};
+var GC=["var(--pri)","var(--g2)","#6f7882","#b4b9be","#4b8f7e","#8a9199"];
+var OPEN={},tfn=null,ttm=null;
+var ICO={home:`<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>`,plan:`<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>`,plus:`<path d="M12 5v14M5 12h14"/>`,card:`<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/>`,chart:`<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>`,gear:`<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/>`,x:`<path d="M6 6l12 12M18 6L6 18"/>`,chev:`<path d="M9 6l6 6-6 6"/>`,camera:`<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>`,edit:`<path d="M4 20h4L19 9l-4-4L4 16z"/>`,trash:`<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>`,check:`<path d="M5 12l5 5 9-10"/>`};
+function ic(n,s){s=s||20;return`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[n]}</svg>`}
+
+/* ---- feedback ---- */
+function toast(m,lab,fn){var e=document.getElementById("toast");if(!e)return;tfn=fn||null;e.innerHTML=`<span>${esc(m)}</span>`+(lab&&fn?`<button onclick="toastAct()">${esc(lab)}</button>`:"");e.className="toast on";clearTimeout(ttm);ttm=setTimeout(hideToast,lab&&fn?5000:2400)}
+function hideToast(){var e=document.getElementById("toast");if(e)e.className="toast";tfn=null}
+function toastAct(){var g=tfn;hideToast();if(g)g()}
+function fieldErr(id,m){var e=document.getElementById(id),m2=document.getElementById(id+"-e");if(e){e.classList.add("err");e.focus()}if(m2)m2.textContent=m}
+
+/* ---- transactions (undo instead of confirm) ---- */
+function addTx(amt,c,note,date,debt){
+ if(!(amt>0))return;
+ var t={id:Date.now()+Math.random(),date:date||today(),amt:amt,cat:debt?"จ่ายหนี้":c,note:note||""},dn="";
+ if(debt){var d=S.debts.filter(function(x){return x.id==debt})[0];if(d){t.debt=debt;d.bal=Math.max(0,d.bal-amt);t.note=d.name;dn=d.name}}
+ S.tx.unshift(t);qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});if(t.debt)syncDebts();checkCele(t);save();render();
+ var bi=!t.debt&&c!="เงินออม"?budInfo():null;
+ if(!sheet)toast((t.debt?`จ่าย ${dn} ${f(amt)} ฿ แล้ว`:`บันทึก ${note||c} ${f(amt)} ฿ แล้ว`)+(bi?` · วันนี้เหลือ ${f(bi.todayLeft)} ฿`:""),"เลิกทำ",function(){rmTx(t.id)})}
+function rmTx(id){var t=S.tx.filter(function(x){return x.id==id})[0];if(!t)return null;if(t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal+=t.amt}S.tx=S.tx.filter(function(x){return x.id!=id});qAdd({a:"del",id:String(t.id)});if(t.debt)syncDebts();save();render();return t}
+function putTx(t){if(t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal=Math.max(0,d.bal-t.amt)}S.tx.unshift(t);qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});if(t.debt)syncDebts();save();render()}
+function delTx(id){var t=rmTx(id);if(t)toast("ลบรายการแล้ว","เลิกทำ",function(){putTx(t)})}
+function quick(){var a=parseFloat(document.getElementById("amt").value);if(!(a>0)){fieldErr("amt","ใส่จำนวนเงินก่อน");return}addTx(a,cat,document.getElementById("note").value.trim())}
+function enter(e){if(e.key=="Enter")quick()}
+function bulk(){var n=0;(document.getElementById("bulk").value||"").split("\n").forEach(function(l){var m=l.match(/(\d[\d,]*\.?\d*)\s*$/);if(!m)return;var a=parseFloat(m[1].replace(/,/g,"")),nt=l.replace(m[0],"").trim();if(a>0){var t={id:Date.now()+Math.random(),date:today(),amt:a,cat:guess(nt),note:nt};S.tx.unshift(t);qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});n++}});save();render();toast(n?`เพิ่ม ${n} รายการแล้ว`:"ไม่พบรายการ ใส่ตัวเลขท้ายบรรทัด เช่น ข้าว 60")}
+function quickGo(id){var x=S.quick.filter(function(y){return y.id==id})[0];if(!x)return;if(!(x.amt>0)){toast("ยังไม่ได้ตั้งราคาปุ่มนี้ ไปตั้งที่ ตั้งค่า > ปุ่มลัด");return}addTx(x.amt,x.cat,x.name)}
+function setCat(c){cat=c;document.querySelectorAll(".cc").forEach(function(b){b.classList.toggle("on",b.dataset.c==c)})}
+function retryScan(){if(lastFile)scan(lastFile)}
+
+/* ---- daily budget ---- */
+function daysLeft(){var n=new Date(),p=(S.bud&&S.bud.pay)||0;
+ if(p>=1&&p<=28){var t=new Date(n.getFullYear(),n.getMonth(),n.getDate()),nx=new Date(n.getFullYear(),n.getMonth(),p);if(nx<=t)nx=new Date(n.getFullYear(),n.getMonth()+1,p);return Math.max(1,Math.round((nx-t)/864e5))}
+ var dim=new Date(n.getFullYear(),n.getMonth()+1,0).getDate();return Math.max(1,dim-n.getDate()+1)}
+function budInfo(){var B=S.bud;if(!B||B.amt==null)return null;var sp=0,st=0,td=today();
+ S.tx.forEach(function(t){if(!t.debt&&t.cat!="เงินออม"&&t.id>=B.at){sp+=t.amt;if(t.date==td)st+=t.amt}});
+ var rem=B.amt-sp,d=daysLeft(),per=(rem+st)/d;return{rem:rem,days:d,per:per,spentToday:st,todayLeft:per-st,pay:B.pay}}
+function saveBud(){var a=parseFloat(document.getElementById("bud-amt").value);if(isNaN(a)){fieldErr("bud-amt","ใส่จำนวนเงินก่อน");return}var p=parseInt(document.getElementById("bud-pay").value)||0;if(p<0||p>28)p=0;S.bud={amt:a,at:Date.now(),pay:p};save();sheet=null;render();var b=budInfo();toast(`ตั้งงบแล้ว ใช้ได้วันละ ${f(Math.max(0,b.per))} ฿`)}
+function clearBud(){S.bud={amt:null,at:0,pay:0};save();sheet=null;render();toast("ล้างงบแล้ว")}
+function budCard(){var b=budInfo();
+ if(!b)return`<section class="card span2"><h2>งบใช้จ่ายรายวัน</h2><p class="sub" style="margin-bottom:16px">ใส่เงินที่เหลือใช้ได้จริงตอนนี้ แอปจะหารเฉลี่ยให้ว่าใช้ได้วันละเท่าไร</p><button class="btn s" onclick="openSheet('bud')">ตั้งงบคงเหลือ</button></section>`;
+ var over=b.todayLeft<0,dead=b.rem<=0;
+ return`<section class="card span2"><div class="li" style="border:0;padding:0 0 4px"><h2 style="margin:0">ใช้ได้วันละ</h2><button class="btn t sm" style="color:var(--pri)" onclick="openSheet('bud')">แก้งบ</button></div><div class="big2 num" style="color:${dead?"var(--acc)":"var(--tx)"}">${f(Math.max(0,b.per))} ฿</div><p class="sub">งบคงเหลือ ${f(b.rem)} ฿ · อีก ${b.days} วัน${b.pay?" (ถึงวันเงินเดือนออก)":" (ถึงสิ้นเดือน)"}</p>`+(dead?`<p style="margin-top:12px;color:var(--acc)">งบหมดแล้ว ลองปรับงบหรือชะลอการใช้จ่าย</p>`:`<div class="bar${over?" a":""}" style="margin:16px 0 8px"><i style="width:${Math.min(100,b.per>0?b.spentToday/b.per*100:100)}%"></i></div><p class="sub">${over?`วันนี้เกินงบ ${f(-b.todayLeft)} ฿ พรุ่งนี้จะเฉลี่ยใหม่ให้`:`วันนี้ใช้ไป ${f(b.spentToday)} · เหลือ ${f(b.todayLeft)} ฿`}</p>`)+`</section>`}
+
+/* ---- ui helpers ---- */
+function li(l,v,o){o=o||{};var tap=o.fn?` onclick="${o.fn}" role="button" tabindex="0" onkeydown="if(event.key==='Enter')${o.fn}"`:"";return`<div class="li${o.fn?" tap":""}"${tap}><span class="l">${l}${o.sub?`<small>${o.sub}</small>`:""}</span><span class="v"${o.c?` style="color:${o.c}"`:""}>${v}${o.fn?ic("chev",16):""}</span></div>`}
+function empty(t,s){return`<div class="empty"><b>${t}</b><span>${s}</span></div>`}
+function fld(lb,inner,e){return`<label class="fld"><span class="lb">${lb}</span>${inner}${e?`<span class="em" id="${e}"></span>`:""}</label>`}
+function det(id,title,sub,body){return`<details class="card dt"${OPEN[id]?" open":""} ontoggle="OPEN['${id}']=this.open"><summary><span><b>${title}</b>${sub?`<small>${sub}</small>`:""}</span>${ic("chev",18)}</summary><div class="db">${body}</div></details>`}
+function mdet(id,title,body){return`<details class="more"${OPEN[id]?" open":""} ontoggle="OPEN['${id}']=this.open"><summary>${title}</summary>${body}</details>`}
+function header(){
+ var T={home:["ภาพรวม",mname(mk())],plan:["แผนปิดหนี้","ลำดับและยอดที่ควรจ่าย"],log:["บันทึก","รายจ่ายและสลิป"],debt:["หนี้และบัตร",""],stat:["สถิติ","6 เดือนล่าสุด"],set:["ตั้งค่า",""]}[tab];
+ var pq=(S.q||[]).length&&S.sh&&S.sh.url?`<span class="sync">รอซิงก์ ${S.q.length}</span>`:"";
+ return`<div><h1>${T[0]}</h1>${T[1]?`<p class="sub">${T[1]}</p>`:""}</div><div class="tr">${pq}<button class="ib${tab=="set"?" on":""}" aria-label="${tab=="set"?"ปิดตั้งค่า":"ตั้งค่า"}" onclick="setTab('${tab=="set"?"home":"set"}')">${ic(tab=="set"?"x":"gear",22)}</button></div>`}
+
+/* ---- sheet ---- */
+function sheetHTML(c){
+ var t=sheet.t,a=sheet.a,ti="",b="";
+ if(t=="cele")return`<div class="ov" onclick="closeSheet()"><div class="sh cele" onclick="event.stopPropagation()" role="dialog" aria-modal="true"><div class="bounce">${a.emoji}</div><h3>${esc(a.title)}</h3><p class="sub">${esc(a.sub)}</p><button class="btn" onclick="closeSheet()">เยี่ยมเลย</button></div></div>`;
+ if(t=="left"){ti="เหลือใช้เดือนนี้";b=li("รายได้","+"+f(c.inc-c.carry),{c:"var(--pri)"})+(c.carry?li("ยกยอดจากเดือนก่อน",(c.carry>0?"+":"−")+f(Math.abs(c.carry))):"")+S.groups.map(function(g){return li(esc(g.name),"−"+f(gsum(g.id)))}).join("")+li("จ่ายหนี้","−"+f(c.commit),{c:"var(--acc)"})+li("ใช้จ่ายอื่น","−"+f(c.spent))+`<div class="li tot"><span class="l">เหลือ</span><span class="v" style="color:${c.left<0?"var(--acc)":"var(--pri)"}">${f(c.left)} ฿</span></div><p class="sub">ใช้ได้วันละ ${f(Math.max(0,c.perDay))} ฿ อีก ${c.days} วัน</p>`}
+ if(t=="inc"){ti="รายได้";b=fld("เงินเดือน",`<input type="number" inputmode="decimal" value="${S.salary}" onchange="setNum('salary',this.value)">`)+fld("OT เดือนนี้",`<input type="number" inputmode="decimal" value="${S.ot}" onchange="setNum('ot',this.value)">`)+`<div class="li tot"><span class="l">รวม</span><span class="v" style="color:var(--pri)">${f(c.inc)} ฿</span></div>`}
+ if(t=="grp"){var g=S.groups.filter(function(x){return x.id==a})[0];if(!g){sheet=null;return""}ti=g.name;var its=S.fixed.filter(function(x){return x.g==g.id});b=(its.length?its.map(function(x){return li(esc(x.name),f(x.amt))}).join(""):empty("ยังไม่มีรายการ","เพิ่มได้ในตั้งค่า"))+`<div class="li tot"><span class="l">รวม</span><span class="v">${f(gsum(g.id))} ฿</span></div><button class="btn s" onclick="goTab('set')">แก้ไขรายการ</button>`}
+ if(t=="debt"){ti="หนี้และบัตร";b=S.debts.map(function(d){var p=paid(d.id);return li(esc(d.name),f(d.bal)+" ฿",{c:"var(--acc)",sub:`ขั้นต่ำ ${f(d.min)} · จ่ายแล้ว ${f(p)}${p>=d.min&&d.min>0?" ✓":""}`})}).join("")+`<button class="btn" onclick="goTab('debt')">ไปหน้าจ่ายหนี้</button>`}
+ if(t=="spent"||t=="cat"){ti=t=="cat"?a:"ใช้จ่ายอื่นเดือนนี้";var l=sortTx(monthTx().filter(function(x){return !x.debt&&(t=="spent"||x.cat==a)}));b=l.length?l.map(txRow).join(""):empty("ไม่มีรายการ","")}
+ if(t=="bud"){var B=S.bud||{};ti="งบคงเหลือ";b=fld("เงินที่เหลือใช้ได้ตอนนี้ (บาท)",`<input id="bud-amt" type="number" inputmode="decimal" value="${B.amt==null?"":B.amt}" placeholder="เช่น 3500" oninput="this.classList.remove('err');document.getElementById('bud-amt-e').textContent=''">`,"bud-amt-e")+fld("วันเงินเดือนออก (เว้นว่าง = นับถึงสิ้นเดือน)",`<input id="bud-pay" type="number" inputmode="numeric" min="1" max="28" value="${B.pay||""}" placeholder="เช่น 25">`)+`<p class="sub">แอปหักเฉพาะรายจ่ายทั่วไปที่บันทึกหลังจากนี้ (ไม่รวมจ่ายหนี้และเงินออม) แล้วหารเฉลี่ยให้ทุกวัน</p><button class="btn" onclick="saveBud()">บันทึกงบ</button>`+(B.amt!=null?`<button class="btn t" style="width:100%" onclick="clearBud()">ล้างงบ</button>`:"")}
+ return`<div class="ov" onclick="closeSheet()"><div class="sh" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="${esc(ti)}"><div class="hd"><h3>${esc(ti)}</h3><button class="ib" aria-label="ปิด" onclick="closeSheet()">${ic("x",22)}</button></div>${b}</div></div>`}
+function txRow(t){return`<div class="li"><span class="l">${esc(t.note||t.cat)}<small>${t.date.slice(8)}/${t.date.slice(5,7)} · ${esc(t.cat)}</small></span><span class="v"${t.debt?' style="color:var(--acc)"':""}>${f(t.amt)}<button class="ib sm" aria-label="แก้จำนวนเงิน" onclick="editTx(${t.id})">${ic("edit",16)}</button><button class="ib sm" aria-label="ลบรายการ" onclick="delTx(${t.id})">${ic("trash",16)}</button></span></div>`}
+
+/* ---- charts ---- */
+function waterfall(c){
+ var r1=c.inc-c.fx,r2=r1-c.commit,r3=r2-c.spent;
+ var it=[["รายได้",0,c.inc,"var(--pri)",c.inc],["ประจำ",r1,c.inc,"var(--g2)",c.fx],["หนี้",r2,r1,"var(--acc)",c.commit],["ใช้จ่าย",r3,r2,"var(--g1)",c.spent],["เหลือ",Math.min(0,c.left),Math.max(0,c.left),c.left<0?"var(--acc)":"var(--pri2)",c.left]];
+ var mx=Math.max(c.inc,1),mn=Math.min(0,c.left,r3),rng=(mx-mn)||1,y=function(v){return 24+(mx-v)/rng*108},s="";
+ it.forEach(function(o,i){var lo=Math.min(o[1],o[2]),hi=Math.max(o[1],o[2]);if(i==0){lo=0;hi=c.inc}var x=12+i*61,top=y(hi),h=Math.max(2,y(lo)-top);
+  s+=`<rect x="${x}" y="${top}" width="44" height="${h}" rx="6" style="fill:${o[3]}"/><text x="${x+22}" y="${top-6}" text-anchor="middle" class="sv">${(i&&i<4?"−":"")+f(o[4])}</text><text x="${x+22}" y="162" text-anchor="middle">${o[0]}</text>`});
+ return`<svg viewBox="0 0 320 170" role="img" aria-label="กราฟเงินไหลของเดือนนี้"><line x1="6" x2="314" y1="${y(0)}" y2="${y(0)}" class="ax"/>${s}</svg>`}
+function daily(c){
+ var B=c.inc-c.fx-c.commit,now=new Date().getDate(),cum=0,per={};
+ monthTx().forEach(function(t){if(!t.debt){var d=+t.date.slice(8);per[d]=(per[d]||0)+t.amt}});
+ var vals=[B];for(var d=1;d<=now;d++){cum+=per[d]||0;vals.push(B-cum)}
+ var mx=Math.max(B,1),mn=Math.min(0,Math.min.apply(null,vals)),rng=(mx-mn)||1,W=286,H=100;
+ var X=function(d){return 22+d/c.dim*W},Y=function(v){return 18+(mx-v)/rng*H};
+ var p=vals.map(function(v,i){return(i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)}).join(" "),last=vals[vals.length-1],col=last<0?"var(--acc)":"var(--pri)";
+ return`<svg viewBox="0 0 320 150" role="img" aria-label="เงินคงเหลือรายวัน"><line x1="22" x2="308" y1="${Y(0)}" y2="${Y(0)}" style="stroke:var(--acc);opacity:.5" stroke-dasharray="3 3"/><line x1="${X(0)}" y1="${Y(B)}" x2="${X(c.dim)}" y2="${Y(0)}" style="stroke:var(--g2)" stroke-dasharray="4 4"/><path d="${p}" fill="none" style="stroke:${col}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${X(vals.length-1)}" cy="${Y(last)}" r="5" style="fill:${col}"/><text x="22" y="12" class="sv">เหลือ ${f(last)}</text><text x="22" y="144">วันที่ 1</text><text x="308" y="144" text-anchor="end">วันที่ ${c.dim}</text></svg>`}
+function lineChart(a,b,H){
+ var pad=function(x){var r=x.slice(0,H+1);while(r.length<H+1)r.push(x[x.length-1]);return r},A=pad(a),B=pad(b),mx=Math.max(B[0],1),W=286,h=100;
+ var X=function(i){return 22+i/H*W},Y=function(v){return 16+(mx-v)/mx*h};
+ var path=function(x){return x.map(function(v,i){return(i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)}).join(" ")};
+ return`<svg viewBox="0 0 320 150" role="img" aria-label="หนี้รวมตามแผนเทียบจ่ายขั้นต่ำ"><path d="${path(B)}" fill="none" style="stroke:var(--g2)" stroke-width="2.5" stroke-dasharray="5 4"/><path d="${path(A)}" fill="none" style="stroke:var(--pri)" stroke-width="3.5" stroke-linecap="round"/><text x="22" y="10" class="sv">หนี้รวม ${f(mx)}</text><text x="22" y="144">ตอนนี้</text><text x="308" y="144" text-anchor="end">อีก ${H} เดือน</text></svg><p class="sub lg"><i style="background:var(--pri)"></i>ตามแผน<i style="background:var(--g2)"></i>จ่ายขั้นต่ำอย่างเดียว</p>`}
+function barChart(ms,mx){var s="";
+ ms.forEach(function(m,i){var x0=14+i*50;
+  [[m.inc,"var(--pri)"],[m.sp,"var(--g2)"],[m.dp,"var(--acc)"],[m.sv,"var(--pri2)"]].forEach(function(v,j){var h=Math.max(0,v[0]/mx*110);s+=`<rect x="${x0+j*10}" y="${135-h}" width="8" height="${h}" rx="2" style="fill:${v[1]};opacity:${m.est&&j==0?.45:1}"/>`});
+  s+=`<text x="${x0+20}" y="152" text-anchor="middle">${TM[+m.k.slice(5)-1]}</text>`});
+ return`<svg viewBox="0 0 320 160" role="img" aria-label="กราฟรายเดือน"><line x1="8" x2="312" y1="135" y2="135" class="ax"/>${s}</svg><p class="sub lg"><i style="background:var(--pri)"></i>รายได้<i style="background:var(--g2)"></i>ใช้จ่าย<i style="background:var(--acc)"></i>จ่ายหนี้<i style="background:var(--pri2)"></i>ออม</p>`}
+
+/* ---- banner / quick / buy ---- */
+function closeBanner(){var pk=prevKey(mk());
+ if(S.tx.some(function(t){return t.date.slice(0,7)==pk})&&!S.hist[pk])return`<section class="note span2"><b>เดือน${mname(pk)}ยังไม่ได้ปิด</b><p>ปิดเดือนเพื่อสรุปและยกยอดเงินเหลือมาเดือนนี้</p><button class="btn sm" onclick="closeMonth('${pk}')">ปิดเดือน</button></section>`;
+ return""}
+function quickCard(){var q=S.quick||[];if(!q.length)return"";
+ return`<section class="card"><h2>ปุ่มลัด</h2><div class="chips">${q.map(function(x){return`<button class="chip" onclick="quickGo(${x.id})">${esc(x.name)} <b class="num">${f(x.amt)}</b></button>`}).join("")}</div></section>`}
+function quickSet(){
+ var h=S.quick.map(function(x){return`<div class="fxr"><input aria-label="ชื่อปุ่ม" value="${esc(x.name)}" onchange="setQ(${x.id},'name',this.value)"><input aria-label="ราคา" type="number" inputmode="decimal" value="${x.amt}" onchange="setQ(${x.id},'amt',this.value)"><button class="ib" aria-label="ลบปุ่ม" onclick="delQ(${x.id})">${ic("trash",18)}</button><select aria-label="หมวด" onchange="setQ(${x.id},'cat',this.value)">${CATS.map(function(c){return`<option${c==x.cat?" selected":""}>${c}</option>`}).join("")}</select></div>`}).join("");
+ h+=`<button class="btn s" onclick="addQ()">+ เพิ่มปุ่มลัด</button>`;
+ var cnt={};S.tx.forEach(function(t){if(t.debt||!t.note)return;var k=t.note+"|"+t.amt+"|"+t.cat;cnt[k]=(cnt[k]||0)+1});
+ var have=S.quick.map(function(q){return q.name+"|"+q.amt+"|"+q.cat});
+ SUG=Object.keys(cnt).filter(function(k){return cnt[k]>=3&&have.indexOf(k)<0}).sort(function(a,b){return cnt[b]-cnt[a]}).slice(0,5);
+ if(SUG.length)h+=`<p class="sub" style="margin-top:16px">ที่คุณบันทึกบ่อย แตะเพื่อเพิ่ม</p><div class="chips">${SUG.map(function(k,i){var p=k.split("|");return`<button class="chip" onclick="addQs(${i})">+ ${esc(p[0])} ${f(+p[1])}</button>`}).join("")}</div>`;
+ return h}
+function buyCard(P,pool,open){
+ if(!open.length)return"";
+ var h=`<section class="card"><h2>เช็กก่อนซื้อ</h2>`+fld("ราคาของที่จะซื้อ (บาท)",`<input type="number" inputmode="decimal" placeholder="เช่น 1500" value="${buyAmt||""}" onchange="setBuy(this.value)">`);
+ if(buyAmt>0){
+  var a=simulate(P.strat,pool,true),b=simulate(P.strat,pool,true,buyAmt),days=Math.max(0,Math.round((b.exact-a.exact)*30)),ex=Math.max(0,b.interest-a.interest),over=buyAmt>Math.max(0,pool);
+  var col=over||days>14?"var(--acc)":days>3?"var(--tx)":"var(--pri)";
+  h+=`<div class="res"><b class="big2 num" style="color:${col}">ช้าลง ≈ ${days} วัน</b><p class="sub">เสียดอกเพิ่มประมาณ ${f(ex)} ฿ · ปิดหนี้หมด ${whenTxt(b.months)}${b.months>a.months?` (ขยับ ${b.months-a.months} เดือน)`:""}</p><p>${over?`เกินเงินเหลือโปะเดือนนี้ (${f(Math.max(0,pool))} ฿) ต้องหักจากงบกินอยู่หรือเงินออม แนะนำรอไว้ก่อน`:days<=3?"ซื้อได้ ผลกระทบน้อยมาก":days<=14?"ลองรอหรือหาของถูกกว่า":"ผลกระทบสูง แนะนำรอไว้ก่อน"}</p></div>`}
+ return h+`</section>`}
+function shCard(){var sh=S.sh||{url:"",token:""};
+ return`<p class="sub">ทุกรายการที่บันทึก แก้ หรือลบ จะส่งขึ้นชีตอัตโนมัติ ถ้าออฟไลน์จะเก็บคิวไว้ส่งทีหลัง</p>`+fld("Web App URL",`<input placeholder="https://script.google.com/macros/s/.../exec" value="${esc(sh.url)}" onchange="setSh('url',this.value)">`)+fld("รหัสลับ (TOKEN)",`<input type="password" placeholder="ตรงกับในสคริปต์" value="${esc(sh.token)}" onchange="setSh('token',this.value)">`)+`<div class="row2"><button class="btn s sm" onclick="sheetAll()">ส่งข้อมูลทั้งหมด</button><a class="btn s sm" href="https://docs.google.com/spreadsheets/d/1OPhUbn0HF_m1C7gHdd5FDlXuKwA3qob5lv7F6uLEcj8/edit" target="_blank" rel="noopener">เปิดชีต</a></div><p class="sub" id="shst" style="margin-top:12px">${esc(S.shMsg||"ยังไม่ได้เชื่อมต่อ")} · คิวค้าง ${(S.q||[]).length}</p>`}
+
+/* ---- views ---- */
+function home(){
+ var c=calc(),tot=S.debts.reduce(function(a,d){return a+d.bal},0),st=streakInfo().cur;
+ var open=S.debts.filter(function(d){return d.bal>0}),tgt=prio(open.map(function(d){return{id:d.id,name:d.name,bal:d.bal,apr:d.apr||0}}),S.plan.strat)[0];
+ var h=closeBanner()+`<section class="hero span2${c.left<0?" neg":""}" onclick="openSheet('left')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openSheet('left')"><p>เหลือใช้เดือนนี้</p><div class="big num">${f(c.left)} ฿</div><p>${c.left<0?"ใช้เกินแผนแล้ว แตะดูรายละเอียด":`ใช้ได้วันละ ${f(Math.max(0,c.perDay))} ฿ · อีก ${c.days} วัน`}</p></section>`;
+ h+=`<button class="btn span2" onclick="setTab('log')">${ic("plus")}บันทึกรายจ่าย</button>`;
+ if(st)h+=`<p class="sub span2" style="text-align:center">บันทึกต่อเนื่อง ${st} วัน</p>`;
+ h+=budCard();
+ var r=li("รายได้","+"+f(c.inc),{fn:"openSheet('inc')",c:"var(--pri)"});
+ S.groups.forEach(function(g){r+=li(esc(g.name),"−"+f(gsum(g.id)),{fn:`openSheet('grp',${g.id})`})});
+ r+=li("จ่ายหนี้","−"+f(c.commit),{fn:"openSheet('debt')",c:"var(--acc)"})+li("ใช้จ่ายอื่น","−"+f(c.spent),{fn:"openSheet('spent')"});
+ h+=`<section class="card"><h2>เดือนนี้</h2>${r}</section>`;
+ h+=`<section class="card" onclick="openSheet('left')"><h2>เงินไหลไปไหน</h2>${waterfall(c)}</section>`;
+ h+=`<section class="card"><h2>เงินคงเหลือรายวัน</h2>${daily(c)}<p class="sub lg"><i style="background:var(--pri)"></i>จริง<i style="background:var(--g2)"></i>แผนให้พอดีสิ้นเดือน</p></section>`;
+ var cats=Object.keys(c.by).sort(function(a,b){return c.by[b]-c.by[a]});
+ h+=`<section class="card"><h2>ใช้ไปกับอะไร</h2>`+(cats.length?cats.map(function(k){return`<div class="cat" onclick="openSheet('cat','${k}')" role="button" tabindex="0"><div class="li" style="border:0;padding:8px 0 6px"><span class="l">${k}</span><span class="v">${f(c.by[k])}${ic("chev",16)}</span></div><div class="bar"><i style="width:${c.by[k]/c.spent*100}%;background:${COL[k]||"var(--g1)"}"></i></div></div>`}).join(""):empty("ยังไม่มีรายจ่ายเดือนนี้","กดบันทึกรายจ่ายด้านบนได้เลย"))+`</section>`;
+ h+=`<section class="card"><h2>หนี้คงเหลือรวม</h2><div class="big2 num" style="color:var(--acc)">${f(tot)} ฿</div>`+(tgt?`<p class="sub">ปิดก่อน: <b>${esc(tgt.name)}</b> (เหลือ ${f(tgt.bal)} ฿)</p>`:`<p class="sub" style="color:var(--pri)">ปิดหนี้ครบแล้ว</p>`)+`<div style="margin-top:16px"><button class="btn s sm" onclick="setTab('plan')">ดูแผนปิดหนี้</button></div></section>`;
+ return h}
+function log(){
+ var h="",bi=budInfo();
+ if(bi)h+=`<div class="bchip span2${bi.todayLeft<0?" over":""}">${bi.todayLeft<0?`วันนี้เกินงบ ${f(-bi.todayLeft)} ฿`:`วันนี้เหลือ <b>${f(bi.todayLeft)} ฿</b>`} · เฉลี่ยวันละ ${f(Math.max(0,bi.per))} ฿</div>`;
+ if(pend)h+=`<section class="card pend span2"><h2>ตรวจก่อนบันทึก</h2>`+(getKey()?"":`<p class="sub" style="margin-bottom:12px">อ่านด้วย OCR ฟรี ตัวเลขอาจคลาดเคลื่อน ตรวจให้ถูกก่อนบันทึก</p>`)+`<div class="g2">${fld("จำนวนเงิน",`<input type="number" inputmode="decimal" value="${pend.amt}" oninput="pf('amt',this.value)">`)}${fld("วันที่",`<input type="date" value="${pend.date}" oninput="pf('date',this.value)">`)}</div>${fld("รายละเอียด",`<input value="${esc(pend.note)}" oninput="pf('note',this.value)">`)}<div class="g2">${fld("หมวด",`<select onchange="pf('cat',this.value)">${CATS.map(function(c){return`<option${c==pend.cat?" selected":""}>${c}</option>`}).join("")}</select>`)}${fld("จ่ายหนี้ให้",`<select onchange="pf('debt',this.value)"><option value="0">ไม่ใช่จ่ายหนี้</option>${S.debts.map(function(d){return`<option value="${d.id}"${d.id==pend.debt?" selected":""}>${esc(d.name)}</option>`}).join("")}</select>`)}</div><div class="row2"><button class="btn" onclick="okPend()">บันทึก</button><button class="btn s" onclick="pend=null;render()">ยกเลิก</button></div></section>`;
+ h+=quickCard();
+ h+=`<section class="card"><h2>บันทึกรายจ่าย</h2>`+fld("จำนวนเงิน (บาท)",`<input id="amt" class="amt" type="number" inputmode="decimal" placeholder="0" onkeydown="enter(event)" oninput="this.classList.remove('err');document.getElementById('amt-e').textContent=''">`,"amt-e")+fld("รายละเอียด (ไม่บังคับ)",`<input id="note" placeholder="เช่น ข้าวกลางวัน" autocomplete="off" onkeydown="enter(event)">`)+`<div class="lb">หมวด</div><div class="chips">${CATS.map(function(c){return`<button class="chip cc${c==cat?" on":""}" data-c="${c}" onclick="setCat(this.dataset.c)">${c}</button>`}).join("")}</div><button class="btn" onclick="quick()">บันทึก</button>`+mdet("bulk","วางหลายรายการพร้อมกัน",`<textarea id="bulk" rows="4" placeholder="ข้าว 60&#10;ค่ารถ 40"></textarea><button class="btn s sm" onclick="bulk()">เพิ่มทั้งหมด</button>`)+`</section>`;
+ if(busy)h+=`<section class="card"><div class="busy" role="status"><span class="spin"></span><div><b>กำลังอ่านสลิป…</b><p class="sub">ใช้เวลาประมาณ 5–20 วินาที</p></div></div></section>`;
+ else h+=`<section class="card"><h2>สแกนสลิป</h2>`+(msg?`<div class="note" role="alert"><p>${esc(msg)}</p><div class="row2">${lastFile?`<button class="btn sm" onclick="retryScan()">ลองอีกครั้ง</button>`:""}<button class="btn s sm" onclick="msg='';render()">ปิด</button></div></div>`:"")+`<p class="sub" style="margin-bottom:12px">เลือกรูปสลิป แล้วตรวจตัวเลขก่อนบันทึก</p><button class="btn s" onclick="document.getElementById('file').click()">${ic("camera")}เลือกรูปสลิป</button></section>`;
+ var m=sortTx(monthTx());
+ h+=`<section class="card"><h2>รายการเดือนนี้${m.length?` (${m.length})`:""}</h2>`+(m.length?m.map(txRow).join(""):empty("ยังไม่มีรายการเดือนนี้","กดปุ่มลัดหรือพิมพ์ด้านบนได้เลย"))+`</section>`;
+ return h}
+function debts(){
+ var tot=0,mins=0,pd=0;S.debts.forEach(function(d){tot+=d.bal;if(d.bal>0){mins+=d.min;pd+=Math.min(paid(d.id),d.min)}});
+ var h=`<section class="card span2"><h2>หนี้คงเหลือรวม</h2><div class="big2 num" style="color:var(--acc)">${f(tot)} ฿</div><div class="bar${pd>=mins&&mins>0?"":" a"}" style="margin:14px 0 8px"><i style="width:${mins?Math.min(100,pd/mins*100):0}%"></i></div><p class="sub">ขั้นต่ำเดือนนี้ ${f(mins)} ฿ · จ่ายแล้ว ${f(pd)} ฿</p></section>`;
+ if(!S.debts.length)return h+`<section class="card span2">${empty("ยังไม่มีหนี้ในระบบ","เพิ่มได้ในตั้งค่า > บัตรและหนี้")}</section>`;
+ S.debts.slice().sort(function(a,b){return (a.bal<=0)-(b.bal<=0)}).forEach(function(d){
+  var p=paid(d.id),ok=d.min>0&&p>=d.min,closed=d.bal<=0,hist=sortTx(S.tx.filter(function(t){return t.debt==d.id})).slice(0,8);
+  h+=`<section class="card${closed?" dim":""}"><div class="li" style="border:0;padding:0"><span class="l"><b>${esc(d.name)}</b><small>ดอก ${d.apr||0}%/ปี · ขั้นต่ำ ${f(d.min)}</small></span><span class="v num" style="color:var(--acc);font-size:20px">${f(d.bal)} ฿</span></div>`
+  +(closed?`<p class="sub" style="color:var(--pri);margin-top:12px">ปิดแล้ว</p>`:`<div class="bar${ok?"":" a"}" style="margin:16px 0 8px"><i style="width:${Math.min(100,p/Math.max(1,d.min)*100)}%"></i></div><p class="sub">${d.min>0?(ok?"จ่ายครบขั้นต่ำเดือนนี้แล้ว":`จ่ายแล้ว ${f(p)} จาก ${f(d.min)}`):"ยังไม่ได้ตั้งขั้นต่ำ"}</p><button class="btn" style="margin-top:16px" onclick="pay(${d.id})">จ่ายหนี้</button>`)
+  +(hist.length?mdet("h"+d.id,`ประวัติการจ่าย (${hist.length})`,hist.map(txRow).join("")):"")+`</section>`});
+ return h}
+function plan(){
+ var P=S.plan,cr=(S.carry&&S.carry[mk()])||0,inc=S.salary+S.ot+cr,fx=S.fixed.reduce(function(a,x){return a+x.amt},0);
+ var open=S.debts.filter(function(d){return d.bal>0}),mins=open.reduce(function(a,d){return a+Math.min(d.min,d.bal)},0);
+ var pool=inc-fx-mins-P.living-P.save;
+ var ds=open.map(function(d){return{id:d.id,name:d.name,bal:d.bal,min:d.min,apr:d.apr||0}}),order=prio(ds,P.strat),rec={},left=Math.max(0,pool);
+ order.forEach(function(d){rec[d.id]=Math.min(d.min,d.bal)});
+ order.forEach(function(d){var x=Math.min(d.bal-rec[d.id],left);rec[d.id]+=x;left-=x});
+ var h="";
+ if(!open.length)h+=`<section class="card span2"><h2>แผนปิดหนี้</h2><div class="big2" style="color:var(--pri)">ปิดหนี้ครบแล้ว</div><p class="sub">เอาเงินที่เคยโปะไปเพิ่มเงินออมต่อ</p></section>`;
+ else{
+  var t0=order[0],ex0=rec[t0.id]-Math.min(t0.min,t0.bal),need0=Math.max(0,rec[t0.id]-paid(t0.id));
+  if(pool<0)h+=`<section class="note span2" role="alert"><b>เดือนนี้ขาดอีก ${f(-pool)} ฿</b><p>ลองเพิ่ม OT ลดงบกินอยู่หรือเงินออมชั่วคราว หรือขอเจรจาลดดอก ห้ามข้ามขั้นต่ำ เพราะจะโดนค่าปรับ</p></section>`;
+  h+=`<section class="hero span2"><p>เป้าหมายโปะเดือนนี้</p><div class="big">${esc(t0.name)}</div><p>${ex0>0?`โปะเพิ่ม ${f(ex0)} ฿ · รวมจ่าย ${f(rec[t0.id])} ฿`:`จ่ายขั้นต่ำ ${f(rec[t0.id])} ฿ · ยังไม่มีเงินเหลือโปะเพิ่ม`}</p><button class="btn" onclick="pay(${t0.id},${Math.round(need0)})"${need0<=0?" disabled":""}>${need0>0?`จ่ายตามแผน ${f(need0)} ฿`:"จ่ายครบตามแผนแล้ว"}</button></section>`;
+  var pl=simulate(P.strat,pool,true),bs=simulate(P.strat,0,false),H=Math.min(60,Math.max(12,pl.months+3));
+  h+=`<section class="card"><h2>ปิดหนี้หมดเมื่อไหร่</h2><div class="big2" style="color:var(--pri)">${pl.done?whenTxt(pl.months):"ไม่ปิดใน 20 ปี"}</div><p class="sub">ใช้เวลา ${durTxt(pl)} · ดอกรวมประมาณ ${f(pl.interest)} ฿</p>${bs.interest>pl.interest?`<p style="margin:12px 0">ประหยัดดอก ≈ <b>${f(bs.interest-pl.interest)} ฿</b> เทียบกับจ่ายขั้นต่ำอย่างเดียว (${bs.done?durTxt(bs):"ไม่ปิดใน 20 ปี"})</p>`:""}${lineChart(pl.series,bs.series,H)}<p class="sub">คำนวณจากดอกเบี้ยที่ตั้งไว้และรายรับเท่าเดือนนี้ ตัวเลขจริงอาจต่างเล็กน้อย</p></section>`;
+  h+=`<section class="card"><h2>ลำดับปิดหนี้</h2><div class="seg" role="group" aria-label="เลือกลำดับ"><button class="${P.strat=="apr"?"on":""}" onclick="setPlan('strat','apr')">ดอกสูงก่อน</button><button class="${P.strat=="bal"?"on":""}" onclick="setPlan('strat','bal')">ยอดน้อยก่อน</button></div><p class="sub" style="margin:8px 0 4px">${P.strat=="apr"?"เสียดอกรวมน้อยที่สุด":"ปิดบัญชีได้ไว ได้กำลังใจ"}</p>`+order.map(function(d,i){var r=rec[d.id],need=Math.max(0,r-paid(d.id));
+   return`<div class="li"><span class="l"><span class="rk${i==0?" on":""}">${i+1}</span><b>${esc(d.name)}</b>${r>=d.bal?" · ปิดได้เดือนนี้":""}<small>เหลือ ${f(d.bal)} · ดอก ${d.apr}%/ปี${d.apr<=0?" · ผ่อน 0% ไม่ต้องรีบโปะ":""}</small><small>แนะนำจ่าย <b>${f(r)}</b> ฿</small></span><span class="v"><button class="btn s sm" onclick="pay(${d.id},${Math.round(need)})"${need<=0?" disabled":""}>${need<=0?"จ่ายแล้ว":"จ่าย "+f(need)}</button></span></div>`}).join("")+`</section>`}
+ h+=`<section class="card"><h2>จัดสรรเงินเดือนนี้</h2>`+li("รายได้","+"+f(inc-cr),{c:"var(--pri)"})+(cr?li("ยกยอดจากเดือนก่อน",(cr>0?"+":"−")+f(Math.abs(cr))):"")+li("รายจ่ายประจำ","−"+f(fx))+li("ขั้นต่ำทุกบัญชี","−"+f(mins),{c:"var(--acc)"})+`<div class="g2" style="margin-top:12px">${fld("งบกินอยู่",`<input type="number" inputmode="decimal" value="${P.living}" onchange="setPlan('living',this.value)">`)}${fld("เงินออม",`<input type="number" inputmode="decimal" value="${P.save}" onchange="setPlan('save',this.value)">`)}</div><div class="li tot"><span class="l">เหลือโปะหนี้ได้</span><span class="v" style="color:${pool<0?"var(--acc)":"var(--pri)"}">${f(pool)} ฿</span></div></section>`;
+ h+=buyCard(P,pool,open);
+ var sp=0,sv=0;monthTx().forEach(function(t){if(t.debt)return;if(t.cat=="เงินออม")sv+=t.amt;else sp+=t.amt});
+ var tg=fx+P.living,need=Math.max(0,P.save-sv);
+ h+=`<section class="card"><h2>ใช้ชีวิต และเงินเก็บ</h2><div class="li" style="border:0;padding-bottom:6px"><span class="l">ใช้จริง / งบกินอยู่</span><span class="v" style="color:${sp>P.living?"var(--acc)":"var(--tx)"}">${f(sp)} / ${f(P.living)}</span></div><div class="bar${sp>P.living?" a":""}"><i style="width:${Math.min(100,sp/Math.max(1,P.living)*100)}%"></i></div><div class="li" style="border:0;padding:16px 0 6px"><span class="l">ออมเดือนนี้ / เป้า</span><span class="v">${f(sv)} / ${f(P.save)}</span></div><div class="bar"><i style="width:${Math.min(100,sv/Math.max(1,P.save)*100)}%"></i></div><button class="btn s" style="margin-top:16px" onclick="addTx(${need},'เงินออม','ออมเงิน')"${need<=0?" disabled":""}>${need>0?`บันทึกออม ${f(need)} ฿`:"ออมครบเป้าแล้ว"}</button>`+(P.save>0?`<p class="sub" style="margin-top:12px">ออมต่อเนื่อง 12 เดือน ≈ ${f(P.save*12)} ฿ · เงินสำรองฉุกเฉิน 1 เดือน (ประมาณ ${f(tg)} ฿) ครบในราว ${Math.ceil(tg/P.save)} เดือน</p>`:`<p class="sub" style="margin-top:12px">ตั้งเงินออมต่อเดือนเพื่อสร้างเงินสำรองฉุกเฉิน</p>`)+`</section>`;
+ return h}
+function stat(){
+ var ms=monthsBack(6).map(mstat),mx=1,st=streakInfo(),tdp=0,tsv=0,tsp=0,n=0;
+ ms.forEach(function(m){mx=Math.max(mx,m.inc,m.sp,m.dp,m.sv);tdp+=m.dp;tsv+=m.sv;tsp+=m.sp;if(m.sp>0)n++});
+ var S4=[["บันทึกต่อเนื่อง",st.cur+" วัน","สูงสุด "+st.best+" วัน"],["จ่ายหนี้ 6 เดือน",f(tdp)+" ฿",""],["ออม 6 เดือน",f(tsv)+" ฿",""],["ใช้จ่ายเฉลี่ย/เดือน",f(n?tsp/n:0)+" ฿",""]];
+ var h=closeBanner()+`<section class="card span2"><div class="g2 stg">${S4.map(function(x){return`<div class="st"><span>${x[0]}</span><b class="num">${x[1]}</b>${x[2]?`<small>${x[2]}</small>`:""}</div>`}).join("")}</div></section>`;
+ h+=`<section class="card"><h2>6 เดือนย้อนหลัง</h2>${barChart(ms,mx)}<p class="sub">* รายได้เดือนที่ยังไม่ปิดประมาณจากเงินเดือนปัจจุบัน</p></section>`;
+ var cl=ms.filter(function(m){return S.hist[m.k]&&S.hist[m.k].debt!=null});
+ h+=`<section class="card"><h2>ปิดเดือน</h2>`+(cl.length>=2?`<div class="big2 num" style="color:var(--pri)">หนี้ลดลง ${f(S.hist[cl[0].k].debt-S.hist[cl[cl.length-1].k].debt)} ฿</div><p class="sub" style="margin-bottom:12px">จาก ${mname(cl[0].k)} ถึง ${mname(cl[cl.length-1].k)}</p>`:"")+`<p class="sub" style="margin-bottom:16px">สรุปเดือนนี้ และยกยอดเงินเหลือ (หรือที่ขาด) ไปเดือนหน้า</p><button class="btn" onclick="closeMonth(mk())">ปิดเดือนนี้</button></section>`;
+ h+=`<section class="card span2"><h2>รายเดือน</h2>`+ms.slice().reverse().map(function(m){var hh=S.hist[m.k];
+  return`<div class="mr"><div class="li" style="border:0;padding:0"><span class="l"><b>${mname(m.k)}</b></span><span class="tag${m.closed?" ok":""}">${m.closed?"ปิดแล้ว":m.k==mk()?"เดือนนี้":"ยังไม่ปิด"}</span></div><div class="g4"><span>รายได้${m.est?"*":""}<b class="num">${f(m.inc)}</b></span><span>ใช้จ่าย<b class="num">${f(m.sp)}</b></span><span>จ่ายหนี้<b class="num">${f(m.dp)}</b></span><span>ออม<b class="num">${f(m.sv)}</b></span></div>${hh?`<p class="sub">เหลือ ${f(hh.left)} ฿ · หนี้ตอนปิด ${f(hh.debt)} ฿</p>`:""}</div>`}).join("")+`</section>`;
+ return h}
+function sets(){
+ var fxT=S.fixed.reduce(function(a,x){return a+x.amt},0);
+ var inc=fld("เงินเดือน",`<input type="number" inputmode="decimal" value="${S.salary}" onchange="setNum('salary',this.value)">`)+fld("OT เดือนนี้",`<input type="number" inputmode="decimal" value="${S.ot}" onchange="setNum('ot',this.value)">`);
+ var fixed=S.groups.map(function(g){return`<div class="grp"><div class="gh"><input aria-label="ชื่อหมวด" value="${esc(g.name)}" onchange="setG(${g.id},this.value)"><span class="num">${f(gsum(g.id))}</span></div>`+S.fixed.filter(function(x){return x.g==g.id}).map(function(x){return`<div class="fxr"><input aria-label="ชื่อรายการ" value="${esc(x.name)}" onchange="setF(${x.id},'name',this.value)"><input aria-label="จำนวนเงิน" type="number" inputmode="decimal" value="${x.amt}" onchange="setF(${x.id},'amt',this.value)"><button class="ib" aria-label="ลบรายการ" onclick="delF(${x.id})">${ic("trash",18)}</button>${S.groups.length>1?`<select aria-label="ย้ายหมวด" onchange="setF(${x.id},'g',this.value)">${S.groups.map(function(o){return`<option value="${o.id}"${o.id==g.id?" selected":""}>หมวด: ${esc(o.name)}</option>`}).join("")}</select>`:""}</div>`}).join("")+`<div class="row2"><button class="btn s sm" onclick="addF(${g.id})">+ เพิ่มรายการ</button><button class="btn t sm" onclick="delG(${g.id})">ลบหมวด</button></div></div>`}).join("")+`<button class="btn s" onclick="addG()">+ เพิ่มหมวดใหม่</button>`;
+ var dts=S.debts.map(function(d){return`<div class="grp"><div class="gh"><input aria-label="ชื่อบัญชี" value="${esc(d.name)}" onchange="setDebt(${d.id},'name',this.value)"><button class="ib" aria-label="ลบบัญชี" onclick="delDebt(${d.id})">${ic("trash",18)}</button></div><div class="g3">${[["bal","คงเหลือ"],["min","ขั้นต่ำ/เดือน"],["apr","ดอก %/ปี"]].map(function(k){return fld(k[1],`<input type="number" inputmode="decimal" value="${d[k[0]]||0}" onchange="setDebt(${d.id},'${k[0]}',this.value)">`)}).join("")}</div></div>`}).join("")+`<p class="sub">ถ้าไม่ทราบดอกเบี้ย ใช้ 16 หรือใส่ 0 สำหรับผ่อนสินค้า</p><button class="btn s" onclick="addDebt()">+ เพิ่มบัตร/หนี้</button>`;
+ var scanB=`<p class="sub">ไม่ใส่คีย์ = ใช้ OCR ฟรีในเครื่อง (แม่นปานกลาง) ใส่ Claude API key = แม่นกว่า ค่าใช้จ่ายน้อยมากต่อรูป คีย์เก็บในเครื่องนี้เท่านั้น</p>`+fld("Claude API key",`<input type="password" placeholder="sk-ant-... (ไม่บังคับ)" value="${esc(getKey())}" onchange="saveKey(this.value)">`);
+ var bk=`<p class="sub">ข้อมูลเก็บในเครื่องนี้เท่านั้น ควรสำรองเป็นระยะ</p><div class="row2"><button class="btn s sm" onclick="backup()">ดาวน์โหลดสำรอง</button><button class="btn s sm" onclick="document.getElementById('rf').click()">กู้ข้อมูล</button></div><input type="file" id="rf" accept=".json" hidden onchange="restore(this.files[0])">`;
+ return det("inc","รายได้",`เงินเดือน ${f(S.salary)} · OT ${f(S.ot)}`,inc)+det("fixed","ค่าห้องและรายจ่ายประจำ",`รวม ${f(fxT)} ฿ ต่อเดือน`,fixed)+det("debts","บัตรและหนี้",`${S.debts.length} บัญชี`,dts)+det("quick","ปุ่มลัด",`${S.quick.length} ปุ่ม`,quickSet())+det("sheet","ซิงก์ Google Sheet",esc(S.shMsg||"ยังไม่ได้เชื่อมต่อ"),shCard())+det("scan","สแกนสลิป",getKey()?"ใช้ Claude":"ใช้ OCR ฟรี",scanB)+det("bk","สำรองข้อมูล","",bk)}
+function render(){
+ var c=calc();
+ document.getElementById("hd").innerHTML=header();
+ document.getElementById("app").innerHTML=tab=="home"?home():tab=="plan"?plan():tab=="stat"?stat():tab=="log"?log():tab=="debt"?debts():sets();
+ document.getElementById("sheet").innerHTML=sheet?sheetHTML(c):"";
+ var T=[["home","home","ภาพรวม"],["plan","plan","แผน"],["log","plus","บันทึก"],["debt","card","หนี้"],["stat","chart","สถิติ"]];
+ document.getElementById("tabs").innerHTML=`<div class="ti">`+T.map(function(t){return`<button class="${t[0]==tab?"on":""}" onclick="setTab('${t[0]}')"${t[0]==tab?' aria-current="page"':""}>${ic(t[1],22)}<span>${t[2]}</span></button>`}).join("")+`</div>`}
+document.addEventListener("keydown",function(e){if(e.key=="Escape"&&sheet)closeSheet()});
+
 render();
+
 </script>
 </body>
 </html>
