@@ -155,7 +155,9 @@ svg text{font-size:11px;fill:var(--mu)}svg text.sv{fill:var(--tx);font-weight:60
 <div id="sheet"></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <input type="file" id="file" accept="image/*" hidden>
+<script src="config.js"></script>
 <script>
+var booting=true,CFG=window.APP_CONFIG||{};
 
 
 var KEY="debtapp1";
@@ -169,9 +171,9 @@ function cp(o){return JSON.parse(JSON.stringify(o))}
 var S;try{S=JSON.parse(localStorage.getItem(KEY))||cp(def)}catch(e){S=cp(def)}
 if(S.v!=2){var oldRent=S.rent||0,d2=cp(def);S.v=2;S.groups=d2.groups;S.fixed=d2.fixed;S.fixed[0].amt=oldRent;delete S.rent;if(!S.debts.some(function(x){return x.name.toLowerCase()=="ufund"}))S.debts.push({id:Date.now(),name:"UFUND",bal:0,min:0});save()}
 if(!S.plan)S.plan={living:3500,save:500,strat:"apr"};S.debts.forEach(function(d){if(d.apr==null)d.apr=/this shop/i.test(d.name)?0:16});
-if(!S.sh)S.sh={url:"",token:""};if(!S.q)S.q=[];if(!S.bud)S.bud={amt:null,at:0,pay:0};if(!S.cb)S.cb={};if(!S.theme)S.theme="auto";if(!S.shop)S.shop=[];if(!S.seen)S.seen={};if(!S.hist)S.hist={};if(!S.carry)S.carry={};if(!S.quick)S.quick=[{id:1,name:"ข้าว",amt:60,cat:"อาหาร"},{id:2,name:"ค่ารถ",amt:40,cat:"เดินทาง"},{id:3,name:"น้ำ/ขนม",amt:30,cat:"อาหาร"}];
+if(!S.sh)S.sh={url:"",token:""};if(!S.q)S.q=[];if(CFG.url)S.sh={url:CFG.url,token:CFG.token||""};if(S.rev==null)S.rev=0;if(!S.dev)S.dev=Math.random().toString(36).slice(2,8);if(!S.bud)S.bud={amt:null,at:0,pay:0};if(!S.cb)S.cb={};if(!S.theme)S.theme="auto";if(!S.shop)S.shop=[];if(!S.seen)S.seen={};if(!S.hist)S.hist={};if(!S.carry)S.carry={};if(!S.quick)S.quick=[{id:1,name:"ข้าว",amt:60,cat:"อาหาร"},{id:2,name:"ค่ารถ",amt:40,cat:"เดินทาง"},{id:3,name:"น้ำ/ขนม",amt:30,cat:"อาหาร"}];
 var tab="home",cat="อาหาร",pend=null,busy=false,msg="",sheet=null;
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
 function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function today(){return iso(new Date())}
 function mk(){return today().slice(0,7)}
@@ -255,8 +257,8 @@ async function flush(){
   if(j.ok){S.q.splice(0,n);ok=true;shNote("ซิงก์ล่าสุด "+new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"}))}else shNote("ชีตปฏิเสธ: เช็กรหัสลับ (TOKEN)")}
  catch(e){shNote("ส่งไม่สำเร็จ (ออฟไลน์/URL ผิด) จะลองใหม่")}
  flushing=false;save();if(ok&&S.q.length)flush()}
-function setSh(k,v){if(!S.sh)S.sh={url:"",token:""};S.sh[k]=v.trim();save();flush()}
-function sheetAll(){if(!S.sh||!S.sh.url){alert("ใส่ Web App URL ก่อน");return}S.q=S.tx.slice().reverse().map(function(t){return{a:"upsert",id:String(t.id),row:txRowData(t)}});S.q.push({a:"debts",rows:debtRows()});Object.keys(S.hist||{}).forEach(function(k){var h=S.hist[k];S.q.push({a:"month",key:k,row:[k,mname(k),h.inc,h.carry,h.fx,h.commit,h.spent,h.saved,h.left,h.debt]})});save();flush();alert("เริ่มส่งข้อมูลทั้งหมดแล้ว ดูสถานะในช่องซิงก์")}
+
+
 
 
 
@@ -344,7 +346,7 @@ async function scan(file){lastFile=file;
  busy=false;render()}
 function saveKey(v){try{localStorage.setItem("debtkey",v.trim())}catch(e){}}
 function backup(){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:"application/json"}));a.download="debt-backup-"+today()+".json";a.click()}
-function restore(fl){var fr=new FileReader();fr.onload=function(){try{S=JSON.parse(fr.result);save();render();alert("กู้ข้อมูลแล้ว")}catch(e){alert("ไฟล์ไม่ถูกต้อง")}};fr.readAsText(fl)}
+function restore(fl){var fr=new FileReader();fr.onload=function(){try{S=JSON.parse(fr.result);if(CFG.url)S.sh={url:CFG.url,token:CFG.token||""};if(!S.sh)S.sh={url:"",token:""};if(!S.q)S.q=[];if(S.rev==null)S.rev=0;if(!S.dev)S.dev=Math.random().toString(36).slice(2,8);save();render();alert("กู้ข้อมูลแล้ว")}catch(e){alert("ไฟล์ไม่ถูกต้อง")}};fr.readAsText(fl)}
 
 function pf(k,v){pend[k]=(k=="amt"||k=="debt")?parseFloat(v)||0:v}
 function okPend(){addTx(pend.amt,pend.cat,pend.note,pend.date,pend.debt||null);pend=null;render()}
@@ -467,6 +469,65 @@ function setTheme(v){S.theme=v;save();applyTheme();render()}
 function toggleTheme(){setTheme(isDark()?"light":"dark")}
 function setTab(t,s){sheet=null;tab=t;sub=s||null;render();window.scrollTo(0,0)}
 function setSub(id){sub=id;render();window.scrollTo(0,0)}
+/* ---- full two-way sync via Google Sheet ---- */
+var syncTm=null,syncing=false,pulling=false;
+function lsSave(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){if(!booting){S.dirty=1;S.touched=1}lsSave();if(!booting)scheduleSync()}
+function scheduleSync(){if(!S.sh||!S.sh.url)return;clearTimeout(syncTm);syncTm=setTimeout(function(){syncPush()},2500)}
+function hhmm(){return new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})}
+function buildBlob(){var o={},skip=["q","sh","shMsg","dev","rev","dirty","touched","theme","lastSync"];Object.keys(S).forEach(function(k){if(skip.indexOf(k)<0)o[k]=S[k]});return o}
+function applyBlob(o){var keep={sh:S.sh,q:S.q,shMsg:S.shMsg,dev:S.dev,theme:S.theme};S=Object.assign({},o,keep);if(!S.q)S.q=[];if(!S.tx)S.tx=[];S.debts.forEach(function(d){if(d.apr==null)d.apr=0});["seen","hist","carry","cb"].forEach(function(k){if(!S[k])S[k]={}});if(!S.shop)S.shop=[];if(!S.quick)S.quick=[];if(!S.bud)S.bud={amt:null,at:0,pay:0};if(!S.plan)S.plan={living:3500,save:500,strat:"apr"}}
+function looksDefault(){return S.tx.length==0&&JSON.stringify(S.debts.map(function(d){return d.bal}))=="[26185,6211,21493,23482.91,14619,0]"}
+function buildTables(){
+ var P=S.plan||{},T={},gn=function(id){var g=S.groups.filter(function(x){return x.id==id})[0];return g?g.name:""};
+ T["ตั้งค่า"]=[["รายการ","ค่า"],["เงินเดือน",S.salary],["OT ประมาณ",S.ot],["งบกินอยู่/เดือน",P.living||0],["เงินออม/เดือน",P.save||0],["ลำดับปิดหนี้",P.strat=="bal"?"ยอดน้อยก่อน":"ดอกสูงก่อน"],["งบคงเหลือ",S.bud&&S.bud.amt!=null?S.bud.amt:""],["วันเงินเดือนออก",(S.bud&&S.bud.pay)||""]].concat(CATS.map(function(c){return["งบหมวด "+c,(S.cb||{})[c]||0]}));
+ T["รายจ่ายประจำ"]=[["หมวด","รายการ","จำนวน/เดือน"]].concat(S.fixed.map(function(x){return[gn(x.g),x.name,x.amt]}));
+ T["หนี้"]=debtRows();
+ T["ของใช้ที่ต้องซื้อ"]=[["เดือน","รายการ","ราคาประมาณ","สถานะ","จ่ายจริง","วันที่ซื้อ"]].concat((S.shop||[]).map(function(x){return["'"+x.m,x.name,x.est||0,x.done?"ซื้อแล้ว":"ยังไม่ซื้อ",x.paid||"",x.date?"'"+x.date:""]}));
+ T["ปุ่มลัด"]=[["ชื่อ","ราคา","หมวด"]].concat((S.quick||[]).map(function(x){return[x.name,x.amt,x.cat]}));
+ T["สรุปเดือน"]=[["เดือน","ชื่อเดือน","รายได้","ยกยอดมา","รายจ่ายประจำ","จ่ายหนี้","ใช้จ่าย(รวมออม)","ออม","เหลือ","หนี้คงเหลือ"]].concat(Object.keys(S.hist||{}).sort().map(function(k){var h=S.hist[k];return["'"+k,mname(k),h.inc,h.carry,h.fx,h.commit,h.spent,h.saved,h.left,h.debt]}));
+ return T}
+async function srv(ops){var r=await fetch(S.sh.url,{method:"POST",body:JSON.stringify({token:S.sh.token,ops:ops})});return await r.json()}
+async function syncPush(force){
+ if(syncing||!S.sh||!S.sh.url||!(S.dirty||force))return;
+ syncing=true;
+ try{
+  var j=await srv([{a:"state",base:S.rev,dev:S.dev,force:!!force,data:JSON.stringify(buildBlob()),tables:buildTables()}]),p=j.res&&j.res[0];
+  if(!j.ok)shNote("ชีตปฏิเสธ: เช็กรหัสลับ (TOKEN)");
+  else if(!p)shNote("สคริปต์ชีตยังเป็นเวอร์ชันเก่า ให้อัปเดตสคริปต์ก่อน");
+  else if(p.conflict){syncing=false;await syncPull();return}
+  else{S.rev=p.rev;S.dirty=0;S.lastSync=Date.now();lsSave();shNote("ซิงก์ล่าสุด "+hhmm())}
+ }catch(e){shNote("ซิงก์ไม่สำเร็จ จะลองใหม่ตอนมีเน็ต")}
+ syncing=false}
+async function syncPull(force){
+ if(pulling||syncing||!S.sh||!S.sh.url)return;
+ pulling=true;
+ try{
+  var j=await srv([{a:"pull"}]),p=j.res&&j.res[0];
+  if(!j.ok){shNote("ชีตปฏิเสธ: เช็กรหัสลับ (TOKEN)");pulling=false;return}
+  if(!p){shNote("สคริปต์ชีตยังเป็นเวอร์ชันเก่า ให้อัปเดตสคริปต์ก่อน");pulling=false;return}
+  if(force&&!(p.rev>0)){shNote("ชีตยังไม่มีข้อมูลให้ดึง");pulling=false;return}
+  if(p.rev>S.rev||force){
+   var ask=!force&&((S.dirty&&S.touched)||(S.rev==0&&!looksDefault())),useRemote=true;
+   if(ask)useRemote=confirm("พบข้อมูลบนชีตที่ต่างจากเครื่องนี้\n\nกด OK = ใช้ข้อมูลจากชีต (ข้อมูลในเครื่องนี้จะถูกแทนที่ โดยสำรองไว้ให้)\nกดยกเลิก = ใช้ข้อมูลเครื่องนี้ ส่งทับชีต");
+   if(useRemote&&p.data){
+    try{localStorage.setItem(KEY+"_bak",JSON.stringify(S))}catch(e){}
+    applyBlob(JSON.parse(p.data));S.rev=p.rev;S.dirty=0;S.lastSync=Date.now();lsSave();render();shNote("ดึงข้อมูลล่าสุดจากชีตแล้ว "+hhmm());toast("ซิงก์ข้อมูลล่าสุดจากชีตแล้ว")
+   }else{S.rev=p.rev;S.dirty=1;S.touched=1;lsSave();pulling=false;await syncPush(true);return}
+  }else if(S.dirty||(S.touched&&p.rev==0)||(p.rev==0&&S.rev==0&&!looksDefault())){pulling=false;await syncPush(true);return}
+  else shNote("ข้อมูลเป็นปัจจุบัน "+hhmm());
+ }catch(e){shNote("ซิงก์ไม่สำเร็จ (ออฟไลน์หรือ URL ผิด)")}
+ pulling=false}
+function setSh(k,v){if(!S.sh)S.sh={url:"",token:""};S.sh[k]=v.trim();lsSave();flush();syncPull()}
+function sheetAll(){
+ if(!S.sh||!S.sh.url){alert("ยังไม่ได้ตั้งค่าลิงก์ชีต");return}
+ if(!confirm("ส่งข้อมูลทั้งหมดของเครื่องนี้ขึ้นชีต และแทนที่ข้อมูลเดิมในชีต ยืนยัน?"))return;
+ S.q=S.tx.slice().reverse().map(function(t){return{a:"upsert",id:String(t.id),row:txRowData(t)}});S.q.push({a:"debts",rows:debtRows()});
+ Object.keys(S.hist||{}).forEach(function(k){var h=S.hist[k];S.q.push({a:"month",key:k,row:[k,mname(k),h.inc,h.carry,h.fx,h.commit,h.spent,h.saved,h.left,h.debt]})});
+ S.touched=1;S.dirty=1;lsSave();flush();syncPush(true);toast("กำลังส่งข้อมูลขึ้นชีต")}
+function pullAll(){if(!confirm("ดึงข้อมูลจากชีตมาแทนที่ข้อมูลในเครื่องนี้ ยืนยัน?"))return;syncPull(true)}
+function syncNow(){flush();syncPull().then(function(){return syncPush()});toast("กำลังซิงก์")}
+
 /* ---- feedback ---- */
 function toast(m,lab,fn){var e=document.getElementById("toast");if(!e)return;tfn=fn||null;e.innerHTML=`<span>${esc(m)}</span>`+(lab&&fn?`<button onclick="toastAct()">${esc(lab)}</button>`:"");e.className="toast on";clearTimeout(ttm);ttm=setTimeout(hideToast,lab&&fn?5000:2400)}
 function hideToast(){var e=document.getElementById("toast");if(e)e.className="toast";tfn=null}
@@ -552,7 +613,7 @@ function mdet(id,title,body){return`<details class="more"${OPEN[id]?" open":""} 
 function header(){
  var T={home:["ภาพรวม",mname(mk())],plan:["แผนปิดหนี้","ลำดับและยอดที่ควรจ่าย"],log:logView=="shop"?["ซื้อของใช้","เช็กลิสต์ประจำเดือน"]:["บันทึก","รายจ่ายและรายรับ"],debt:["หนี้และบัตร",""],stat:["สถิติ","เดือนนี้และย้อนหลัง"],set:[sub?SUBT[sub]:"ตั้งค่า",sub?"":"ปรับแอปให้เข้ากับคุณ"]}[tab];
  var back=tab=="set"&&sub?`<button class="ib" aria-label="กลับไปหน้าตั้งค่า" onclick="setSub(null)">${ic("back",22)}</button>`:"";
- var pq=(S.q||[]).length&&S.sh&&S.sh.url?`<span class="sync">รอซิงก์ ${S.q.length}</span>`:"",dk=isDark();
+ var pq=((S.q||[]).length||S.dirty)&&S.sh&&S.sh.url?`<span class="sync">รอซิงก์</span>`:"",dk=isDark();
  return`<div class="tl">${back}<div><h1>${T[0]}</h1>${T[1]?`<p class="sub">${T[1]}</p>`:""}</div></div><div class="tr">${pq}<button class="ib" aria-label="${dk?"เปลี่ยนเป็นโหมดสว่าง":"เปลี่ยนเป็นโหมดมืด"}" onclick="toggleTheme()">${ic(dk?"sun":"moon",22)}</button></div>`}
 
 /* ---- sheet ---- */
@@ -629,8 +690,9 @@ function buyCard(P,pool,open){
   var col=over||days>14?"var(--acc)":days>3?"var(--tx)":"var(--pri)";
   h+=`<div class="res"><b class="big2 num" style="color:${col}">ช้าลง ≈ ${days} วัน</b><p class="sub">เสียดอกเพิ่มประมาณ ${f(ex)} ฿ · ปิดหนี้หมด ${whenTxt(b.months)}${b.months>a.months?` (ขยับ ${b.months-a.months} เดือน)`:""}</p><p>${over?`เกินเงินเหลือโปะเดือนนี้ (${f(Math.max(0,pool))} ฿) ต้องหักจากงบกินอยู่หรือเงินออม แนะนำรอไว้ก่อน`:days<=3?"ซื้อได้ ผลกระทบน้อยมาก":days<=14?"ลองรอหรือหาของถูกกว่า":"ผลกระทบสูง แนะนำรอไว้ก่อน"}</p></div>`}
  return h+`</section>`}
-function shCard(){var sh=S.sh||{url:"",token:""};
- return`<p class="sub">ทุกรายการที่บันทึก แก้ หรือลบ จะส่งขึ้นชีตอัตโนมัติ ถ้าออฟไลน์จะเก็บคิวไว้ส่งทีหลัง</p>`+fld("Web App URL",`<input placeholder="https://script.google.com/macros/s/.../exec" value="${esc(sh.url)}" onchange="setSh('url',this.value)">`)+fld("รหัสลับ (TOKEN)",`<input type="password" placeholder="ตรงกับในสคริปต์" value="${esc(sh.token)}" onchange="setSh('token',this.value)">`)+`<div class="row2"><button class="btn s sm" onclick="sheetAll()">ส่งข้อมูลทั้งหมด</button><a class="btn s sm" href="https://docs.google.com/spreadsheets/d/1OPhUbn0HF_m1C7gHdd5FDlXuKwA3qob5lv7F6uLEcj8/edit" target="_blank" rel="noopener">เปิดชีต</a></div><p class="sub" id="shst" style="margin-top:12px">${esc(S.shMsg||"ยังไม่ได้เชื่อมต่อ")} · คิวค้าง ${(S.q||[]).length}</p>`}
+function shCard(){var sh=S.sh||{url:"",token:""},fx=!!CFG.url;
+ return(fx?`<p class="sub">เชื่อมต่อชีตถาวรแล้ว ตั้งไว้ในแอป ไม่ต้องใส่ใหม่ทุกเครื่อง ข้อมูลทั้งหมดซิงก์ระหว่างมือถือกับหน้าเว็บอัตโนมัติ</p>`:`<p class="sub">ใส่ Web App URL (ลงท้ายด้วย /exec) และรหัสลับ ข้อมูลจะซิงก์ระหว่างมือถือกับหน้าเว็บอัตโนมัติ</p>`+fld("Web App URL",`<input placeholder="https://script.google.com/macros/s/.../exec" value="${esc(sh.url)}" onchange="setSh('url',this.value)">`)+fld("รหัสลับ (TOKEN)",`<input type="password" placeholder="ตรงกับในสคริปต์" value="${esc(sh.token)}" onchange="setSh('token',this.value)">`))
+ +`<div class="row2"><button class="btn sm" onclick="syncNow()">ซิงก์ตอนนี้</button><a class="btn s sm" href="https://docs.google.com/spreadsheets/d/1OPhUbn0HF_m1C7gHdd5FDlXuKwA3qob5lv7F6uLEcj8/edit" target="_blank" rel="noopener">เปิดชีต</a></div><div class="row2"><button class="btn s sm" onclick="sheetAll()">ส่งข้อมูลเครื่องนี้ขึ้นชีต</button><button class="btn s sm" onclick="pullAll()">ดึงข้อมูลจากชีต</button></div><p class="sub" id="shst" style="margin-top:12px">${esc(S.shMsg||"ยังไม่ได้ซิงก์")} · คิวค้าง ${(S.q||[]).length}</p>`}
 
 /* ---- views ---- */
 function monthDetail(){
@@ -745,6 +807,10 @@ function render(){
  document.getElementById("tabs").innerHTML=`<div class="ti">`+T.map(function(t){return`<button class="${t[0]==tab?"on":""}" onclick="setTab('${t[0]}')"${t[0]==tab?' aria-current="page"':""}>${ic(t[1],22)}<span>${t[2]}</span></button>`}).join("")+`</div>`}
 document.addEventListener("keydown",function(e){if(e.key=="Escape"&&sheet)closeSheet()});
 applyTheme();
+setTimeout(function(){booting=false;if(S.sh&&S.sh.url){flush();syncPull()}},300);
+document.addEventListener("visibilitychange",function(){if(!document.hidden){flush();syncPull()}else if(S.dirty)syncPush()});
+window.addEventListener("online",function(){flush();syncPush();syncPull()});
+setInterval(function(){if(!document.hidden&&S.sh&&S.sh.url&&!S.dirty)syncPull()},90000);
 
 render();
 

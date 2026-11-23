@@ -1,7 +1,11 @@
-วิธีนำขึ้นใช้งานบน Android (ฟรี)
-1) สมัคร/ล็อกอิน github.com -> New repository (ตั้งชื่อ เช่น debt) -> Public
-2) Add file -> Upload files -> ลากไฟล์ทั้งหมดในโฟลเดอร์นี้ (ยกเว้น README) -> Commit
-3) Settings -> Pages -> Source: Deploy from a branch -> main / root -> Save
-4) รอ 1-2 นาที จะได้ลิงก์ https://ชื่อคุณ.github.io/debt/
-5) เปิดลิงก์ใน Chrome บน Android -> เมนู ⋮ -> "ติดตั้งแอป" / "เพิ่มลงในหน้าจอหลัก"
-(ทางเลือก: app.netlify.com/drop ลากโฟลเดอร์วางได้เลย)
+อัปเดตแอป (ทำทุกครั้งที่ได้ไฟล์ใหม่)
+1) GitHub > repository debt > Add file > Upload files
+2) ลากไฟล์ทั้งหมดในโฟลเดอร์นี้ (index.html, config.js, sw.js, manifest.webmanifest, icon-192.png, icon-512.png) แล้ว Commit
+3) รอ 1-2 นาที แล้วเปิดแอปใหม่ 1-2 รอบ
+
+เชื่อมชีต (ทำครั้งเดียว)
+1) เปิด Google Sheet > ส่วนขยาย > Apps Script > วางโค้ดจาก sheet-script.gs ทับของเดิม แล้วกดบันทึก
+2) ทำให้ใช้งานได้ > จัดการการทำให้ใช้งานได้ > ไอคอนดินสอ > เวอร์ชัน: เวอร์ชันใหม่ > ทำให้ใช้งานได้ (URL เดิมไม่เปลี่ยน)
+3) ลิงก์และรหัสลับอยู่ในไฟล์ config.js แล้ว ทุกเครื่องใช้ค่านี้อัตโนมัติ
+
+ข้อควรระวัง: config.js อยู่ใน repository สาธารณะ ใครรู้ที่อยู่ไฟล์จะเห็นรหัสได้ ไม่ควรใช้เบอร์โทรหรือรหัสที่ใช้ที่อื่นเป็นรหัสลับ
