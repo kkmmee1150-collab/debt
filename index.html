@@ -42,6 +42,12 @@ b{font-weight:600}
 .hero .btn{background:var(--card);color:var(--pri);margin-top:20px}
 .hero.neg .btn{color:var(--acc)}
 .hero .link{display:block;background:none;border:0;color:inherit;font:inherit;font-size:14px;text-decoration:underline;opacity:.85;margin-top:8px;min-height:44px;padding:0;cursor:pointer}
+.hl{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--hd);font-size:15px}.hl b{font-weight:700}
+.shopadd{display:grid;grid-template-columns:1fr 130px;gap:8px;margin-bottom:8px}
+.ck{position:relative;width:28px;height:28px;padding:0;border-radius:9px;border:2px solid var(--g2);background:var(--card);display:grid;place-items:center;flex:none;cursor:pointer;color:var(--pof)}
+.ck::after{content:"";position:absolute;inset:-10px}.ck.on{background:var(--pf);border-color:var(--pm)}
+.li.shop{justify-content:flex-start;gap:14px}.li.shop .l{cursor:pointer}.li.shop.done .l{color:var(--mu);text-decoration:line-through}.li.shop.done .l small{text-decoration:none}
+.chk{display:flex;gap:12px;align-items:center;min-height:48px;cursor:pointer;margin:4px 0 8px}.chk input{width:22px;height:22px;min-height:0;padding:0;accent-color:var(--pri);flex:none}
 .big2{font-size:32px;font-weight:700;line-height:1.3}
 .bchip{background:var(--pt);color:var(--pri);border-radius:14px;padding:12px 16px;font-size:15px}.bchip.over{background:var(--at);color:var(--acc)}
 .cta{display:grid;grid-template-columns:2fr 1fr;gap:12px}.cta .btn{width:100%;min-width:0}
@@ -163,7 +169,7 @@ function cp(o){return JSON.parse(JSON.stringify(o))}
 var S;try{S=JSON.parse(localStorage.getItem(KEY))||cp(def)}catch(e){S=cp(def)}
 if(S.v!=2){var oldRent=S.rent||0,d2=cp(def);S.v=2;S.groups=d2.groups;S.fixed=d2.fixed;S.fixed[0].amt=oldRent;delete S.rent;if(!S.debts.some(function(x){return x.name.toLowerCase()=="ufund"}))S.debts.push({id:Date.now(),name:"UFUND",bal:0,min:0});save()}
 if(!S.plan)S.plan={living:3500,save:500,strat:"apr"};S.debts.forEach(function(d){if(d.apr==null)d.apr=/this shop/i.test(d.name)?0:16});
-if(!S.sh)S.sh={url:"",token:""};if(!S.q)S.q=[];if(!S.bud)S.bud={amt:null,at:0,pay:0};if(!S.cb)S.cb={};if(!S.theme)S.theme="auto";if(!S.seen)S.seen={};if(!S.hist)S.hist={};if(!S.carry)S.carry={};if(!S.quick)S.quick=[{id:1,name:"ข้าว",amt:60,cat:"อาหาร"},{id:2,name:"ค่ารถ",amt:40,cat:"เดินทาง"},{id:3,name:"น้ำ/ขนม",amt:30,cat:"อาหาร"}];
+if(!S.sh)S.sh={url:"",token:""};if(!S.q)S.q=[];if(!S.bud)S.bud={amt:null,at:0,pay:0};if(!S.cb)S.cb={};if(!S.theme)S.theme="auto";if(!S.shop)S.shop=[];if(!S.seen)S.seen={};if(!S.hist)S.hist={};if(!S.carry)S.carry={};if(!S.quick)S.quick=[{id:1,name:"ข้าว",amt:60,cat:"อาหาร"},{id:2,name:"ค่ารถ",amt:40,cat:"เดินทาง"},{id:3,name:"น้ำ/ขนม",amt:30,cat:"อาหาร"}];
 var tab="home",cat="อาหาร",pend=null,busy=false,msg="",sheet=null;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
@@ -431,7 +437,7 @@ function cbOver(){var r=[],cb=S.cb||{};CATS.forEach(function(c){var b=cb[c]||0;i
 function setCb(c,v){if(!S.cb)S.cb={};S.cb[c]=parseFloat(v)||0;save();render()}
 function setWi(k,v){wi[k]=Math.max(0,parseFloat(v)||0);render()}
 function durDays(d){var m=Math.floor(d/30),x=d%30;return(m?m+" เดือน ":"")+(x?x+" วัน":"")}
-function goLog(k){kind=k;cat=k=="in"?INCATS[0]:"อาหาร";setTab("log")}
+function goLog(k){logView="form";kind=k;cat=k=="in"?INCATS[0]:"อาหาร";setTab("log")}
 function setKind(k){var a=document.getElementById("amt"),n=document.getElementById("note"),av=a?a.value:"",nv=n?n.value:"";kind=k;cat=k=="in"?INCATS[0]:"อาหาร";render();var a2=document.getElementById("amt"),n2=document.getElementById("note");if(a2)a2.value=av;if(n2)n2.value=nv}
 function calc(k,incO){
  k=k||mk();var cur=k==mk(),carry=(S.carry&&S.carry[k])||0,inc=(incO!=null?incO:S.salary+S.ot+incTx(k))+carry,commit=0,spent=0,by={},fx=S.fixed.reduce(function(a,x){return a+x.amt},0);
@@ -476,7 +482,7 @@ function addTx(amt,c,note,date,debt,type){
  S.tx.unshift(t);qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});if(t.debt)syncDebts();checkCele(t);save();render();
  var bi=(!inc&&!t.debt&&c!="เงินออม")?budInfo():null,w="";
  if(!inc&&!t.debt){var cv=(S.cb||{})[c]||0;if(cv>0){var p=Math.round(catUsed(c)/cv*100);if(p>=80)w=p>=100?` · ${c}เกินงบแล้ว`:` · ${c}ใช้ไป ${p}% ของงบ`}}
- if(!sheet)toast((inc?`บันทึกรายรับ ${note||c} ${f(amt)} ฿ แล้ว`:t.debt?`จ่าย ${dn} ${f(amt)} ฿ แล้ว`:`บันทึก ${note||c} ${f(amt)} ฿ แล้ว`)+w+(bi&&!w?` · วันนี้เหลือ ${f(bi.todayLeft)} ฿`:""),"เลิกทำ",function(){rmTx(t.id)})}
+ if(!sheet)toast((inc?`บันทึกรายรับ ${note||c} ${f(amt)} ฿ แล้ว`:t.debt?`จ่าย ${dn} ${f(amt)} ฿ แล้ว`:`บันทึก ${note||c} ${f(amt)} ฿ แล้ว`)+w+(bi&&!w?` · วันนี้เหลือ ${f(bi.todayLeft)} ฿`:""),"เลิกทำ",function(){rmTx(t.id)});return t.id}
 function rmTx(id){var t=S.tx.filter(function(x){return x.id==id})[0];if(!t)return null;if(t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal+=t.amt}S.tx=S.tx.filter(function(x){return x.id!=id});qAdd({a:"del",id:String(t.id)});if(t.debt)syncDebts();save();render();return t}
 function putTx(t){if(t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal=Math.max(0,d.bal-t.amt)}S.tx.unshift(t);qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});if(t.debt)syncDebts();save();render()}
 function delTx(id){var t=rmTx(id);if(t)toast("ลบรายการแล้ว","เลิกทำ",function(){putTx(t)})}
@@ -496,6 +502,47 @@ function budInfo(){var B=S.bud;if(!B||B.amt==null)return null;var sp=0,st=0,add=
  var rem=B.amt+add-sp,d=daysLeft(),per=(rem+st)/d;return{rem:rem,days:d,per:per,spentToday:st,todayLeft:per-st,pay:B.pay}}
 function saveBud(){var a=parseFloat(document.getElementById("bud-amt").value);if(isNaN(a)){fieldErr("bud-amt","ใส่จำนวนเงินก่อน");return}var p=parseInt(document.getElementById("bud-pay").value)||0;if(p<0||p>28)p=0;S.bud={amt:a,at:Date.now(),pay:p};save();sheet=null;render();var b=budInfo();toast(`ตั้งงบแล้ว ใช้ได้วันละ ${f(Math.max(0,b.per))} ฿`)}
 function clearBud(){S.bud={amt:null,at:0,pay:0};save();sheet=null;render();toast("ล้างงบแล้ว")}
+var logView="form",buyId=null,SHOPSUG=["น้ำยาล้างจาน","สบู่/แชมพู","ยาสีฟัน","ผงซักฟอก","ทิชชู่","ถุงขยะ","น้ำดื่ม","ข้าวสาร","ไข่","ยาประจำตัว"];
+function shopItems(k){k=k||mk();return(S.shop||[]).filter(function(x){return x.m==k})}
+function shopItem(id){return(S.shop||[]).filter(function(x){return x.id==id})[0]}
+function goShop(){logView="shop";setTab("log")}
+function setLogView(v){logView=v;render();window.scrollTo(0,0)}
+function logSeg(){return`<div class="seg span2" role="group" aria-label="มุมมอง"><button class="${logView=="form"?"on":""}" onclick="setLogView('form')">บันทึกรายการ</button><button class="${logView=="shop"?"on":""}" onclick="setLogView('shop')">เช็กลิสต์ซื้อของ</button></div>`}
+function pushShop(name,est){if(!S.shop)S.shop=[];S.shop.push({id:Date.now()+Math.random(),m:mk(),name:name,est:est||0,done:false,paid:0,tx:null})}
+function addShop(){var n=document.getElementById("sn"),p=document.getElementById("sp"),name=(n.value||"").trim();if(!name){fieldErr("sn","ใส่ชื่อของที่ต้องซื้อก่อน");return}pushShop(name,parseFloat(p.value)||0);save();render();var n2=document.getElementById("sn");if(n2)n2.focus()}
+function shopEnter(e){if(e.key=="Enter")addShop()}
+function addShopQ(i){pushShop(SHOPSUG[i],0);save();render()}
+function copyShop(){var pk=prevKey(mk()),have={};shopItems().forEach(function(x){have[x.name]=1});var n=0;shopItems(pk).forEach(function(x){if(!have[x.name]){pushShop(x.name,x.est);n++}});save();render();toast(n?`คัดลอก ${n} รายการจากเดือนก่อนแล้ว`:"ไม่มีรายการใหม่ให้คัดลอก")}
+function toggleShop(id){var x=shopItem(id);if(!x)return;if(x.done)uncheckShop(id);else{buyId=id;openSheet("buy")}}
+function uncheckShop(id){var x=shopItem(id);if(!x)return;var had=!!x.tx;if(x.tx)rmTx(x.tx);x.done=false;x.paid=0;x.tx=null;save();render();toast("ยกเลิกการซื้อ "+x.name+(had?" และลบรายจ่ายแล้ว":""))}
+function confirmBuy(){var x=shopItem(buyId);if(!x)return;var v=parseFloat(document.getElementById("bp").value);if(isNaN(v)||v<0){fieldErr("bp","ใส่ราคาที่จ่ายจริง (ใส่ 0 ได้)");return}
+ var lg=document.getElementById("bl").checked;sheet=null;x.done=true;x.paid=v;x.date=today();x.tx=null;
+ if(lg&&v>0)x.tx=addTx(v,"ของใช้",x.name);
+ save();render();toast("ซื้อแล้ว: "+x.name+(v?" "+f(v)+" ฿":""),"เลิกทำ",function(){uncheckShop(x.id)})}
+function editShop(id){buyId=id;openSheet("sedit")}
+function saveShopEdit(){var x=shopItem(buyId);if(!x)return;var n=(document.getElementById("sen").value||"").trim();if(!n){fieldErr("sen","ใส่ชื่อก่อน");return}x.name=n;x.est=parseFloat(document.getElementById("sep").value)||0;sheet=null;save();render();toast("แก้ไขแล้ว")}
+function delShop(id){var x=shopItem(id);if(!x)return;S.shop=S.shop.filter(function(i){return i!==x});sheet=null;save();render();toast("ลบ "+x.name+" แล้ว","เลิกทำ",function(){S.shop.push(x);save();render()})}
+function shopRow(x){return`<div class="li shop${x.done?" done":""}"><button class="ck${x.done?" on":""}" role="checkbox" aria-checked="${x.done}" aria-label="${x.done?"ยกเลิกการซื้อ":"ซื้อแล้ว"} ${esc(x.name)}" onclick="toggleShop(${x.id})">${x.done?ic("check",18):""}</button><span class="l" onclick="editShop(${x.id})">${esc(x.name)}<small>${x.done?`จ่ายจริง ${f(x.paid)} ฿${x.est?` (ประมาณ ${f(x.est)})`:""}`:(x.est?`ประมาณ ${f(x.est)} ฿`:"ยังไม่ระบุราคา")}</small></span><button class="ib sm" aria-label="แก้ไข ${esc(x.name)}" onclick="editShop(${x.id})">${ic("edit",16)}</button></div>`}
+function shop(){
+ var it=shopItems(),todo=it.filter(function(x){return !x.done}),dn=it.filter(function(x){return x.done}),c=calc();
+ var est=todo.reduce(function(a,x){return a+x.est},0),spent=dn.reduce(function(a,x){return a+x.paid},0),pct=it.length?Math.round(dn.length/it.length*100):0,cbv=(S.cb||{})["ของใช้"]||0,pk=prevKey(mk()),prevN=shopItems(pk).length;
+ var h=`<section class="card span2"><h2>เดือนนี้ต้องซื้อ</h2>`;
+ if(!it.length)h+=empty("ยังไม่ได้จดของที่ต้องซื้อ","พิมพ์ชื่อของด้านล่างแล้วกดเพิ่ม")+(prevN?`<button class="btn s" onclick="copyShop()">คัดลอกรายการจากเดือนก่อน (${prevN})</button>`:"");
+ else{
+  h+=`<div class="li" style="border:0;padding:0 0 8px"><span class="big2 num">${dn.length}/${it.length}</span><span class="sub">รายการที่ซื้อแล้ว</span></div><div class="bar" style="margin:4px 0 12px"><i style="width:${pct}%"></i></div><p class="sub">จ่ายไปแล้ว ${f(spent)} ฿ · ${est>0?`ที่เหลือประมาณ ${f(est)} ฿`:todo.length?"ที่เหลือยังไม่ระบุราคา":"ซื้อครบแล้ว"}</p>`;
+  if(todo.length&&est>0)h+=est>c.left?`<p style="margin-top:8px;color:var(--acc)">ซื้อที่เหลือครบ จะเกินเงินเหลือใช้เดือนนี้ ${f(est-c.left)} ฿</p>`:`<p style="margin-top:8px;color:var(--pri)">อยู่ในเงินเหลือใช้เดือนนี้ (เหลือ ${f(c.left)} ฿)</p>`;
+  else if(!todo.length)h+=`<p style="margin-top:8px;color:var(--pri)">ซื้อครบทุกรายการแล้ว</p>`;
+  if(cbv)h+=`<p class="sub" style="margin-top:4px">งบหมวดของใช้ ${f(catUsed("ของใช้"))} / ${f(cbv)} ฿</p>`;
+  if(prevN)h+=`<button class="btn t sm" style="color:var(--pri);margin-top:4px" onclick="copyShop()">คัดลอกจากเดือนก่อน</button>`}
+ h+=`</section><section class="card span2"><h2>เพิ่มรายการ</h2><div class="shopadd"><input id="sn" placeholder="เช่น น้ำยาล้างจาน" autocomplete="off" onkeydown="shopEnter(event)" oninput="this.classList.remove('err');document.getElementById('sn-e').textContent=''"><input id="sp" type="number" inputmode="decimal" placeholder="ราคาประมาณ" onkeydown="shopEnter(event)"></div><span class="em" id="sn-e"></span><button class="btn" onclick="addShop()">เพิ่ม</button>`;
+ var names={};it.forEach(function(x){names[x.name]=1});
+ var sg=SHOPSUG.map(function(n,i){return names[n]?"":`<button class="chip" onclick="addShopQ(${i})">+ ${esc(n)}</button>`}).join("");
+ if(sg)h+=`<p class="sub" style="margin:16px 0 8px">ของที่ใช้บ่อย แตะเพื่อเพิ่ม</p><div class="chips">${sg}</div>`;
+ h+=`</section>`;
+ if(todo.length)h+=`<section class="card"><h2>ยังต้องซื้อ (${todo.length})</h2>${todo.map(shopRow).join("")}</section>`;
+ if(dn.length)h+=`<section class="card"><h2>ซื้อแล้ว (${dn.length})</h2>${dn.map(shopRow).join("")}</section>`;
+ return h}
+
 /* ---- ui helpers ---- */
 function li(l,v,o){o=o||{};var tap=o.fn?` onclick="${o.fn}" role="button" tabindex="0" onkeydown="if(event.key==='Enter')${o.fn}"`:"";return`<div class="li${o.fn?" tap":""}"${tap}><span class="l">${l}${o.sub?`<small>${o.sub}</small>`:""}</span><span class="v"${o.c?` style="color:${o.c}"`:""}>${v}${o.fn?ic("chev",16):""}</span></div>`}
 function empty(t,s){return`<div class="empty"><b>${t}</b><span>${s}</span></div>`}
@@ -503,7 +550,7 @@ function fld(lb,inner,e){return`<label class="fld"><span class="lb">${lb}</span>
 function det(id,title,sub,body){return`<details class="card dt"${OPEN[id]?" open":""} ontoggle="OPEN['${id}']=this.open"><summary><span><b>${title}</b>${sub?`<small>${sub}</small>`:""}</span>${ic("chev",18)}</summary><div class="db">${body}</div></details>`}
 function mdet(id,title,body){return`<details class="more"${OPEN[id]?" open":""} ontoggle="OPEN['${id}']=this.open"><summary>${title}</summary>${body}</details>`}
 function header(){
- var T={home:["ภาพรวม",mname(mk())],plan:["แผนปิดหนี้","ลำดับและยอดที่ควรจ่าย"],log:["บันทึก","รายจ่ายและรายรับ"],debt:["หนี้และบัตร",""],stat:["สถิติ","เดือนนี้และย้อนหลัง"],set:[sub?SUBT[sub]:"ตั้งค่า",sub?"":"ปรับแอปให้เข้ากับคุณ"]}[tab];
+ var T={home:["ภาพรวม",mname(mk())],plan:["แผนปิดหนี้","ลำดับและยอดที่ควรจ่าย"],log:logView=="shop"?["ซื้อของใช้","เช็กลิสต์ประจำเดือน"]:["บันทึก","รายจ่ายและรายรับ"],debt:["หนี้และบัตร",""],stat:["สถิติ","เดือนนี้และย้อนหลัง"],set:[sub?SUBT[sub]:"ตั้งค่า",sub?"":"ปรับแอปให้เข้ากับคุณ"]}[tab];
  var back=tab=="set"&&sub?`<button class="ib" aria-label="กลับไปหน้าตั้งค่า" onclick="setSub(null)">${ic("back",22)}</button>`:"";
  var pq=(S.q||[]).length&&S.sh&&S.sh.url?`<span class="sync">รอซิงก์ ${S.q.length}</span>`:"",dk=isDark();
  return`<div class="tl">${back}<div><h1>${T[0]}</h1>${T[1]?`<p class="sub">${T[1]}</p>`:""}</div></div><div class="tr">${pq}<button class="ib" aria-label="${dk?"เปลี่ยนเป็นโหมดสว่าง":"เปลี่ยนเป็นโหมดมืด"}" onclick="toggleTheme()">${ic(dk?"sun":"moon",22)}</button></div>`}
@@ -517,6 +564,8 @@ function sheetHTML(c){
  if(t=="grp"){var g=S.groups.filter(function(x){return x.id==a})[0];if(!g){sheet=null;return""}ti=g.name;var its=S.fixed.filter(function(x){return x.g==g.id});b=(its.length?its.map(function(x){return li(esc(x.name),f(x.amt))}).join(""):empty("ยังไม่มีรายการ","เพิ่มได้ในตั้งค่า"))+`<div class="li tot"><span class="l">รวม</span><span class="v">${f(gsum(g.id))} ฿</span></div><button class="btn s" onclick="setTab('set','fixed')">แก้ไขรายการ</button>`}
  if(t=="debt"){ti="หนี้และบัตร";b=S.debts.map(function(d){var p=paid(d.id);return li(esc(d.name),f(d.bal)+" ฿",{c:"var(--acc)",sub:`ขั้นต่ำ ${f(d.min)} · จ่ายแล้ว ${f(p)}${p>=d.min&&d.min>0?" ✓":""}`})}).join("")+`<button class="btn" onclick="goTab('debt')">ไปหน้าจ่ายหนี้</button>`}
  if(t=="spent"||t=="cat"){ti=t=="cat"?a:"ใช้จ่ายอื่นเดือนนี้";var l=sortTx(monthTx().filter(function(x){return isOut(x)&&(t=="spent"||x.cat==a)}));b=l.length?l.map(txRow).join(""):empty("ไม่มีรายการ","")}
+ if(t=="buy"){var bx=shopItem(buyId);if(!bx){sheet=null;return""}ti="ซื้อแล้ว: "+bx.name;b=fld("ราคาที่จ่ายจริง (บาท)",`<input id="bp" type="number" inputmode="decimal" value="${bx.est||""}" placeholder="0" oninput="this.classList.remove('err');document.getElementById('bp-e').textContent=''">`,"bp-e")+`<label class="chk"><input type="checkbox" id="bl" checked><span>บันทึกเป็นรายจ่าย (หมวดของใช้) ด้วย</span></label><button class="btn" onclick="confirmBuy()">ยืนยันซื้อแล้ว</button>`}
+ if(t=="sedit"){var ex=shopItem(buyId);if(!ex){sheet=null;return""}ti="แก้ไขรายการ";b=fld("ชื่อ",`<input id="sen" value="${esc(ex.name)}">`,"sen-e")+fld("ราคาประมาณ (บาท)",`<input id="sep" type="number" inputmode="decimal" value="${ex.est||""}" placeholder="0">`)+`<button class="btn" onclick="saveShopEdit()">บันทึก</button><button class="btn t" style="width:100%" onclick="delShop(${ex.id})">ลบรายการนี้</button>`}
  if(t=="bud"){var B=S.bud||{};ti="งบคงเหลือ";b=fld("เงินที่เหลือใช้ได้ตอนนี้ (บาท)",`<input id="bud-amt" type="number" inputmode="decimal" value="${B.amt==null?"":B.amt}" placeholder="เช่น 3500" oninput="this.classList.remove('err');document.getElementById('bud-amt-e').textContent=''">`,"bud-amt-e")+fld("วันเงินเดือนออก (เว้นว่าง = นับถึงสิ้นเดือน)",`<input id="bud-pay" type="number" inputmode="numeric" min="1" max="28" value="${B.pay||""}" placeholder="เช่น 25">`)+`<p class="sub">แอปหักเฉพาะรายจ่ายทั่วไปที่บันทึกหลังจากนี้ (ไม่รวมจ่ายหนี้และเงินออม) แล้วหารเฉลี่ยให้ทุกวัน</p><button class="btn" onclick="saveBud()">บันทึกงบ</button>`+(B.amt!=null?`<button class="btn t" style="width:100%" onclick="clearBud()">ล้างงบ</button>`:"")}
  return`<div class="ov" onclick="closeSheet()"><div class="sh" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="${esc(ti)}"><div class="hd"><h3>${esc(ti)}</h3><button class="ib" aria-label="ปิด" onclick="closeSheet()">${ic("x",22)}</button></div>${b}</div></div>`}
 function txRow(t){return`<div class="li"><span class="l">${esc(t.note||t.cat)}<small>${t.date.slice(8)}/${t.date.slice(5,7)} · ${esc(t.cat)}</small></span><span class="v"${t.debt?' style="color:var(--acc)"':t.type=="in"?' style="color:var(--pri)"':""}>${t.type=="in"?"+":""}${f(t.amt)}<button class="ib sm" aria-label="แก้จำนวนเงิน" onclick="editTx(${t.id})">${ic("edit",16)}</button><button class="ib sm" aria-label="ลบรายการ" onclick="delTx(${t.id})">${ic("trash",16)}</button></span></div>`}
@@ -608,11 +657,13 @@ function home(){
  if(ov.length)h+=`<section class="note span2"><b>งบหมวดที่ใกล้เต็ม</b><p style="margin-bottom:0">${ov.map(function(x){return x.c+" "+x.p+"%"}).join(" · ")}</p></section>`;
  var q=(S.quick||[]).filter(function(x){return x.amt>0}).slice(0,4);
  if(q.length)h+=`<div class="chips span2">${q.map(function(x){return`<button class="chip" onclick="quickGo(${x.id})">${esc(x.name)} <b class="num">${f(x.amt)}</b></button>`}).join("")}</div>`;
+ var si=shopItems(),sdn=si.filter(function(x){return x.done}).length;
  var pa=S.tx.filter(function(t){return t.debt}).reduce(function(a,t){return a+t.amt},0),pct=pa+tot>0?Math.round(pa/(pa+tot)*100):0;
- h+=`<section class="card span2">`+li("หนี้คงเหลือ",f(tot)+" ฿",{fn:"setTab('debt')",c:"var(--acc)"})+li("จ่ายหนี้เดือนนี้",`${f(pd)} / ${f(mins)} ฿`,{fn:"setTab('debt')"})+(tot<=0?`<p class="sub" style="color:var(--pri);margin-top:8px">ปลอดหนี้แล้ว</p>`:pa>0?`<div class="bar" style="margin:14px 0 8px"><i style="width:${pct}%"></i></div><p class="sub">จ่ายหนี้ไปแล้ว ${pct}% ของทั้งหมด</p>`:"")+`</section>`;
+ h+=`<section class="card span2">`+li("หนี้คงเหลือ",f(tot)+" ฿",{fn:"setTab('debt')",c:"var(--acc)"})+li("จ่ายหนี้เดือนนี้",`${f(pd)} / ${f(mins)} ฿`,{fn:"setTab('debt')"})+li("ของใช้ที่ต้องซื้อ",si.length?`ซื้อแล้ว ${sdn}/${si.length}`:"จดรายการ",{fn:"goShop()"})+(tot<=0?`<p class="sub" style="color:var(--pri);margin-top:8px">ปลอดหนี้แล้ว</p>`:pa>0?`<div class="bar" style="margin:14px 0 8px"><i style="width:${pct}%"></i></div><p class="sub">จ่ายหนี้ไปแล้ว ${pct}% ของทั้งหมด</p>`:"")+`</section>`;
  return h}
 function log(){
- var h="",bi=budInfo();
+ if(logView=="shop")return logSeg()+shop();
+ var h=logSeg(),bi=budInfo();
  if(bi)h+=`<div class="bchip span2${bi.todayLeft<0?" over":""}">${bi.todayLeft<0?`วันนี้เกินงบ ${f(-bi.todayLeft)} ฿`:`วันนี้เหลือ <b>${f(bi.todayLeft)} ฿</b>`} · เฉลี่ยวันละ ${f(Math.max(0,bi.per))} ฿</div>`;
  if(pend)h+=`<section class="card pend span2"><h2>ตรวจก่อนบันทึก</h2>`+(getKey()?"":`<p class="sub" style="margin-bottom:12px">อ่านด้วย OCR ฟรี ตัวเลขอาจคลาดเคลื่อน ตรวจให้ถูกก่อนบันทึก</p>`)+`<div class="g2">${fld("จำนวนเงิน",`<input type="number" inputmode="decimal" value="${pend.amt}" oninput="pf('amt',this.value)">`)}${fld("วันที่",`<input type="date" value="${pend.date}" oninput="pf('date',this.value)">`)}</div>${fld("รายละเอียด",`<input value="${esc(pend.note)}" oninput="pf('note',this.value)">`)}<div class="g2">${fld("หมวด",`<select onchange="pf('cat',this.value)">${CATS.map(function(c){return`<option${c==pend.cat?" selected":""}>${c}</option>`}).join("")}</select>`)}${fld("จ่ายหนี้ให้",`<select onchange="pf('debt',this.value)"><option value="0">ไม่ใช่จ่ายหนี้</option>${S.debts.map(function(d){return`<option value="${d.id}"${d.id==pend.debt?" selected":""}>${esc(d.name)}</option>`}).join("")}</select>`)}</div><div class="row2"><button class="btn" onclick="okPend()">บันทึก</button><button class="btn s" onclick="pend=null;render()">ยกเลิก</button></div></section>`;
  if(kind!="in")h+=quickCard();
@@ -643,12 +694,13 @@ function plan(){
  if(!open.length)h+=`<section class="card span2"><h2>แผนปิดหนี้</h2><div class="big2" style="color:var(--pri)">ปิดหนี้ครบแล้ว</div><p class="sub">เอาเงินที่เคยโปะไปเพิ่มเงินออมต่อ</p></section>`;
  else{
   var t0=order[0],ex0=rec[t0.id]-Math.min(t0.min,t0.bal),need0=Math.max(0,rec[t0.id]-paid(t0.id));
+  var aft0=Math.max(0,t0.bal-need0),totBef=order.reduce(function(a,d){return a+d.bal},0),totAft=order.reduce(function(a,d){return a+Math.max(0,d.bal-Math.max(0,rec[d.id]-paid(d.id)))},0);
   if(pool<0)h+=`<section class="note span2" role="alert"><b>เดือนนี้ขาดอีก ${f(-pool)} ฿</b><p>ลองเพิ่ม OT ลดงบกินอยู่หรือเงินออมชั่วคราว หรือขอเจรจาลดดอก ห้ามข้ามขั้นต่ำ เพราะจะโดนค่าปรับ</p></section>`;
-  h+=`<section class="hero span2"><p>เป้าหมายโปะเดือนนี้</p><div class="big">${esc(t0.name)}</div><p>${ex0>0?`โปะเพิ่ม ${f(ex0)} ฿ · รวมจ่าย ${f(rec[t0.id])} ฿`:`จ่ายขั้นต่ำ ${f(rec[t0.id])} ฿ · ยังไม่มีเงินเหลือโปะเพิ่ม`}</p><button class="btn" onclick="pay(${t0.id},${Math.round(need0)})"${need0<=0?" disabled":""}>${need0>0?`จ่ายตามแผน ${f(need0)} ฿`:"จ่ายครบตามแผนแล้ว"}</button></section>`;
+  h+=`<section class="hero span2"><p>เป้าหมายเดือนนี้</p><div class="big">${esc(t0.name)}</div><p>${ex0>0?`จ่าย ${f(rec[t0.id])} ฿ (ขั้นต่ำ ${f(Math.min(t0.min,t0.bal))} + โปะ ${f(ex0)})`:`จ่ายขั้นต่ำ ${f(rec[t0.id])} ฿ · ยังไม่มีเงินเหลือโปะเพิ่ม`}</p><div class="hl"><span>ยอดหนี้ ${esc(t0.name)}</span><b class="num">${need0>0?`${f(t0.bal)} → ${aft0>0?f(aft0):"0 (ปิดบัญชี)"} ฿`:`${f(t0.bal)} ฿ · จ่ายครบแล้ว`}</b></div><div class="hl"><span>หนี้ทุกบัญชีรวม</span><b class="num">${totBef>totAft?`${f(totBef)} → ${f(totAft)} ฿`:`${f(totBef)} ฿`}</b></div><button class="btn" onclick="pay(${t0.id},${Math.round(need0)})"${need0<=0?" disabled":""}>${need0>0?`จ่ายตามแผน ${f(need0)} ฿`:"จ่ายครบตามแผนแล้ว"}</button></section>`;
   var pl=simulate(P.strat,pool,true),bs=simulate(P.strat,0,false),H=Math.min(60,Math.max(12,pl.months+3));
   h+=`<section class="card"><h2>ปิดหนี้หมดเมื่อไหร่</h2><div class="big2" style="color:var(--pri)">${pl.done?whenTxt(pl.months):"ไม่ปิดใน 20 ปี"}</div><p class="sub">ใช้เวลา ${durTxt(pl)} · ดอกรวมประมาณ ${f(pl.interest)} ฿</p>${bs.interest>pl.interest?`<p style="margin:12px 0">ประหยัดดอก ≈ <b>${f(bs.interest-pl.interest)} ฿</b> เทียบกับจ่ายขั้นต่ำอย่างเดียว (${bs.done?durTxt(bs):"ไม่ปิดใน 20 ปี"})</p>`:""}${lineChart(pl.series,bs.series,H)}<p class="sub">คำนวณจากดอกเบี้ยที่ตั้งไว้และรายรับเท่าเดือนนี้ ตัวเลขจริงอาจต่างเล็กน้อย</p></section>`;
   h+=`<section class="card"><h2>ลำดับปิดหนี้</h2><div class="seg" role="group" aria-label="เลือกลำดับ"><button class="${P.strat=="apr"?"on":""}" onclick="setPlan('strat','apr')">ดอกสูงก่อน</button><button class="${P.strat=="bal"?"on":""}" onclick="setPlan('strat','bal')">ยอดน้อยก่อน</button></div><p class="sub" style="margin:8px 0 4px">${P.strat=="apr"?"เสียดอกรวมน้อยที่สุด":"ปิดบัญชีได้ไว ได้กำลังใจ"}</p>`+order.map(function(d,i){var r=rec[d.id],need=Math.max(0,r-paid(d.id));
-   return`<div class="li"><span class="l"><span class="rk${i==0?" on":""}">${i+1}</span><b>${esc(d.name)}</b>${r>=d.bal?" · ปิดได้เดือนนี้":""}<small>เหลือ ${f(d.bal)} · ดอก ${d.apr}%/ปี${d.apr<=0?" · ผ่อน 0% ไม่ต้องรีบโปะ":""}</small><small>แนะนำจ่าย <b>${f(r)}</b> ฿</small></span><span class="v"><button class="btn s sm" onclick="pay(${d.id},${Math.round(need)})"${need<=0?" disabled":""}>${need<=0?"จ่ายแล้ว":"จ่าย "+f(need)}</button></span></div>`}).join("")+`</section>`}
+   return`<div class="li"><span class="l"><span class="rk${i==0?" on":""}">${i+1}</span><b>${esc(d.name)}</b>${r>=d.bal?" · ปิดได้เดือนนี้":""}<small>เหลือ ${f(d.bal)} · ดอก ${d.apr}%/ปี${d.apr<=0?" · ผ่อน 0% ไม่ต้องรีบโปะ":""}</small><small>แนะนำจ่าย <b>${f(r)}</b> ฿ · จ่ายแล้วเหลือ <b>${f(Math.max(0,d.bal-need))}</b> ฿</small></span><span class="v"><button class="btn s sm" onclick="pay(${d.id},${Math.round(need)})"${need<=0?" disabled":""}>${need<=0?"จ่ายแล้ว":"จ่าย "+f(need)}</button></span></div>`}).join("")+`</section>`}
  h+=`<section class="card"><h2>จัดสรรเงินเดือนนี้</h2>`+li("รายได้","+"+f(inc-cr),{c:"var(--pri)"})+(cr?li("ยกยอดจากเดือนก่อน",(cr>0?"+":"−")+f(Math.abs(cr))):"")+li("รายจ่ายประจำ","−"+f(fx))+li("ขั้นต่ำทุกบัญชี","−"+f(mins),{c:"var(--acc)"})+`<div class="g2" style="margin-top:12px">${fld("งบกินอยู่",`<input type="number" inputmode="decimal" value="${P.living}" onchange="setPlan('living',this.value)">`)}${fld("เงินออม",`<input type="number" inputmode="decimal" value="${P.save}" onchange="setPlan('save',this.value)">`)}</div>${cbS>0&&cbS!=P.living?`<p class="sub" style="margin:-4px 0 12px">รวมงบแยกหมวด ${f(cbS)} ฿ <button class="btn t sm" style="color:var(--pri)" onclick="setPlan('living',${cbS})">ใช้เป็นงบกินอยู่</button></p>`:""}<div class="li tot"><span class="l">เหลือโปะหนี้ได้</span><span class="v" style="color:${pool<0?"var(--acc)":"var(--pri)"}">${f(pool)} ฿</span></div></section>`;
  h+=whatIf(P,pool,open);
  h+=buyCard(P,pool,open);
