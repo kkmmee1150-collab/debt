@@ -323,80 +323,130 @@ async function viaClaude(blob){
  if(!r.ok)throw"api";var j=await r.json();return JSON.parse(j.content[0].text.match(/\{[\s\S]*\}/)[0])}
 function loadTess(){return new Promise(function(res,rej){if(window.Tesseract)return res();var sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)})}
 /* ---- อ่านสลิปด้วยโค้ดล้วน (OCR + กฎ ไม่ใช้ AI) ---- */
+var MKC="[\\u0E31\\u0E34-\\u0E3A\\u0E47-\\u0E4E]";
+function stripMarks(s){return String(s).replace(/[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]/g,"")}
+function esc1(c){return c.replace(/[.*+?^${}()|[\]\\\/-]/g,"\\$&")}
+function lab(w){w=stripMarks(w.replace(/\s+/g,""));
+ return new RegExp((/^[A-Za-z]/.test(w)?"\\b":"")+w.split("").map(esc1).join(MKC+"*\\s*")+MKC+"*"+(/[A-Za-z]$/.test(w)?"\\b":""),"i")}
 var MON2={"มกราคม":1,"กุมภาพันธ์":2,"มีนาคม":3,"เมษายน":4,"พฤษภาคม":5,"มิถุนายน":6,"กรกฎาคม":7,"สิงหาคม":8,"กันยายน":9,"ตุลาคม":10,"พฤศจิกายน":11,"ธันวาคม":12,"ม.ค":1,"ก.พ":2,"มี.ค":3,"เม.ย":4,"พ.ค":5,"มิ.ย":6,"ก.ค":7,"ส.ค":8,"ก.ย":9,"ต.ค":10,"พ.ย":11,"ธ.ค":12,"jan":1,"feb":2,"mar":3,"apr":4,"may":5,"jun":6,"jul":7,"aug":8,"sep":9,"oct":10,"nov":11,"dec":12};
-var MON3={};Object.keys(MON2).forEach(function(k){MON3[k.replace(/\./g,"").toLowerCase()]=MON2[k]});
-var MONRE=Object.keys(MON2).sort(function(a,b){return b.length-a.length}).map(function(k){return k.replace(/\./g,"\\.?")+(/\./.test(k)?"\\.?":"")}).join("|");
-var DATERE=new RegExp("(\\d{1,2})\\s*("+MONRE+")\\s*(\\d{4}|\\d{2})(?!\\d)","i");
+var MONRES=Object.keys(MON2).sort(function(a,b){return b.length-a.length}).map(function(k){
+ var p=k.split("").map(function(c){return c=="."?"\\.?":esc1(c)}).join(MKC+"*")+(/\./.test(k)?"\\.?":"");
+ return{m:MON2[k],re:new RegExp("(\\d{1,2})\\s*"+p+"\\s*(\\d{4}|\\d{2})(?!\\d)","i")}});
 var AMTRE=/(\d{1,3}(?:,\d{3})+|\d+)[.,](\d{2})(?!\d)/g;
-var BANKRE=/ธ\.?\s*(?:กสิกรไทย|ไทยพาณิชย์|กรุงไทย|กรุงเทพ|กรุงศรีอยุธยา|กรุงศรี|ทหารไทยธนชาต|ออมสิน|อาคารสงเคราะห์|ก\.?ส\.?|ยูโอบี|ซีไอเอ็มบี|ทิสโก้|เกียรตินาคินภัทร)|ธนาคาร\s*(?:กสิกรไทย|ไทยพาณิชย์|กรุงไทย|กรุงเทพ|กรุงศรี|ทหารไทยธนชาต|ออมสิน)?|\b(?:KBANK|SCB|KTB|BBL|BAY|TTB|GSB|UOB|CIMB|TISCO|KKP|BAAC|GHB)\b|พร้อมเพย์|PromptPay/gi;
+var BANKRE=/ธ\.?\s*(?:กสิกรไทย|ไทยพาณิชย์|กรุงไทย|กรุงเทพ|กรุงศรีอยุธยา|กรุงศรี|ทหารไทยธนชาต|ออมสิน|อาคารสงเคราะห์|ก\.?ส\.?|ยูโอบี|ซีไอเอ็มบี|ทิสโก้|เกียรตินาคินภัทร)|ธนาคาร\s*(?:กสิกรไทย|ไทยพาณิชย์|กรุงไทย|กรุงเทพ|กรุงศรี|ทหารไทยธนชาต|ออมสิน)?/g;
+var BANKONLY=/^(ttb|kbank|scb|ktb|bbl|bay|gsb|uob|cimb|tisco|kkp|baac|ghb|lh ?bank|ธนาคาร\S*|ธ\.\S*)$/i;
+var PROVONLY=/^(line ?pay|truemoney(?: ?wallet)?|shopeepay|rabbit line pay|promptpay|พร้อมเพย์|e-?wallet)$/i;
 var TITLERE=/^(นาย|นางสาว|นาง|น\.?ส\.?|เด็กชาย|เด็กหญิง|ด\.?[ชญ]\.?|MR\.?|MRS\.?|MISS|MS\.?|คุณ|บริษัท|บจก\.?|บมจ\.?|หจก\.?|ห้างหุ้นส่วน|ร้าน)/i;
-var PERSONRE=/^(นาย|นางสาว|นาง|น\.?ส\.?|เด็กชาย|เด็กหญิง|ด\.?[ชญ]\.?|MR\.?|MRS\.?|MISS|MS\.?|คุณ)/i;
-var LABELRE=/^(จาก|from|ไปยัง|ถึง|to\b|ผู้รับ|ผู้โอน|ร้านค้า|ชื่อร้าน|จำนวน|ค่าธรรมเนียม|ค่าบริการ|เลขที่|รหัส|หมายเลข|บันทึก|หมายเหตุ|amount|fee|ref|memo|note|วันที่|date|เวลา|time|โอนเงิน|ชำระเงิน|ทำรายการ|รายการ|สลิป|ยอด|บัญชี|เลขบัญชี)/i;
+var PERSONRE=/^(นาย|นางสาว|นาง|น\.?ส\.?|เด็กชาย|เด็กหญิง|ด\.?[ชญ]\.?|MR\.?|MRS\.?|MISS|MS\.?|คุณ|ฝาย)/i;
+var LABELW=["จาก","from","ไปยัง","ถึง","ผู้รับ","ผู้โอน","ร้านค้า","ชื่อร้าน","จำนวน","ค่าธรรมเนียม","ค่าบริการ","เลขที่","รหัส","หมายเลข","บันทึก","หมายเหตุ","amount","fee","ref","memo","note","วันที่","date","เวลา","โอนเงิน","ชำระเงิน","จ่ายบิล","เติมเงิน","ทำรายการ","รายการ","สลิป","ยอด","บัญชี","เลขบัญชี"];
+var LABELRE=new RegExp("^("+LABELW.map(function(w){return stripMarks(w)}).join("|")+")","i");
 var ALIAS={ktc:["เคทีซี","กรุงไทยการ์ด"],aeon:["อิออน"],uchoose:["ยูชูส"],ufund:["ยูฟันด์"]};
 var CATRULES=[
 ["ค่าน้ำไฟ",/การไฟฟ้า|ไฟฟ้า|\bMEA\b|\bPEA\b|ประปา|\bMWA\b|\bPWA\b|ค่าไฟ|ค่าน้ำ|เอไอเอส|\bAIS\b|ทรู|\bTRUE\b|ดีแทค|\bDTAC\b|อินเทอร์เน็ต|อินเตอร์เน็ต|เน็ต|\b3BB\b|\bNT\b|โทรศัพท์|เติมเงิน|top ?up/i],
-["เดินทาง",/grab(?!food)|\bbolt\b|\bBTS\b|\bMRT\b|แท็กซี่|taxi|วินมอ|รถเมล์|ทางด่วน|easy ?pass|น้ำมัน|ปตท|\bPTT\b|shell|เชลล์|บางจาก|bangchak|caltex|คาลเท็กซ์|ค่ารถ|ตั๋วเครื่องบิน|airasia|แอร์เอเชีย|nok ?air|lion ?air|เดินทาง/i],
-["อาหาร",/ข้าว|ก๋วยเตี๋ยว|กาแฟ|คาเฟ่|cafe|coffee|ชานม|ขนม|อาหาร|หมูกระทะ|ส้มตำ|บุฟเฟ่|ปิ้งย่าง|ชาบู|เบเกอรี่|bakery|kfc|mcdonald|แมคโดนัลด์|\bMK\b|เอ็มเค|starbucks|สตาร์บัค|amazon|อเมซอน|foodpanda|lineman|ไลน์แมน|grabfood|เซเว่น|7-?eleven|ค่ากิน|ของกิน|น้ำดื่ม|น้ำ(?!มัน|ประปา)/i],
+["เดินทาง",/grab(?!food)|\bbolt\b|\bBTS\b|\bMRT\b|แท็กซี่|taxi|วินมอ|รถเมล์|ทางด่วน|easy ?pass|น้ำมัน|ปตท|\bPTT\b|shell|เชลล์|บางจาก|bangchak|\bBSRC\b|caltex|คาลเท็กซ์|ค่ารถ|ตั๋วเครื่องบิน|airasia|แอร์เอเชีย|nok ?air|lion ?air|เดินทาง/i],
+["อาหาร",/ข้าว|ก๋วยเตี๋ยว|ขนมจีน|khanom|กาแฟ|คาเฟ่|cafe|coffee|ชานม|ขนม|อาหาร|หมูกระทะ|ส้มตำ|บุฟเฟ่|ปิ้งย่าง|ชาบู|เบเกอรี่|bakery|kfc|mcdonald|แมคโดนัลด์|\bMK\b|เอ็มเค|starbucks|สตาร์บัค|amazon|อเมซอน|foodpanda|lineman|ไลน์แมน|grabfood|เซเว่น|7-?11|7-?eleven|counter ?service|ค่ากิน|ของกิน|น้ำดื่ม|น้ำ(?!มัน|ประปา)/i],
 ["ของใช้",/โลตัส|lotus|big ?c|บิ๊กซี|makro|แม็คโคร|ท็อปส์|\btops\b|watsons|วัตสัน|boots|บู๊ทส์|shopee|ช้อปปี้|lazada|ลาซาด้า|ไดโซ|daiso|ร้านขายยา|เภสัช|pharmacy|ซุปเปอร์|ซูเปอร์|supermarket|มินิมาร์ท|ของใช้|ผงซักฟอก|ซักผ้า|homepro|โฮมโปร|ikea|อีเกีย|ไทวัสดุ|\bCJ\b|ซีเจ/i]
 ];
 
+var KNOWNTOK=/^(scb|ktb|ttb|bbl|bay|gsb|uob|cimb|ais|dtac|ptt|mea|pea|bts|mrt|cj|kfc|mk|lh|big|app)$/i;
 function pad2(n){return String(n).padStart(2,"0")}
 function normText(t){
- t=String(t||"").replace(/\r/g,"").replace(/[\u200b\u00a0]/g," ");
+ t=String(t||"").replace(/\r/g,"").replace(/[\u200b\u00a0]/g," ").replace(/\u0E4D\u0E32/g,"\u0E33");
  return t.replace(/[๐-๙]/g,function(c){return String(c.charCodeAt(0)-0x0E50)})}
-function lab(w){w=w.replace(/\s+/g,"");
- return new RegExp((/^[A-Za-z]/.test(w)?"\\b":"")+w.split("").map(function(c){return c.replace(/[.*+?^${}()|[\]\\\/-]/g,"\\$&")}).join("\\s*")+(/[A-Za-z]$/.test(w)?"\\b":""),"i")}
 function resolveYear(y){y=+y;var now=new Date().getFullYear();if(y>=2400)return y-543;if(y>=1900)return y;
  return [2000+y,2500+y-543].sort(function(a,b){return Math.abs(a-now)-Math.abs(b-now)})[0]}
 function pDate(t){
- var m=t.match(DATERE),d,mo,y;
- if(m){d=+m[1];mo=MON3[m[2].replace(/\./g,"").toLowerCase()];y=resolveYear(m[3])}
+ var m,mo,d,y,r;
+ for(var i=0;i<MONRES.length&&!m;i++){r=MONRES[i];m=t.match(r.re);if(m){mo=r.m}}
+ if(m){d=+m[1];y=resolveYear(m[2])}
  else{m=t.match(/(\d{1,2})\s*[\/\-]\s*(\d{1,2})\s*[\/\-]\s*(\d{4}|\d{2})(?!\d)/);if(!m)return null;d=+m[1];mo=+m[2];y=resolveYear(m[3])}
  if(!mo||mo>12||d<1||d>31)return null;
- return{iso:y+"-"+pad2(mo)+"-"+pad2(d),end:m.index+m[0].length}}
+ var before=m.index>0?t.charAt(m.index-1):" ",now=new Date().getFullYear();
+ return{iso:y+"-"+pad2(mo)+"-"+pad2(d),end:m.index+m[0].length,sure:/\s/.test(before)&&Math.abs(y-now)<=1}}
 function firstTime(s,re){var m;re.lastIndex=0;while((m=re.exec(s))){var h=+m[1],mi=+m[2];if(h<=23&&mi<=59)return pad2(h)+":"+pad2(mi)}return""}
-function pTime(t,from){
- var r=firstTime(t.slice(from||0,(from||0)+45),/(\d{1,2})\s*[:;.]\s*(\d{2})(?:\s*[:;.]\s*\d{2})?(?!\d)/g);
- return r||firstTime(t,/(\d{1,2})\s*:\s*(\d{2})(?:\s*:\s*\d{2})?(?!\d)/g)}
+function pTimeLine(l){return firstTime(l,/(\d{1,2})\s*:\s*(\d{2})(?:\s*:\s*\d{2})?(?!\d)/g)||firstTime(l,/(\d{1,2})\s*[;.]\s*(\d{2})\s*(?:น|u|U)/g)}
+function isDateLine(l){return !!(pDate(l)||pTimeLine(l))}
 function amtsIn(s){var o=[],m;AMTRE.lastIndex=0;while((m=AMTRE.exec(s)))o.push(parseFloat(m[1].replace(/,/g,"")+"."+m[2]));return o}
-var AMTL=["จำนวนเงิน","จำนวน","Amount","ยอดชำระ","ยอดโอน","ยอดเงิน","ยอดรวม"].map(lab),FEEL=/ค่าธรรมเนียม|ค่าบริการ|\bfee\b|คงเหลือ|balance/i;
+function amtFromDigits(s){s=String(s||"").replace(/\s/g,"");var a=amtsIn(s);if(a.length)return a[0];var m=s.match(/^(\d+)00$/);return m?parseFloat(m[1]):0}
+var AMTL=["จำนวนเงิน","จำนวน","Amount","ยอดชำระ","ยอดโอน","ยอดเงิน","ยอดรวม"].map(lab),FEEL=new RegExp([lab("ค่าธรรมเนียม").source,lab("ค่าบริการ").source,"\\bfee\\b","คงเหลือ","balance"].join("|"),"i");
 function pAmount(lines){
  for(var k=0;k<AMTL.length;k++)for(var i=0;i<lines.length;i++){
   var m=lines[i].match(AMTL[k]);if(!m||FEEL.test(lines[i]))continue;
-  var a=amtsIn(lines[i].slice(m.index+m[0].length));if(a.length)return a[0];
-  if(lines[i+1]&&!FEEL.test(lines[i+1])){a=amtsIn(lines[i+1]);if(a.length)return a[0]}}
+  var a=amtsIn(lines[i].slice(m.index+m[0].length));if(a.length)return{v:a[0],sure:true};
+  if(lines[i+1]&&!FEEL.test(lines[i+1])){a=amtsIn(lines[i+1]);if(a.length)return{v:a[0],sure:true}}}
  var all=[];lines.forEach(function(l){if(!FEEL.test(l))all=all.concat(amtsIn(l))});
- return all.length?Math.max.apply(null,all):0}
+ return{v:all.length?Math.max.apply(null,all):0,sure:false}}
+
+function letters(s){return(String(s).match(/[A-Za-zก-๙]/g)||[]).length}
 function cleanName(s){
  s=String(s||"").replace(/[:：|•>]+/g," ").replace(BANKRE," ");
- s=s.replace(/[xX*×]+[\dxX*×\-\s]{3,}/g," ").replace(/\b\d{3}[\-\s]?\d[\-\s]?\d{4,}[\-\s]?\d?\b/g," ").replace(/\b\d{9,}\b/g," ");
+ s=s.replace(/[xX*×%]+[\dxX*×%\-\s]{3,}/g," ").replace(/\b\d{3}[\-\s]?\d[\-\s]?\d{4,}[\-\s]?\d?\b/g," ").replace(/\b\d{9,}\b/g," ");
  return s.replace(/\s+/g," ").trim()}
-function isLabelLine(s){return LABELRE.test(String(s).replace(/\s+/g,""))}
-function okName(s){return /[ก-๙A-Za-z]{2,}/.test(s)&&!isLabelLine(s)&&!/^(บาท|thb)$/i.test(s)}
+function nameOf(line){
+ var s=String(line||"").replace(/[:：|•>]+/g," ").replace(BANKRE," ");
+ s=s.replace(/[xX*×%]+[\dxX*×%\-\s]{3,}/g," ");
+ var seg=s.split(/\s{2,}/).map(function(x){return x.trim()}).filter(Boolean).filter(function(x){return letters(x)>=4});
+ s=seg.join(" ");
+ s=s.replace(/^\([^A-Za-zก-๙0-9]{1,3}\)\s*/,"");
+ for(var g=0;g<3;g++){var m=s.match(/^(\S+)\s+(.*)$/);if(!m)break;var tk=m[1];
+  if(/^[^A-Za-zก-๙0-9(]+$/.test(tk)||(tk.length<=3&&!/^[A-Z]+$/.test(tk)&&!KNOWNTOK.test(tk)&&!/^[ก-๙]+$/.test(tk)&&!/^\(/.test(tk)&&!TITLERE.test(tk)))s=m[2];else break}
+ s=s.replace(/^[^A-Za-zก-๙0-9(]+/,"").replace(/[^A-Za-zก-๙0-9).\]]+$/,"").replace(/\s+/g," ").trim();
+ return letters(s)>=4?s:""}
+function isLabelLine(s){return LABELRE.test(stripMarks(String(s).replace(/\s+/g,"")))||/สำเร็จ/.test(s)}
+function isCodeLine(s){s=String(s).trim();if(/\s/.test(s.replace(/^\(|\)$/g,"")))return false;var x=s.replace(/[()\-:]/g,"");return /^[A-Za-z0-9]{9,}$/.test(x)&&(x.match(/\d/g)||[]).length>=x.length*0.4}
+function isShortParen(s){return /^\(\s*[^)]{1,6}\s*\)?$/.test(s)}
+function okName(s){return !!s&&/[ก-๙A-Za-z]{2,}/.test(s)&&!isLabelLine(s)&&!isCodeLine(s)&&!isShortParen(s)&&!BANKONLY.test(s)&&!PROVONLY.test(s)}
+var TERMRE=new RegExp(["จำนวน","รายละเอียด","อ้างอิง","รหัส","เลขที่รายการ"].map(stripMarks).join("|"));
 var TOL=["ไปยัง","โอนไปที่","โอนไปยัง","ชื่อผู้รับ","ผู้รับเงิน","ผู้รับ","ชื่อร้านค้า","ร้านค้า","ผู้ให้บริการ","Merchant","Biller","Receiver","Payee","To","ถึง"].map(lab);
+function strip2(s){return String(s).replace(/(?:^|\s)(?:พร้อมเพย์\s*)?e-?wallet\b/ig," ").replace(/\s+/g," ").trim()}
+function dateLineIdx(lines){var i;for(i=0;i<Math.min(lines.length,15);i++)if(pDate(lines[i]))return i;for(i=0;i<Math.min(lines.length,9);i++)if(pTimeLine(lines[i]))return i;return-1}
+function pParties(lines){
+ var start=dateLineIdx(lines)+1,i;
+ var blocks=[],cur=null;
+ for(i=start;i<lines.length;i++){
+  var L=lines[i];if(TERMRE.test(stripMarks(L.replace(/\s+/g,""))))break;
+  var n=strip2(nameOf(L));
+  if(cur&&!okName(n)){var pv=cur[cur.length-1];if((pv.match(/\(/g)||[]).length>(pv.match(/\)/g)||[]).length){var fr=L.trim().match(/^[A-Za-z][A-Za-z0-9 .\-]{0,10}\)$/);if(fr){cur[cur.length-1]=pv+" "+fr[0].trim();continue}}}
+  if(okName(n)){if(!cur){cur=[];blocks.push(cur)}if(cur[cur.length-1]!=n)cur.push(n)}else cur=null}
+ return blocks.map(function(b){return b.join(" ").slice(0,80)})}
 function pPayee(lines){
  for(var k=0;k<TOL.length;k++)for(var i=0;i<lines.length;i++){
-  var m=lines[i].match(TOL[k]);if(!m)continue;
-  var rest=cleanName(lines[i].slice(m.index+m[0].length));if(okName(rest))return rest;
-  for(var j=i+1;j<Math.min(lines.length,i+4);j++){var c=cleanName(lines[j]);if(okName(c))return c;if(isLabelLine(lines[j]))break}}
- var t=[];lines.forEach(function(l){var c=cleanName(l);if(TITLERE.test(c)&&okName(c))t.push(c)});
- return t.length?t[t.length-1]:""}
+  var m=lines[i].match(TOL[k]);if(!m||m.index>3)continue;
+  if(/^[A-Za-z]/.test(m[0])&&!/^\s*[:：]/.test(lines[i].slice(m.index+m[0].length)))continue;
+  var rest=nameOf(lines[i].slice(m.index+m[0].length));if(okName(rest))return{to:rest,from:""};
+  for(var j=i+1;j<Math.min(lines.length,i+4);j++){var c=nameOf(lines[j]);if(okName(c))return{to:c,from:""};if(isLabelLine(lines[j]))break}}
+ var b=pParties(lines);
+ if(b.length>=2)return{to:b[b.length-1],from:b[0]};
+ if(b.length==1)return{to:b[0],from:""};
+ var t=[];lines.forEach(function(l){var c=nameOf(l);if(TITLERE.test(c)&&okName(c))t.push(c)});
+ return{to:t.length?t[t.length-1]:"",from:""}}
 var MEMOL=["บันทึกช่วยจำ","บันทึก","หมายเหตุ","Memo","Note"].map(lab);
 function pMemo(lines){
  for(var k=0;k<MEMOL.length;k++)for(var i=0;i<lines.length;i++){
-  var m=lines[i].match(MEMOL[k]);if(!m)continue;
+  var m=lines[i].match(MEMOL[k]);if(!m||m.index>3)continue;
   var rest=lines[i].slice(m.index+m[0].length);if(/^\s*(ภาพ|สลิป|รูป)/.test(rest))continue;
   rest=rest.replace(/^[\s:：]+/,"").trim();if(rest&&!isLabelLine(rest))return rest.slice(0,40);
-  var nx=lines[i+1];if(nx&&!isLabelLine(nx)&&/[ก-๙A-Za-z0-9]/.test(nx))return nx.trim().slice(0,40)}
+  var nx=lines[i+1];if(nx&&!isLabelLine(nx)&&!TERMRE.test(stripMarks(nx))&&/[ก-๙A-Za-z0-9]/.test(nx))return nx.trim().slice(0,40)}
  return""}
-var REFL=["เลขที่รายการ","รหัสอ้างอิง","หมายเลขอ้างอิง","เลขที่อ้างอิง","Reference","TransactionID","TransID","Ref"].map(lab);
+function fixRef(r){var m=r.match(/^(26\d{16})/);return m?m[1]:r}
+var REFL=["เลขที่รายการ","รหัสอ้างอิง","หมายเลขอ้างอิง","เลขที่อ้างอิง","อ้างอิง","Reference","TransactionID","TransID","Ref"].map(lab);
 function pRef(lines){
  for(var k=0;k<REFL.length;k++)for(var i=0;i<lines.length;i++){
   var m=lines[i].match(REFL[k]);if(!m)continue;
   var r=(lines[i].slice(m.index+m[0].length)+" ").replace(/\s+/g,"").match(/[A-Za-z0-9]{8,}/);
-  if(!r&&lines[i+1])r=lines[i+1].replace(/\s+/g,"").match(/[A-Za-z0-9]{8,}/);
-  if(r)return r[0]}
+  for(var q=1;!r&&q<=3&&lines[i+q];q++)r=lines[i+q].replace(/\s+/g,"").match(/[A-Za-z0-9]{10,}/);
+  if(r)return fixRef(r[0])}
+ for(i=0;i<lines.length;i++){var d=lines[i].replace(/\s+/g,"").match(/\d{15,22}/);if(d)return fixRef(d[0])}
  return""}
+/* วันที่-เวลาที่ฝังอยู่ในเลขอ้างอิง: K+ = 016+วันที่ในปี(3)+HHMMSS, ttb = YYMMDDHHMMSS */
+function refDT(ref){
+ var m,now=new Date(),y=now.getFullYear(),dt,ok=function(h,mi){return h<=23&&mi<=59};
+ if((m=String(ref||"").match(/^016(\d{3})(\d{2})(\d{2})/))&&+m[1]>=1&&+m[1]<=366&&ok(+m[2],+m[3])){
+  dt=new Date(Date.UTC(y,0,+m[1]));if(dt>new Date(now.getTime()+2*864e5))dt=new Date(Date.UTC(y-1,0,+m[1]));
+  return{date:dt.getUTCFullYear()+"-"+pad2(dt.getUTCMonth()+1)+"-"+pad2(dt.getUTCDate()),time:pad2(+m[2])+":"+pad2(+m[3])}}
+ if((m=String(ref||"").match(/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/))&&+m[1]>=20&&+m[1]<=40&&+m[2]>=1&&+m[2]<=12&&+m[3]>=1&&+m[3]<=31&&ok(+m[4],+m[5]))
+  return{date:(2000+ +m[1])+"-"+m[2]+"-"+m[3],time:m[4]+":"+m[5]};
+ return null}
 function pDebt(t){var c=t.toLowerCase().replace(/\s+/g,"");
  return S.debts.filter(function(d){var n=d.name.toLowerCase().replace(/\s+/g,"");if(n.length<3)return false;
   return c.indexOf(n)>=0||(ALIAS[n]||[]).some(function(a){return c.indexOf(a)>=0})})[0]}
@@ -404,10 +454,25 @@ function catOf(memo,payee){
  var person=PERSONRE.test(String(payee||"").replace(/\s+/g,"")),src=[memo||""].concat(person?[]:[payee||""]);
  for(var s=0;s<src.length;s++)for(var r=0;r<CATRULES.length;r++)if(CATRULES[r][1].test(src[s]))return CATRULES[r][0];
  return"อื่นๆ"}
+function simName(a,b){a=ruleKey(a);b=ruleKey(b);if(!a||!b)return 0;if(a==b)return 1;
+ var n=a.length,m=b.length,d=[],i,j;for(j=0;j<=m;j++)d[j]=j;
+ for(i=1;i<=n;i++){var p=d[0];d[0]=i;for(j=1;j<=m;j++){var t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a.charAt(i-1)==b.charAt(j-1)?0:1));p=t}}
+ return 1-d[m]/Math.max(n,m)}
 function parseSlip(raw){
- var t=normText(raw),lines=t.split("\n").map(function(s){return s.trim()}).filter(Boolean),dt=pDate(t);
- var r={amount:pAmount(lines),date:dt?dt.iso:null,time:pTime(t,dt?dt.end:0),receiver:pPayee(lines),note:pMemo(lines),ref:pRef(lines),raw:t},dd=pDebt(t);
- r.debt=dd?dd.name:null;r.category=catOf(r.note,r.receiver);return r}
+ var t=normText(raw),lines=t.split("\n").map(function(s){return s.trim()}).filter(Boolean),di;
+ di=dateLineIdx(lines);
+ var dt=(di>=0&&pDate(lines[di]))||pDate(t),ref=pRef(lines),rd=refDT(ref),warn=[];
+ var date=dt?dt.iso:null,time=di>=0?pTimeLine(lines[di]):"";
+ if(rd&&(!dt||!dt.sure)){date=rd.date;if(!time)time=rd.time;warn.push("วันที่บนสลิปอ่านไม่ชัด ใช้วันที่จากเลขอ้างอิงแทน")}
+ else if(rd&&dt&&dt.iso!=rd.date)warn.push("วันที่ไม่ตรงกับเลขอ้างอิง ตรวจวันที่อีกครั้ง");
+ else if(!dt)warn.push("อ่านวันที่ไม่ได้ ตรวจวันที่");
+ if(!time&&rd)time=rd.time;
+ var am=pAmount(lines),py=pPayee(lines),memo=pMemo(lines),dd=pDebt(py.to+" "+memo);
+ var r={amount:am.v,amountSure:am.sure,date:date,time:time,receiver:py.to,sender:py.from,note:memo,ref:ref,raw:t,warn:warn};
+ r.debt=dd?dd.name:null;r.category=catOf(memo,py.to);
+ var fl=String(py.from).trim().split(/\s+/).pop(),tl=String(py.to).trim().split(/\s+/).pop();
+ r.self=!!(py.from&&py.to&&(simName(py.from,py.to)>=0.65||(letters(fl)>=4&&ruleKey(fl)==ruleKey(tl))));
+ return r}
 
 /* ---- จำร้าน/ผู้รับ → หมวด/หนี้ จากที่ผู้ใช้ยืนยันครั้งก่อน ---- */
 function ruleKey(n){return String(n||"").toLowerCase().replace(/^(นาย|นางสาว|นาง|น\.?ส\.?|mr\.?|mrs\.?|miss|ms\.?|คุณ)\s*/i,"").replace(/[\s.\-]/g,"")}
@@ -425,8 +490,22 @@ function prepOCR(file){return new Promise(function(res,rej){var img=new Image();
  for(i=0;i<p.length;i+=4){g=.299*p[i]+.587*p[i+1]+.114*p[i+2];p[i]=g;sum+=g;if(g<lo)lo=g;if(g>hi)hi=g}
  var inv=sum/n<115,rg=Math.max(1,hi-lo);
  for(i=0;i<p.length;i+=4){g=(p[i]-lo)*255/rg;if(inv)g=255-g;p[i]=p[i+1]=p[i+2]=g}
- x.putImageData(d,0,0);c.toBlob(function(b){b?res(b):rej()},"image/png")};img.onerror=rej;img.src=URL.createObjectURL(file)})}
-async function viaOCR(blob){await loadTess();var r=await Tesseract.recognize(blob,"tha+eng");return parseSlip(r.data.text||"")}
+ x.putImageData(d,0,0);res(c)};img.onerror=rej;img.src=URL.createObjectURL(file)})}
+async function viaOCR(cv){
+ await loadTess();var w=await Tesseract.createWorker("tha+eng"),j;
+ try{
+  var d=(await w.recognize(cv)).data;j=parseSlip(d.text||"");
+  if(!j.amount||!j.amountSure){
+   /* ยอดตัวใหญ่ (เช่น ttb) OCR ปกติอ่านไม่ออก: ตัดแถบระหว่างบรรทัดวันที่กับค่าธรรมเนียมมาอ่านเฉพาะตัวเลข */
+   var L=(d.lines||[]).filter(function(l){return(l.text||"").trim()}),di=-1,fi=-1;
+   L.forEach(function(l,i){if(di<0&&isDateLine(normText(l.text)))di=i;else if(di>=0&&fi<0&&FEEL.test(l.text))fi=i});
+   if(di>=0&&fi>di){var y0=L[di].bbox.y1+10,y1=L[fi].bbox.y0-6;
+    if(y1-y0>30){var c=document.createElement("canvas");c.width=Math.round(cv.width*.9);c.height=y1-y0;
+     c.getContext("2d").drawImage(cv,Math.round(cv.width*.05),y0,c.width,c.height,0,0,c.width,c.height);
+     await w.setParameters({tessedit_char_whitelist:"0123456789.,",tessedit_pageseg_mode:"7"});
+     var a=amtFromDigits((await w.recognize(c)).data.text);if(a){j.amount=a;j.amountSure=true}}}}
+ }finally{try{await w.terminate()}catch(e){}}
+ return j}
 function useAI(){return !!getKey()&&!S.ocrOnly}
 function setOcr(v){S.ocrOnly=v?1:0;lsSave();render()}
 function clearRules(){if(confirm("ลืมร้าน/ผู้รับที่แอปจำไว้ทั้งหมด?")){S.rules={};save();render()}}
@@ -438,7 +517,9 @@ async function scan(file){lastFile=file;
   if(useAI()){try{j=await viaClaude(await shrink(file))}catch(e){msg="ใช้ Claude ไม่สำเร็จ จึงอ่านด้วย OCR ในเครื่องแทน ตรวจข้อมูลก่อนบันทึก"}}
   if(!j)j=await viaOCR(await prepOCR(file));
   var dd=S.debts.filter(function(d){return j.debt&&d.name.toLowerCase()==String(j.debt).toLowerCase()})[0];
-  pend={amt:parseFloat(j.amount)||0,date:/^\d{4}-\d{2}-\d{2}$/.test(j.date||"")?j.date:today(),time:/^\d{2}:\d{2}$/.test(j.time||"")?j.time:"",to:j.receiver||"",note:j.note||"",cat:CATS.indexOf(j.category)>=0?j.category:"อื่นๆ",debt:dd?dd.id:0,ref:j.ref||"",raw:j.raw||"",learned:0};
+  pend={amt:parseFloat(j.amount)||0,date:/^\d{4}-\d{2}-\d{2}$/.test(j.date||"")?j.date:today(),time:/^\d{2}:\d{2}$/.test(j.time||"")?j.time:"",to:j.receiver||"",note:j.note||"",cat:CATS.indexOf(j.category)>=0?j.category:"อื่นๆ",debt:dd?dd.id:0,ref:j.ref||"",raw:j.raw||"",learned:0,warn:(j.warn||[]).slice(),self:!!j.self};
+  if(!pend.amt)pend.warn.push("อ่านยอดเงินไม่ได้ กรอกเอง");
+  if(pend.self){pend.warn.push("ชื่อผู้รับตรงกับผู้โอน อาจเป็นโอนเข้าบัญชีตัวเอง ถ้าไม่ใช่รายจ่ายจริงให้กดยกเลิก");if(!pend.note)pend.note="โอนบัญชีตัวเอง"}
   var ru=ruleFor(pend.to);if(ru){pend.cat=ru.cat;if(ru.debt&&S.debts.some(function(d){return d.id==ru.debt}))pend.debt=ru.debt;pend.learned=1}
   pend.dup=dupOf(pend)
  }catch(e){msg="อ่านสลิปไม่สำเร็จ ลองถ่ายให้ชัดขึ้น หรือพิมพ์เอง (OCR ต้องต่ออินเทอร์เน็ตครั้งแรก)"}
@@ -826,7 +907,7 @@ function log(){
  if(logView=="shop")return logSeg()+shop();
  var h=logSeg(),bi=budInfo();
  if(bi)h+=`<div class="bchip span2${bi.todayLeft<0?" over":""}">${bi.todayLeft<0?`วันนี้เกินงบ ${f(-bi.todayLeft)} ฿`:`วันนี้เหลือ <b>${f(bi.todayLeft)} ฿</b>`} · เฉลี่ยวันละ ${f(Math.max(0,bi.per))} ฿</div>`;
- if(pend)h+=`<section class="card pend span2"><h2>ตรวจก่อนบันทึก</h2>`+(pend.dup?`<div class="note" role="alert"><p>สลิปนี้ดูเหมือนเคยบันทึกแล้ว ตรวจก่อนบันทึกซ้ำ</p></div>`:"")+`<p class="sub" style="margin-bottom:12px">${useAI()?"อ่านด้วย Claude":"อ่านด้วย OCR ในเครื่อง ตัวเลขอาจคลาดเคลื่อน"} ตรวจให้ถูกก่อนบันทึก${pend.learned?" · หมวดนี้จำจากครั้งก่อน":""}</p><div class="g2">${fld("จำนวนเงิน",`<input type="number" inputmode="decimal" value="${pend.amt}" oninput="pf('amt',this.value)">`)}${fld("วันที่",`<input type="date" value="${pend.date}" oninput="pf('date',this.value)">`)}</div><div class="g2">${fld("เวลา",`<input type="time" value="${esc(pend.time)}" oninput="pf('time',this.value)">`)}${fld("จ่ายให้ใคร",`<input value="${esc(pend.to)}" oninput="pf('to',this.value)">`)}</div>${fld("ค่าอะไร / รายละเอียด",`<input value="${esc(pend.note)}" placeholder="เช่น ค่าข้าว ค่าไฟ" oninput="pf('note',this.value)">`)}<div class="g2">${fld("หมวด",`<select onchange="pf('cat',this.value)">${CATS.map(function(c){return`<option${c==pend.cat?" selected":""}>${c}</option>`}).join("")}</select>`)}${fld("จ่ายหนี้ให้",`<select onchange="pf('debt',this.value)"><option value="0">ไม่ใช่จ่ายหนี้</option>${S.debts.map(function(d){return`<option value="${d.id}"${d.id==pend.debt?" selected":""}>${esc(d.name)}</option>`}).join("")}</select>`)}</div>${pend.raw?`<details style="margin:8px 0"><summary class="sub">ดูข้อความที่ OCR อ่านได้</summary><pre class="sub" style="white-space:pre-wrap">${esc(pend.raw)}</pre></details>`:""}<div class="row2"><button class="btn" onclick="okPend()">บันทึก</button><button class="btn s" onclick="pend=null;render()">ยกเลิก</button></div></section>`;
+ if(pend)h+=`<section class="card pend span2"><h2>ตรวจก่อนบันทึก</h2>`+(pend.dup?`<div class="note" role="alert"><p>สลิปนี้ดูเหมือนเคยบันทึกแล้ว ตรวจก่อนบันทึกซ้ำ</p></div>`:"")+(pend.warn||[]).map(function(x){return`<div class="note" role="alert"><p>${esc(x)}</p></div>`}).join("")+`<p class="sub" style="margin-bottom:12px">${useAI()?"อ่านด้วย Claude":"อ่านด้วย OCR ในเครื่อง ตัวเลขอาจคลาดเคลื่อน"} ตรวจให้ถูกก่อนบันทึก${pend.learned?" · หมวดนี้จำจากครั้งก่อน":""}</p><div class="g2">${fld("จำนวนเงิน",`<input type="number" inputmode="decimal" value="${pend.amt}" oninput="pf('amt',this.value)">`)}${fld("วันที่",`<input type="date" value="${pend.date}" oninput="pf('date',this.value)">`)}</div><div class="g2">${fld("เวลา",`<input type="time" value="${esc(pend.time)}" oninput="pf('time',this.value)">`)}${fld("จ่ายให้ใคร",`<input value="${esc(pend.to)}" oninput="pf('to',this.value)">`)}</div>${fld("ค่าอะไร / รายละเอียด",`<input value="${esc(pend.note)}" placeholder="เช่น ค่าข้าว ค่าไฟ" oninput="pf('note',this.value)">`)}<div class="g2">${fld("หมวด",`<select onchange="pf('cat',this.value)">${CATS.map(function(c){return`<option${c==pend.cat?" selected":""}>${c}</option>`}).join("")}</select>`)}${fld("จ่ายหนี้ให้",`<select onchange="pf('debt',this.value)"><option value="0">ไม่ใช่จ่ายหนี้</option>${S.debts.map(function(d){return`<option value="${d.id}"${d.id==pend.debt?" selected":""}>${esc(d.name)}</option>`}).join("")}</select>`)}</div>${pend.raw?`<details style="margin:8px 0"><summary class="sub">ดูข้อความที่ OCR อ่านได้</summary><pre class="sub" style="white-space:pre-wrap">${esc(pend.raw)}</pre></details>`:""}<div class="row2"><button class="btn" onclick="okPend()">บันทึก</button><button class="btn s" onclick="pend=null;render()">ยกเลิก</button></div></section>`;
  if(kind!="in")h+=quickCard();
  h+=`<section class="card"><div class="seg" role="group" aria-label="ประเภท"><button class="${kind=="out"?"on":""}" onclick="setKind('out')">รายจ่าย</button><button class="${kind=="in"?"on":""}" onclick="setKind('in')">รายรับ</button></div><div style="height:16px"></div>`+fld("จำนวนเงิน (บาท)",`<input id="amt" class="amt" type="number" inputmode="decimal" placeholder="0" onkeydown="enter(event)" oninput="this.classList.remove('err');document.getElementById('amt-e').textContent=''">`,"amt-e")+fld("รายละเอียด (ไม่บังคับ)",`<input id="note" placeholder="${kind=='in'?'เช่น OT วันศุกร์':'เช่น ข้าวกลางวัน'}" autocomplete="off" onkeydown="enter(event)">`)+`<div class="lb">หมวด</div><div class="chips">${(kind=="in"?INCATS:CATS).map(function(c){return`<button class="chip cc${c==cat?" on":""}" data-c="${c}" onclick="setCat(this.dataset.c)">${c}</button>`}).join("")}</div><button class="btn" onclick="quick()">${kind=="in"?"บันทึกรายรับ":"บันทึก"}</button>`+(kind=="in"?"":mdet("bulk","วางหลายรายการพร้อมกัน",`<textarea id="bulk" rows="4" placeholder="ข้าว 60&#10;ค่ารถ 40"></textarea><button class="btn s sm" onclick="bulk()">เพิ่มทั้งหมด</button>`))+`</section>`;
  if(kind=="in"){}else if(busy)h+=`<section class="card"><div class="busy" role="status"><span class="spin"></span><div><b>กำลังอ่านสลิป…</b><p class="sub">ใช้เวลาประมาณ 5–20 วินาที (ครั้งแรกนานกว่านั้น ต้องโหลดตัวอ่านภาษาไทย)</p></div></div></section>`;
