@@ -147,6 +147,14 @@ svg text{font-size:11px;fill:var(--mu)}svg text.sv{fill:var(--tx);font-weight:60
  .row2 .btn,.card>.btn,.hero .btn,.cta .btn{width:auto}.cta .btn{width:100%}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.cols{display:flex;gap:3px;align-items:flex-end;margin:4px 0}.cols.w{gap:8px}
+.cl{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--mu)}
+.cl .bw{display:flex;align-items:flex-end;width:100%;height:92px}.cols.w .bw{height:82px}
+.cl .bw i{display:block;width:100%;background:var(--pm);border-radius:5px 5px 2px 2px}
+.cl .vl{font-size:11px;min-height:16px;line-height:16px}
+.wkh{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:center;margin-bottom:8px}
+.hd span{display:flex;gap:0}
+.g2>*,.g3>*{min-width:0}.g2 input,.g2 select{min-width:0;max-width:100%}input[type=date],input[type=time]{min-width:0;max-width:100%}
 </style>
 </head>
 <body>
@@ -190,7 +198,6 @@ function guess(n){if(/ข้าว|กิน|น้ำ|กาแฟ|อาหา
 
 function pay(id,def){var d=S.debts.filter(function(x){return x.id==id})[0];var a=parseFloat(prompt("จ่าย "+d.name+" กี่บาท?",def!=null?Math.round(def):d.min));if(a>0)addTx(a,"","",null,id)}
 
-function editTx(id){var t=S.tx.filter(function(x){return x.id==id})[0];if(!t)return;var a=parseFloat(prompt("แก้จำนวนเงิน",t.amt));if(isNaN(a)||a<0)return;if(t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal=Math.max(0,d.bal+t.amt-a)}t.amt=a;qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});if(t.debt)syncDebts();save();render()}
 
 
 
@@ -214,7 +221,7 @@ function closeSheet(){sheet=null;render()}
 function goTab(t){setTab(t)}
 
 
-function sortTx(a){return a.sort(function(x,y){return y.date<x.date?-1:y.date>x.date?1:y.id-x.id})}
+function sortTx(a){return a.sort(function(x,y){var kx=x.date+(x.time||""),ky=y.date+(y.time||"");return ky<kx?-1:ky>kx?1:y.id-x.id})}
 
 
 /* ---- charts ---- */
@@ -611,7 +618,7 @@ var OPEN={},tfn=null,ttm=null;
 var ICO={home:`<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>`,plan:`<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>`,plus:`<path d="M12 5v14M5 12h14"/>`,card:`<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/>`,chart:`<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>`,gear:`<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/>`,x:`<path d="M6 6l12 12M18 6L6 18"/>`,chev:`<path d="M9 6l6 6-6 6"/>`,camera:`<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>`,edit:`<path d="M4 20h4L19 9l-4-4L4 16z"/>`,trash:`<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>`,check:`<path d="M5 12l5 5 9-10"/>`,sun:`<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/>`,moon:`<path d="M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z"/>`,auto:`<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 010 18z" fill="currentColor"/>`,wallet:`<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/>`,tag:`<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1"/>`,bolt:`<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>`,cloud:`<path d="M7 18a4 4 0 010-8 5 5 0 019.5-1A4 4 0 0117 18z"/>`,download:`<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>`,back:`<path d="M15 6l-6 6 6 6"/>`};
 function ic(n,s){s=s||20;return`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[n]}</svg>`}
 
-var sub=null,SUBT={inc:"รายได้",fixed:"ค่าห้องและรายจ่ายประจำ",debts:"บัตรและหนี้",cb:"งบแยกหมวด",quick:"ปุ่มลัด",scan:"สแกนสลิป",sheet:"ซิงก์ Google Sheet",bk:"สำรองข้อมูล"},INCATS=["เงินเดือน","OT","พิเศษ/ขายของ","รับโอน","อื่นๆ"],kind="out",wi={add:0,lump:0,cut:0};
+var sub=null,SUBT={inc:"รายได้",fixed:"ค่าห้องและรายจ่ายประจำ",debts:"บัตรและหนี้",cb:"งบแยกหมวดและรายสัปดาห์",quick:"ปุ่มลัด",scan:"สแกนสลิป",sheet:"ซิงก์ Google Sheet",bk:"สำรองข้อมูล"},INCATS=["เงินเดือน","OT","พิเศษ/ขายของ","รับโอน","อื่นๆ"],kind="out",wi={add:0,lump:0,cut:0};
 function isOut(t){return !t.debt&&t.type!="in"}
 function incTx(k){return monthTx(k).filter(function(t){return t.type=="in"}).reduce(function(a,t){return a+t.amt},0)}
 function catUsed(c,k){return monthTx(k).filter(function(t){return isOut(t)&&t.cat==c}).reduce(function(a,t){return a+t.amt},0)}
@@ -627,6 +634,110 @@ function calc(k,incO){
  monthTx(k).forEach(function(t){if(isOut(t)){spent+=t.amt;by[t.cat]=(by[t.cat]||0)+t.amt}});
  var left=inc-fx-commit-spent,now=new Date(),dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),days=Math.max(1,dim-now.getDate()+1);
  return{inc:inc,carry:carry,fx:fx,commit:commit,spent:spent,left:left,perDay:left/days,days:days,dim:dim,by:by}}
+/* ---- v15: งบ/สรุปรายสัปดาห์, กราฟตามเวลา, ร้านที่จ่ายบ่อย, ค้นหา/กรอง, แก้ไขทุกช่อง ---- */
+var wkOff=0,stRange="m",topBy="n",TOPN=[],flt={q:"",cat:"",kind:"",from:"",to:"",min:"",max:""},fltOpen=false,edKind="out",TD=["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."];
+function WB(){if(!S.wb)S.wb={tot:0,cat:{}};if(!S.wb.cat)S.wb.cat={};return S.wb}
+function setWb(k,v){var w=WB(),n=Math.max(0,parseFloat(v)||0);if(k=="tot")w.tot=n;else w.cat[k]=n;save();render()}
+function dm(d){return d.getDate()+" "+TM[d.getMonth()]}
+function gv(id){var e=document.getElementById(id);return e?e.value:""}
+function sumA(a){return a.reduce(function(x,t){return x+t.amt},0)}
+function pct(a,b){return b>0?Math.round(a/b*100):0}
+function isSpend(t){return isOut(t)&&t.cat!="เงินออม"}
+function wkRange(off){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7)+7*(off||0));var e=new Date(d);e.setDate(e.getDate()+6);return{s:iso(d),e:iso(e),sd:d,ed:e}}
+function wkTx(off){var r=wkRange(off);return S.tx.filter(function(t){return t.date>=r.s&&t.date<=r.e})}
+function wkSpent(off,c){return sumA(wkTx(off).filter(function(t){return isSpend(t)&&(!c||t.cat==c)}))}
+function wkWarn(c){var w=WB(),o=[],p;
+ if(w.tot>0){p=pct(wkSpent(0),w.tot);if(p>=80)o.push(p>=100?"เกินงบสัปดาห์แล้ว":"งบสัปดาห์ใช้ไป "+p+"%")}
+ if(c&&w.cat[c]>0){p=pct(wkSpent(0,c),w.cat[c]);if(p>=80)o.push(p>=100?c+"เกินงบสัปดาห์แล้ว":c+"สัปดาห์นี้ใช้ไป "+p+"%")}
+ return o.length?" · "+o.join(" · "):""}
+function wkChip(){var w=WB();if(!(w.tot>0))return"";var sp=wkSpent(0),p=pct(sp,w.tot),over=sp>w.tot;
+ return`<div class="bchip span2${over?" over":""}">สัปดาห์นี้ใช้ <b>${f(sp)}</b> / ${f(w.tot)} ฿ (${p}%)${over?` · เกิน ${f(sp-w.tot)} ฿`:` · เหลือ ${f(w.tot-sp)} ฿`}<div class="bar${over?" a":""}" style="margin-top:8px"><i style="width:${Math.min(100,p)}%"></i></div></div>`}
+function wkRows(){var o=[];for(var i=0;i>-12;i--){var r=wkRange(i),tx=wkTx(i);o.push([r.s,r.e,sumA(tx.filter(isSpend)),WB().tot||"",sumA(tx.filter(function(t){return t.debt})),sumA(tx.filter(function(t){return t.type=="in"})),tx.length])}return o}
+function wkGo(d){wkOff=Math.min(0,wkOff+d);render()}
+function weekCard(){
+ var r=wkRange(wkOff),tx=wkTx(wkOff),w=WB(),sp=sumA(tx.filter(isSpend)),pv=wkSpent(wkOff-1),dbt=sumA(tx.filter(function(t){return t.debt})),inc=sumA(tx.filter(function(t){return t.type=="in"})),n=tx.filter(isSpend).length,days=[],i;
+ for(i=0;i<7;i++){var d=new Date(r.sd);d.setDate(d.getDate()+i);var k=iso(d);days.push({d:d,k:k,v:sumA(tx.filter(function(t){return isSpend(t)&&t.date==k}))})}
+ var mx=Math.max.apply(null,days.map(function(x){return x.v}).concat([1])),best=days.slice().sort(function(a,b){return b.v-a.v})[0],td=today();
+ var el=wkOff==0?days.filter(function(x){return x.k<=td}).length:7,cats={};tx.filter(isSpend).forEach(function(t){cats[t.cat]=(cats[t.cat]||0)+t.amt});
+ var cl=Object.keys(cats).sort(function(a,b){return cats[b]-cats[a]}),title=wkOff==0?"สัปดาห์นี้":wkOff==-1?"สัปดาห์ก่อน":"สัปดาห์ที่แล้ว "+(-wkOff)+" สัปดาห์";
+ var cmp=pv>0?`<span style="color:${sp>pv?"var(--acc)":"var(--pri)"}">${sp>pv?"มากกว่า":"น้อยกว่า"}สัปดาห์ก่อน ${f(Math.abs(sp-pv))} ฿ (${Math.round(Math.abs(sp-pv)/pv*100)}%)</span>`:"สัปดาห์ก่อนไม่มีรายจ่าย";
+ var h=`<section class="card span2"><div class="wkh"><button class="ib" aria-label="สัปดาห์ก่อนหน้า" onclick="wkGo(-1)">${ic("back",22)}</button><div><b>${title}</b><small class="sub" style="display:block">${dm(r.sd)} – ${dm(r.ed)}</small></div><button class="ib" aria-label="สัปดาห์ถัดไป" onclick="wkGo(1)"${wkOff==0?" disabled":""} style="transform:scaleX(-1)${wkOff==0?";opacity:.3":""}">${ic("back",22)}</button></div>`;
+ if(!tx.length)return h+empty("ไม่มีรายการสัปดาห์นี้","ลองดูสัปดาห์อื่นด้วยลูกศร")+`</section>`;
+ h+=`<div class="big2 num">${f(sp)} ฿</div><p class="sub" style="margin-bottom:12px">${cmp}</p>`;
+ if(w.tot>0){var p=pct(sp,w.tot);h+=`<div class="li" style="border:0;padding:0 0 6px"><span class="l">งบสัปดาห์ ${f(w.tot)} ฿</span><span class="v" style="color:${sp>w.tot?"var(--acc)":"var(--pri)"}">${sp>w.tot?"เกิน "+f(sp-w.tot):"เหลือ "+f(w.tot-sp)} ฿ (${p}%)</span></div><div class="bar${sp>w.tot?" a":""}" style="margin-bottom:16px"><i style="width:${Math.min(100,p)}%"></i></div>`}
+ h+=`<div class="cols w" role="img" aria-label="ใช้จ่ายรายวัน">${days.map(function(x){return`<div class="cl"><span class="vl num">${x.v?f(x.v):""}</span><div class="bw"><i style="height:${Math.max(x.v?3:0,Math.round(x.v/mx*80))}px${x.k==td?";background:var(--pri)":""}"></i></div><span>${TD[x.d.getDay()]}</span></div>`}).join("")}</div>`;
+ h+=(best.v>0?li("วันที่ใช้มากสุด",`${TD[best.d.getDay()]} ${dm(best.d)} · ${f(best.v)} ฿`):"")+li("เฉลี่ยต่อวัน",f(el?sp/el:0)+" ฿",{sub:wkOff==0?`นับ ${el} วันที่ผ่านมา`:""})+li("จำนวนรายการ",n+" รายการ")+(dbt?li("จ่ายหนี้",f(dbt)+" ฿",{c:"var(--acc)"}):"")+(inc?li("รายรับ","+"+f(inc)+" ฿",{c:"var(--pri)"}):"");
+ if(cl.length)h+=`<h2 style="margin:16px 0 4px">แยกตามหมวด</h2>`+cl.map(function(c){var b=w.cat[c]||0,pp=pct(cats[c],sp);return`<div class="li" style="flex-wrap:wrap;gap:6px 16px;border-bottom:0;padding:8px 0"><span class="l">${esc(c)}<small>${pp}% ของสัปดาห์${b>0?` · งบ ${f(b)} ฿ ใช้ ${pct(cats[c],b)}%`:""}</small></span><span class="v num" style="color:${b>0&&cats[c]>b?"var(--acc)":"inherit"}">${f(cats[c])} ฿</span><div class="bar${b>0&&cats[c]>b?" a":""}" style="flex-basis:100%"><i style="width:${pp}%"></i></div></div>`}).join("");
+ return h+`</section>`}
+function setRange(v){stRange=v;render()}
+function setTopBy(v){topBy=v;render()}
+function rangeTx(){var t=new Date(),from=stRange=="m"?mk()+"-01":stRange=="3"?iso(new Date(t.getFullYear(),t.getMonth(),t.getDate()-89)):"";return S.tx.filter(function(x){return isSpend(x)&&(!from||x.date>=from)})}
+function rangeSeg(){return`<div class="seg3" role="group" aria-label="ช่วงเวลา" style="margin-bottom:16px">${[["m","เดือนนี้"],["3","3 เดือน"],["all","ทั้งหมด"]].map(function(x){return`<button class="${stRange==x[0]?"on":""}" onclick="setRange('${x[0]}')">${x[1]}</button>`}).join("")}</div>`}
+function timeCard(){
+ var all=rangeTx(),tt=all.filter(function(t){return t.time}),hr=[],i,h="";for(i=0;i<24;i++)hr.push(0);
+ tt.forEach(function(t){hr[+t.time.slice(0,2)]+=t.amt});
+ var tot=sumA(tt),mx=Math.max.apply(null,hr.concat([1])),pk=hr.indexOf(Math.max.apply(null,hr));
+ h=`<section class="card span2"><h2>ช่วงเวลาที่ใช้เงิน</h2>`+rangeSeg();
+ if(!tt.length)return h+empty("ยังไม่มีรายการที่มีเวลา","สลิปและรายการที่จดใหม่จะมีเวลาให้อัตโนมัติ")+`</section>`;
+ h+=`<div class="cols" role="img" aria-label="ยอดใช้จ่ายแยกตามชั่วโมง">${hr.map(function(v,k){return`<div class="cl"><div class="bw"><i style="height:${Math.max(v?3:0,Math.round(v/mx*90))}px${k==pk?";background:var(--pri)":""}"></i></div><span>${k%6==0?pad2(k):""}</span></div>`}).join("")}</div>`;
+ h+=`<p class="sub" style="margin:8px 0">ใช้เงินมากสุดช่วง <b>${pad2(pk)}:00–${pad2(pk)}:59</b> (${f(hr[pk])} ฿)</p>`;
+ h+=[["ดึก","00:00–05:59",0,5],["เช้า","06:00–11:59",6,11],["บ่าย","12:00–17:59",12,17],["ค่ำ","18:00–23:59",18,23]].map(function(b){var v=0,c=0;for(var k=b[2];k<=b[3];k++)v+=hr[k];c=tt.filter(function(t){var q=+t.time.slice(0,2);return q>=b[2]&&q<=b[3]}).length;return li(b[0]+" "+b[1],f(v)+" ฿",{sub:c+" รายการ · "+pct(v,tot)+"%"})}).join("");
+ if(all.length>tt.length)h+=`<p class="sub" style="margin-top:8px">ไม่นับ ${all.length-tt.length} รายการที่ไม่มีเวลา</p>`;
+ return h+`</section>`}
+function payeeCard(){
+ var g={};rangeTx().forEach(function(t){var raw=String(t.to||t.note||"").trim();if(!raw)return;var k=t.to?"t:"+ruleKey(t.to):"n:"+raw.toLowerCase().replace(/\s+/g,"");
+  var o=g[k]||(g[k]={name:raw,n:0,sum:0,last:""});o.n++;o.sum+=t.amt;var lk=t.date+(t.time||"");if(lk>o.last){o.last=lk;o.ld=t.date}});
+ var arr=Object.keys(g).map(function(k){return g[k]}).sort(topBy=="n"?function(a,b){return b.n-a.n||b.sum-a.sum}:function(a,b){return b.sum-a.sum||b.n-a.n}).slice(0,10);TOPN=arr.map(function(o){return o.name});
+ var h=`<section class="card span2"><h2>ร้าน/ผู้รับที่จ่ายบ่อย</h2>`+rangeSeg()+`<div class="seg" role="group" aria-label="เรียงตาม" style="margin-bottom:8px">${[["n","จ่ายบ่อยสุด"],["s","ยอดรวมสูงสุด"]].map(function(x){return`<button class="${topBy==x[0]?"on":""}" onclick="setTopBy('${x[0]}')">${x[1]}</button>`}).join("")}</div>`;
+ if(!arr.length)return h+empty("ยังไม่มีข้อมูล","จดรายการพร้อมชื่อร้าน หรือสแกนสลิป")+`</section>`;
+ return h+arr.map(function(o,i){return li(`${i+1}. ${esc(o.name)}`,f(o.sum)+" ฿",{fn:`searchFor(${i})`,sub:`${o.n} ครั้ง · เฉลี่ย ${f(o.sum/o.n)} ฿ · ล่าสุด ${o.ld.slice(8)}/${o.ld.slice(5,7)}`})}).join("")+`<p class="sub" style="margin-top:8px">แตะที่ร้านเพื่อดูทุกรายการของร้านนั้น</p></section>`}
+/* ---- ค้นหา/กรอง ---- */
+function fMatch(t){var q=flt.q.trim().toLowerCase().replace(/\s+/g,"");
+ if(q&&[t.note,t.to,t.cat,t.ref,t.amt,t.date].join("|").toLowerCase().replace(/\s+/g,"").indexOf(q)<0)return false;
+ if(flt.cat&&t.cat!=flt.cat)return false;
+ if(flt.kind=="out"&&!isOut(t))return false;if(flt.kind=="debt"&&!t.debt)return false;if(flt.kind=="in"&&t.type!="in")return false;
+ if(flt.from&&t.date<flt.from)return false;if(flt.to&&t.date>flt.to)return false;
+ if(flt.min!==""&&!isNaN(parseFloat(flt.min))&&t.amt<parseFloat(flt.min))return false;
+ if(flt.max!==""&&!isNaN(parseFloat(flt.max))&&t.amt>parseFloat(flt.max))return false;return true}
+function fresHTML(){var l=sortTx(S.tx.filter(fMatch)),o=sumA(l.filter(isOut)),d=sumA(l.filter(function(t){return t.debt})),n=sumA(l.filter(function(t){return t.type=="in"}));
+ if(!l.length)return empty("ไม่พบรายการ","ลองเปลี่ยนคำค้นหาหรือเงื่อนไข");
+ return`<div class="li tot" style="margin-top:8px"><span class="l">พบ ${l.length} รายการ<small>${[o?"ใช้จ่าย "+f(o):"",d?"จ่ายหนี้ "+f(d):"",n?"รายรับ "+f(n):""].filter(Boolean).join(" · ")} ฿</small></span></div>`+l.slice(0,100).map(txRow).join("")+(l.length>100?`<p class="sub">แสดง 100 รายการแรก จากทั้งหมด ${l.length} ให้กรองให้แคบลง</p>`:"")}
+function fset(k,v){flt[k]=v;var e=document.getElementById("fres");if(e)e.innerHTML=fresHTML()}
+function fclear(){flt={q:"",cat:"",kind:"",from:"",to:"",min:"",max:""};render()}
+function fpreset(p){var t=new Date(),y=t.getFullYear(),m=t.getMonth();
+ if(p=="m"){flt.from=keyOf(y,m)+"-01";flt.to=iso(new Date(y,m+1,0))}
+ else if(p=="pm"){flt.from=keyOf(y,m-1)+"-01";flt.to=iso(new Date(y,m,0))}
+ else if(p=="7"){flt.from=iso(new Date(y,m,t.getDate()-6));flt.to=today()}
+ else if(p=="30"){flt.from=iso(new Date(y,m,t.getDate()-29));flt.to=today()}
+ else{flt.from="";flt.to=""}render()}
+function searchFor(i){flt={q:TOPN[i]||"",cat:"",kind:"",from:"",to:"",min:"",max:""};fltOpen=true;logView="form";setTab("log")}
+function searchCard(){var cs=[];CATS.concat(INCATS,["เงินออม","จ่ายหนี้"]).forEach(function(c){if(cs.indexOf(c)<0)cs.push(c)});S.tx.forEach(function(t){if(cs.indexOf(t.cat)<0)cs.push(t.cat)});
+ return`<section class="card span2"><div class="hd"><h2 style="margin:0">ค้นหา/กรองรายการ</h2><span><button class="btn t sm" onclick="fclear()">ล้าง</button><button class="btn t sm" onclick="fltOpen=false;render()">ปิด</button></span></div>`
+ +fld("คำค้น (ชื่อ ร้าน หมวด เลขอ้างอิง ยอด)",`<input id="fq" type="search" value="${esc(flt.q)}" oninput="fset('q',this.value)" placeholder="เช่น 7-11 ข้าว ทวี">`)
+ +`<div class="chips" style="margin-bottom:16px">${[["m","เดือนนี้"],["pm","เดือนก่อน"],["7","7 วัน"],["30","30 วัน"],["all","ทั้งหมด"]].map(function(x){return`<button class="chip" onclick="fpreset('${x[0]}')">${x[1]}</button>`}).join("")}</div>`
+ +`<div class="g2">${fld("ตั้งแต่วันที่",`<input type="date" value="${esc(flt.from)}" onchange="fset('from',this.value)">`)}${fld("ถึงวันที่",`<input type="date" value="${esc(flt.to)}" onchange="fset('to',this.value)">`)}</div>`
+ +`<div class="g2">${fld("ประเภท",`<select onchange="fset('kind',this.value)">${[["","ทั้งหมด"],["out","ใช้จ่าย"],["debt","จ่ายหนี้"],["in","รายรับ"]].map(function(x){return`<option value="${x[0]}"${flt.kind==x[0]?" selected":""}>${x[1]}</option>`}).join("")}</select>`)}${fld("หมวด",`<select onchange="fset('cat',this.value)"><option value="">ทั้งหมด</option>${cs.map(function(c){return`<option${flt.cat==c?" selected":""}>${esc(c)}</option>`}).join("")}</select>`)}</div>`
+ +`<div class="g2">${fld("ยอดตั้งแต่",`<input type="number" inputmode="decimal" value="${esc(flt.min)}" oninput="fset('min',this.value)">`)}${fld("ถึงยอด",`<input type="number" inputmode="decimal" value="${esc(flt.max)}" oninput="fset('max',this.value)">`)}</div>`
+ +`<div id="fres">${fresHTML()}</div></section>`}
+/* ---- แก้ไขได้ทุกช่อง ---- */
+function txById(id){return S.tx.filter(function(x){return x.id==id})[0]}
+function editTx(id){openSheet("tedit",id)}
+function edCatOpts(kind,cur){var l=(kind=="in"?INCATS:CATS.concat(["เงินออม"])).slice();if(cur&&cur!="จ่ายหนี้"&&l.indexOf(cur)<0)l.push(cur);return l.map(function(c){return`<option${c==cur?" selected":""}>${esc(c)}</option>`}).join("")}
+function edSetKind(k){edKind=k;["out","in"].forEach(function(x){var b=document.getElementById("ek-"+x);if(b)b.className=x==k?"on":""});
+ var s=document.getElementById("e-cat");if(s)s.innerHTML=edCatOpts(k,"");var d=document.getElementById("e-debtw");if(d)d.style.display=k=="in"?"none":""}
+function saveEdit(){var t=txById(sheet&&sheet.a);if(!t){closeSheet();return}
+ var amt=parseFloat(gv("e-amt"));if(!(amt>0)){fieldErr("e-amt","ใส่จำนวนเงินก่อน");return}
+ var od=t.debt?S.debts.filter(function(d){return d.id==t.debt})[0]:null,oldName=od?od.name:"";
+ if(od)od.bal+=t.amt;
+ var did=edKind=="out"?(+gv("e-debt")||0):0,nd=did?S.debts.filter(function(d){return d.id==did})[0]:null;
+ t.amt=amt;t.date=gv("e-date")||t.date;var tm=gv("e-time");if(tm)t.time=tm;else delete t.time;
+ var to=gv("e-to").trim();if(to)t.to=to;else delete t.to;t.note=gv("e-note").trim();
+ if(edKind=="in"){t.type="in";delete t.debt;t.cat=gv("e-cat")||"อื่นๆ"}
+ else{delete t.type;if(nd){t.debt=nd.id;t.cat="จ่ายหนี้";nd.bal=Math.max(0,nd.bal-amt);if(!t.note||t.note==oldName)t.note=nd.name}else{delete t.debt;t.cat=gv("e-cat")||"อื่นๆ"}}
+ if(t.to&&t.cat!="จ่ายหนี้")learn({to:t.to,cat:t.cat,debt:t.debt||0});
+ qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});if(od||nd)syncDebts();save();sheet=null;render();toast("แก้ไขรายการแล้ว")}
+
+function txType(t){return t.type=="in"?"รายรับ":t.debt?"จ่ายหนี้":(t.cat=="เงินออม"?"ออม":"ใช้จ่าย")}
 function txRowData(t){var nn=t.note||"";if(t.to&&t.to!=nn)nn+=(nn?" → ":"→ ")+t.to;if(t.time)nn+=(nn?" ":"")+"("+t.time+")";return[String(t.id),t.date,t.cat,nn,t.amt,t.type=="in"?"รายรับ":t.debt?"จ่ายหนี้":(t.cat=="เงินออม"?"ออม":"ใช้จ่าย")]}
 function mstat(k){var cur=k==mk(),h=S.hist[k],sp=0,sv=0,dp=0;
  monthTx(k).forEach(function(t){if(t.type=="in")return;if(t.debt)dp+=t.amt;else if(t.cat=="เงินออม")sv+=t.amt;else sp+=t.amt});
@@ -663,6 +774,8 @@ function buildTables(){
  T["ตั้งค่า"]=[["รายการ","ค่า"],["เงินเดือน",S.salary],["OT ประมาณ",S.ot],["งบกินอยู่/เดือน",P.living||0],["เงินออม/เดือน",P.save||0],["ลำดับปิดหนี้",P.strat=="bal"?"ยอดน้อยก่อน":"ดอกสูงก่อน"],["งบคงเหลือ",S.bud&&S.bud.amt!=null?S.bud.amt:""],["วันเงินเดือนออก",(S.bud&&S.bud.pay)||""]].concat(CATS.map(function(c){return["งบหมวด "+c,(S.cb||{})[c]||0]}));
  T["รายจ่ายประจำ"]=[["หมวด","รายการ","จำนวน/เดือน"]].concat(S.fixed.map(function(x){return[gn(x.g),x.name,x.amt]}));
  T["หนี้"]=debtRows();
+ T["สรุปรายสัปดาห์"]=[["สัปดาห์เริ่ม","ถึง","ใช้จ่าย","งบสัปดาห์","จ่ายหนี้","รายรับ","จำนวนรายการ"]].concat(wkRows());
+  T["รายการละเอียด"]=[["วันที่","เวลา","จ่ายให้ใคร","ค่าอะไร","หมวด","จำนวน","ประเภท","เลขอ้างอิง"]].concat(S.tx.slice().sort(function(a,b){return(b.date+(b.time||"")).localeCompare(a.date+(a.time||""))}).map(function(t){return[t.date,t.time||"",t.to||"",t.note||"",t.cat,t.amt,txType(t),t.ref?"'"+t.ref:""]}));
  T["ของใช้ที่ต้องซื้อ"]=[["เดือน","รายการ","ราคาประมาณ","สถานะ","จ่ายจริง","วันที่ซื้อ"]].concat((S.shop||[]).map(function(x){return["'"+x.m,x.name,x.est||0,x.done?"ซื้อแล้ว":"ยังไม่ซื้อ",x.paid||"",x.date?"'"+x.date:""]}));
  T["ปุ่มลัด"]=[["ชื่อ","ราคา","หมวด"]].concat((S.quick||[]).map(function(x){return[x.name,x.amt,x.cat]}));
  T["สรุปเดือน"]=[["เดือน","ชื่อเดือน","รายได้","ยกยอดมา","รายจ่ายประจำ","จ่ายหนี้","ใช้จ่าย(รวมออม)","ออม","เหลือ","หนี้คงเหลือ"]].concat(Object.keys(S.hist||{}).sort().map(function(k){var h=S.hist[k];return["'"+k,mname(k),h.inc,h.carry,h.fx,h.commit,h.spent,h.saved,h.left,h.debt]}));
@@ -719,10 +832,12 @@ function addTx(amt,c,note,date,debt,type,x){
  if(!(amt>0))return;
  var inc=type=="in",t={id:Date.now()+Math.random(),date:date||today(),amt:amt,cat:debt?"จ่ายหนี้":c,note:note||""},dn="";
  if(inc)t.type="in";if(x){if(x.time)t.time=x.time;if(x.to)t.to=x.to;if(x.ref)t.ref=x.ref}
+ if(!t.time&&t.date==today()){var nw=new Date();t.time=String(nw.getHours()).padStart(2,"0")+":"+String(nw.getMinutes()).padStart(2,"0")}
  if(debt){var d=S.debts.filter(function(x){return x.id==debt})[0];if(d){t.debt=debt;d.bal=Math.max(0,d.bal-amt);t.note=d.name;dn=d.name}}
  S.tx.unshift(t);qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});if(t.debt)syncDebts();checkCele(t);save();render();
  var bi=(!inc&&!t.debt&&c!="เงินออม")?budInfo():null,w="";
  if(!inc&&!t.debt){var cv=(S.cb||{})[c]||0;if(cv>0){var p=Math.round(catUsed(c)/cv*100);if(p>=80)w=p>=100?` · ${c}เกินงบแล้ว`:` · ${c}ใช้ไป ${p}% ของงบ`}}
+ if(!inc&&!t.debt&&c!="เงินออม")w+=wkWarn(c);
  if(!sheet)toast((inc?`บันทึกรายรับ ${note||c} ${f(amt)} ฿ แล้ว`:t.debt?`จ่าย ${dn} ${f(amt)} ฿ แล้ว`:`บันทึก ${note||c} ${f(amt)} ฿ แล้ว`)+w+(bi&&!w?` · วันนี้เหลือ ${f(bi.todayLeft)} ฿`:""),"เลิกทำ",function(){rmTx(t.id)});return t.id}
 function rmTx(id){var t=S.tx.filter(function(x){return x.id==id})[0];if(!t)return null;if(t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal+=t.amt}S.tx=S.tx.filter(function(x){return x.id!=id});qAdd({a:"del",id:String(t.id)});if(t.debt)syncDebts();save();render();return t}
 function putTx(t){if(t.debt){var d=S.debts.filter(function(x){return x.id==t.debt})[0];if(d)d.bal=Math.max(0,d.bal-t.amt)}S.tx.unshift(t);qAdd({a:"upsert",id:String(t.id),row:txRowData(t)});if(t.debt)syncDebts();save();render()}
@@ -807,9 +922,16 @@ function sheetHTML(c){
  if(t=="spent"||t=="cat"){ti=t=="cat"?a:"ใช้จ่ายอื่นเดือนนี้";var l=sortTx(monthTx().filter(function(x){return isOut(x)&&(t=="spent"||x.cat==a)}));b=l.length?l.map(txRow).join(""):empty("ไม่มีรายการ","")}
  if(t=="buy"){var bx=shopItem(buyId);if(!bx){sheet=null;return""}ti="ซื้อแล้ว: "+bx.name;b=fld("ราคาที่จ่ายจริง (บาท)",`<input id="bp" type="number" inputmode="decimal" value="${bx.est||""}" placeholder="0" oninput="this.classList.remove('err');document.getElementById('bp-e').textContent=''">`,"bp-e")+`<label class="chk"><input type="checkbox" id="bl" checked><span>บันทึกเป็นรายจ่าย (หมวดของใช้) ด้วย</span></label><button class="btn" onclick="confirmBuy()">ยืนยันซื้อแล้ว</button>`}
  if(t=="sedit"){var ex=shopItem(buyId);if(!ex){sheet=null;return""}ti="แก้ไขรายการ";b=fld("ชื่อ",`<input id="sen" value="${esc(ex.name)}">`,"sen-e")+fld("ราคาประมาณ (บาท)",`<input id="sep" type="number" inputmode="decimal" value="${ex.est||""}" placeholder="0">`)+`<button class="btn" onclick="saveShopEdit()">บันทึก</button><button class="btn t" style="width:100%" onclick="delShop(${ex.id})">ลบรายการนี้</button>`}
+ if(t=="tedit"){var x=txById(a);if(!x){sheet=null;return""}ti="แก้ไขรายการ";edKind=x.type=="in"?"in":"out";
+ b=`<div class="seg" role="group" aria-label="ประเภท"><button id="ek-out" class="${edKind=="out"?"on":""}" onclick="edSetKind('out')">รายจ่าย</button><button id="ek-in" class="${edKind=="in"?"on":""}" onclick="edSetKind('in')">รายรับ</button></div><div style="height:12px"></div>`
+ +fld("จำนวนเงิน (บาท)",`<input id="e-amt" type="number" inputmode="decimal" value="${x.amt}" oninput="this.classList.remove('err');document.getElementById('e-amt-e').textContent=''">`,"e-amt-e")
+ +`<div class="g2">${fld("วันที่",`<input id="e-date" type="date" value="${esc(x.date)}">`)}${fld("เวลา",`<input id="e-time" type="time" value="${esc(x.time||"")}">`)}</div>`
+ +fld("จ่ายให้ใคร / ได้รับจาก",`<input id="e-to" value="${esc(x.to||"")}">`)+fld("ค่าอะไร / รายละเอียด",`<input id="e-note" value="${esc(x.note||"")}">`)
+ +`<div class="g2">${fld("หมวด",`<select id="e-cat">${edCatOpts(edKind,x.cat)}</select>`)}<div id="e-debtw"${edKind=="in"?' style="display:none"':""}>${fld("จ่ายหนี้ให้",`<select id="e-debt"><option value="0">ไม่ใช่จ่ายหนี้</option>${S.debts.map(function(d){return`<option value="${d.id}"${d.id==x.debt?" selected":""}>${esc(d.name)}</option>`}).join("")}</select>`)}</div></div>`
+ +`<button class="btn" onclick="saveEdit()">บันทึก</button><button class="btn t" style="width:100%" onclick="sheet=null;delTx(${x.id})">ลบรายการนี้</button>`}
  if(t=="bud"){var B=S.bud||{};ti="งบคงเหลือ";b=fld("เงินที่เหลือใช้ได้ตอนนี้ (บาท)",`<input id="bud-amt" type="number" inputmode="decimal" value="${B.amt==null?"":B.amt}" placeholder="เช่น 3500" oninput="this.classList.remove('err');document.getElementById('bud-amt-e').textContent=''">`,"bud-amt-e")+fld("วันเงินเดือนออก (เว้นว่าง = นับถึงสิ้นเดือน)",`<input id="bud-pay" type="number" inputmode="numeric" min="1" max="28" value="${B.pay||""}" placeholder="เช่น 25">`)+`<p class="sub">แอปหักเฉพาะรายจ่ายทั่วไปที่บันทึกหลังจากนี้ (ไม่รวมจ่ายหนี้และเงินออม) แล้วหารเฉลี่ยให้ทุกวัน</p><button class="btn" onclick="saveBud()">บันทึกงบ</button>`+(B.amt!=null?`<button class="btn t" style="width:100%" onclick="clearBud()">ล้างงบ</button>`:"")}
  return`<div class="ov" onclick="closeSheet()"><div class="sh" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="${esc(ti)}"><div class="hd"><h3>${esc(ti)}</h3><button class="ib" aria-label="ปิด" onclick="closeSheet()">${ic("x",22)}</button></div>${b}</div></div>`}
-function txRow(t){return`<div class="li"><span class="l">${esc(t.note||t.to||t.cat)}<small>${t.date.slice(8)}/${t.date.slice(5,7)}${t.time?" "+esc(t.time):""} · ${esc(t.cat)}${t.to&&t.note&&t.to!=t.note?" · → "+esc(t.to):""}</small></span><span class="v"${t.debt?' style="color:var(--acc)"':t.type=="in"?' style="color:var(--pri)"':""}>${t.type=="in"?"+":""}${f(t.amt)}<button class="ib sm" aria-label="แก้จำนวนเงิน" onclick="editTx(${t.id})">${ic("edit",16)}</button><button class="ib sm" aria-label="ลบรายการ" onclick="delTx(${t.id})">${ic("trash",16)}</button></span></div>`}
+function txRow(t){return`<div class="li"><span class="l">${esc(t.note||t.to||t.cat)}<small>${t.date.slice(8)}/${t.date.slice(5,7)}${t.time?" "+esc(t.time):""} · ${esc(t.cat)}${t.to&&t.note&&t.to!=t.note?" · → "+esc(t.to):""}</small></span><span class="v"${t.debt?' style="color:var(--acc)"':t.type=="in"?' style="color:var(--pri)"':""}>${t.type=="in"?"+":""}${f(t.amt)}<button class="ib sm" aria-label="แก้ไขรายการ" onclick="editTx(${t.id})">${ic("edit",16)}</button><button class="ib sm" aria-label="ลบรายการ" onclick="delTx(${t.id})">${ic("trash",16)}</button></span></div>`}
 
 /* ---- charts ---- */
 function waterfall(c){
@@ -906,14 +1028,16 @@ function home(){
 function log(){
  if(logView=="shop")return logSeg()+shop();
  var h=logSeg(),bi=budInfo();
+ if(fltOpen&&!pend)return h+searchCard();
  if(bi)h+=`<div class="bchip span2${bi.todayLeft<0?" over":""}">${bi.todayLeft<0?`วันนี้เกินงบ ${f(-bi.todayLeft)} ฿`:`วันนี้เหลือ <b>${f(bi.todayLeft)} ฿</b>`} · เฉลี่ยวันละ ${f(Math.max(0,bi.per))} ฿</div>`;
+ h+=wkChip();
  if(pend)h+=`<section class="card pend span2"><h2>ตรวจก่อนบันทึก</h2>`+(pend.dup?`<div class="note" role="alert"><p>สลิปนี้ดูเหมือนเคยบันทึกแล้ว ตรวจก่อนบันทึกซ้ำ</p></div>`:"")+(pend.warn||[]).map(function(x){return`<div class="note" role="alert"><p>${esc(x)}</p></div>`}).join("")+`<p class="sub" style="margin-bottom:12px">${useAI()?"อ่านด้วย Claude":"อ่านด้วย OCR ในเครื่อง ตัวเลขอาจคลาดเคลื่อน"} ตรวจให้ถูกก่อนบันทึก${pend.learned?" · หมวดนี้จำจากครั้งก่อน":""}</p><div class="g2">${fld("จำนวนเงิน",`<input type="number" inputmode="decimal" value="${pend.amt}" oninput="pf('amt',this.value)">`)}${fld("วันที่",`<input type="date" value="${pend.date}" oninput="pf('date',this.value)">`)}</div><div class="g2">${fld("เวลา",`<input type="time" value="${esc(pend.time)}" oninput="pf('time',this.value)">`)}${fld("จ่ายให้ใคร",`<input value="${esc(pend.to)}" oninput="pf('to',this.value)">`)}</div>${fld("ค่าอะไร / รายละเอียด",`<input value="${esc(pend.note)}" placeholder="เช่น ค่าข้าว ค่าไฟ" oninput="pf('note',this.value)">`)}<div class="g2">${fld("หมวด",`<select onchange="pf('cat',this.value)">${CATS.map(function(c){return`<option${c==pend.cat?" selected":""}>${c}</option>`}).join("")}</select>`)}${fld("จ่ายหนี้ให้",`<select onchange="pf('debt',this.value)"><option value="0">ไม่ใช่จ่ายหนี้</option>${S.debts.map(function(d){return`<option value="${d.id}"${d.id==pend.debt?" selected":""}>${esc(d.name)}</option>`}).join("")}</select>`)}</div>${pend.raw?`<details style="margin:8px 0"><summary class="sub">ดูข้อความที่ OCR อ่านได้</summary><pre class="sub" style="white-space:pre-wrap">${esc(pend.raw)}</pre></details>`:""}<div class="row2"><button class="btn" onclick="okPend()">บันทึก</button><button class="btn s" onclick="pend=null;render()">ยกเลิก</button></div></section>`;
  if(kind!="in")h+=quickCard();
  h+=`<section class="card"><div class="seg" role="group" aria-label="ประเภท"><button class="${kind=="out"?"on":""}" onclick="setKind('out')">รายจ่าย</button><button class="${kind=="in"?"on":""}" onclick="setKind('in')">รายรับ</button></div><div style="height:16px"></div>`+fld("จำนวนเงิน (บาท)",`<input id="amt" class="amt" type="number" inputmode="decimal" placeholder="0" onkeydown="enter(event)" oninput="this.classList.remove('err');document.getElementById('amt-e').textContent=''">`,"amt-e")+fld("รายละเอียด (ไม่บังคับ)",`<input id="note" placeholder="${kind=='in'?'เช่น OT วันศุกร์':'เช่น ข้าวกลางวัน'}" autocomplete="off" onkeydown="enter(event)">`)+`<div class="lb">หมวด</div><div class="chips">${(kind=="in"?INCATS:CATS).map(function(c){return`<button class="chip cc${c==cat?" on":""}" data-c="${c}" onclick="setCat(this.dataset.c)">${c}</button>`}).join("")}</div><button class="btn" onclick="quick()">${kind=="in"?"บันทึกรายรับ":"บันทึก"}</button>`+(kind=="in"?"":mdet("bulk","วางหลายรายการพร้อมกัน",`<textarea id="bulk" rows="4" placeholder="ข้าว 60&#10;ค่ารถ 40"></textarea><button class="btn s sm" onclick="bulk()">เพิ่มทั้งหมด</button>`))+`</section>`;
  if(kind=="in"){}else if(busy)h+=`<section class="card"><div class="busy" role="status"><span class="spin"></span><div><b>กำลังอ่านสลิป…</b><p class="sub">ใช้เวลาประมาณ 5–20 วินาที (ครั้งแรกนานกว่านั้น ต้องโหลดตัวอ่านภาษาไทย)</p></div></div></section>`;
  else h+=`<section class="card"><h2>สแกนสลิป</h2>`+(msg?`<div class="note" role="alert"><p>${esc(msg)}</p><div class="row2">${lastFile?`<button class="btn sm" onclick="retryScan()">ลองอีกครั้ง</button>`:""}<button class="btn s sm" onclick="msg='';render()">ปิด</button></div></div>`:"")+`<p class="sub" style="margin-bottom:12px">เลือกรูปสลิป แล้วตรวจตัวเลขก่อนบันทึก</p><button class="btn s" onclick="document.getElementById('file').click()">${ic("camera")}เลือกรูปสลิป</button></section>`;
  var m=sortTx(monthTx());
- h+=`<section class="card"><h2>รายการเดือนนี้${m.length?` (${m.length})`:""}</h2>`+(m.length?m.map(txRow).join(""):empty("ยังไม่มีรายการเดือนนี้","กดปุ่มลัดหรือพิมพ์ด้านบนได้เลย"))+`</section>`;
+ h+=`<section class="card"><div class="hd"><h2 style="margin:0">รายการเดือนนี้${m.length?` (${m.length})`:""}</h2><button class="btn s sm" onclick="fltOpen=true;render()">ค้นหา/กรอง</button></div>`+(m.length?m.map(txRow).join(""):empty("ยังไม่มีรายการเดือนนี้","กดปุ่มลัดหรือพิมพ์ด้านบนได้เลย"))+`</section>`;
  return h}
 function debts(){
  var tot=0,mins=0,pd=0;S.debts.forEach(function(d){tot+=d.bal;if(d.bal>0){mins+=d.min;pd+=Math.min(paid(d.id),d.min)}});
@@ -955,6 +1079,7 @@ function stat(){
  ms.forEach(function(m){mx=Math.max(mx,m.inc,m.sp,m.dp,m.sv);tdp+=m.dp;tsv+=m.sv;tsp+=m.sp;if(m.sp>0)n++});
  var S4=[["บันทึกต่อเนื่อง",st.cur+" วัน","สูงสุด "+st.best+" วัน"],["จ่ายหนี้ 6 เดือน",f(tdp)+" ฿",""],["ออม 6 เดือน",f(tsv)+" ฿",""],["ใช้จ่ายเฉลี่ย/เดือน",f(n?tsp/n:0)+" ฿",""]];
  var h=closeBanner()+monthDetail()+`<section class="card span2"><div class="g2 stg">${S4.map(function(x){return`<div class="st"><span>${x[0]}</span><b class="num">${x[1]}</b>${x[2]?`<small>${x[2]}</small>`:""}</div>`}).join("")}</div></section>`;
+ h+=weekCard()+timeCard()+payeeCard();
  h+=`<section class="card"><h2>6 เดือนย้อนหลัง</h2>${barChart(ms,mx)}<p class="sub">* รายได้เดือนที่ยังไม่ปิดประมาณจากเงินเดือนปัจจุบัน</p></section>`;
  var cl=ms.filter(function(m){return S.hist[m.k]&&S.hist[m.k].debt!=null});
  h+=`<section class="card"><h2>ปิดเดือน</h2>`+(cl.length>=2?`<div class="big2 num" style="color:var(--pri)">หนี้ลดลง ${f(S.hist[cl[0].k].debt-S.hist[cl[cl.length-1].k].debt)} ฿</div><p class="sub" style="margin-bottom:12px">จาก ${mname(cl[0].k)} ถึง ${mname(cl[cl.length-1].k)}</p>`:"")+`<p class="sub" style="margin-bottom:16px">สรุปเดือนนี้ และยกยอดเงินเหลือ (หรือที่ขาด) ไปเดือนหน้า</p><button class="btn" onclick="closeMonth(mk())">ปิดเดือนนี้</button></section>`;
@@ -970,11 +1095,12 @@ function sets(){
  var bk=`<p class="sub">ข้อมูลเก็บในเครื่องนี้เท่านั้น ควรสำรองเป็นระยะ</p><div class="row2"><button class="btn s sm" onclick="backup()">ดาวน์โหลดสำรอง</button><button class="btn s sm" onclick="document.getElementById('rf').click()">กู้ข้อมูล</button></div><input type="file" id="rf" accept=".json" hidden onchange="restore(this.files[0])">`;
  var cbT=0;CATS.forEach(function(c){cbT+=(S.cb||{})[c]||0});
  var cbB=`<p class="sub">ตั้งงบต่อเดือนของแต่ละหมวด ใส่ 0 = ไม่จำกัด แอปจะเตือนเมื่อใช้ถึง 80%</p><div class="g2" style="margin-top:12px">${CATS.map(function(c){return fld(c,`<input type="number" inputmode="decimal" placeholder="0" value="${(S.cb||{})[c]||""}" onchange="setCb('${c}',this.value)">`)}).join("")}</div>`;
+ cbB+=`<h2 style="margin:24px 0 8px">งบรายสัปดาห์ (จันทร์–อาทิตย์)</h2><p class="sub">ใส่ 0 = ไม่จำกัด แอปเตือนเมื่อใช้ถึง 80% และเมื่อเกินกรอบ นับเฉพาะรายจ่ายทั่วไป (ไม่รวมจ่ายหนี้และเงินออม)</p><div style="margin-top:12px">${fld("งบรวมต่อสัปดาห์",`<input type="number" inputmode="decimal" placeholder="0" value="${WB().tot||""}" onchange="setWb('tot',this.value)">`)}</div><div class="g2">${CATS.map(function(c){return fld(c,`<input type="number" inputmode="decimal" placeholder="0" value="${WB().cat[c]||""}" onchange="setWb('${c}',this.value)">`)}).join("")}</div>`;
  var B={inc:inc,fixed:fixed,debts:dts,cb:cbB,quick:quickSet(),sheet:shCard(),scan:scanB,bk:bk};
  if(sub&&B[sub])return`<section class="card span2">${B[sub]}</section>`;
  var row=function(id,icn,t,sm){return`<button class="mi" onclick="setSub('${id}')"><span class="mic">${ic(icn,20)}</span><span class="ml"><b>${t}</b>${sm?`<small>${sm}</small>`:""}</span>${ic("chev",18)}</button>`},cur=S.theme||"auto";
  var h=`<section class="card span2"><h2>โหมดการแสดงผล</h2><div class="seg3" role="group" aria-label="โหมดการแสดงผล">${[["auto","อัตโนมัติ","auto"],["light","สว่าง","sun"],["dark","มืด","moon"]].map(function(x){return`<button class="${cur==x[0]?"on":""}" onclick="setTheme('${x[0]}')">${ic(x[2],18)}${x[1]}</button>`}).join("")}</div></section>`;
- h+=`<div><h2 class="gt">ข้อมูลการเงิน</h2><div class="menu">`+row("inc","wallet","รายได้",`เงินเดือน ${f(S.salary)} ฿`)+row("fixed","home","ค่าห้องและรายจ่ายประจำ",`รวม ${f(fxT)} ฿ ต่อเดือน`)+row("debts","card","บัตรและหนี้",`${S.debts.length} บัญชี`)+row("cb","tag","งบแยกหมวด",cbT>0?`รวม ${f(cbT)} ฿ ต่อเดือน`:"ยังไม่ตั้ง")+`</div></div>`;
+ h+=`<div><h2 class="gt">ข้อมูลการเงิน</h2><div class="menu">`+row("inc","wallet","รายได้",`เงินเดือน ${f(S.salary)} ฿`)+row("fixed","home","ค่าห้องและรายจ่ายประจำ",`รวม ${f(fxT)} ฿ ต่อเดือน`)+row("debts","card","บัตรและหนี้",`${S.debts.length} บัญชี`)+row("cb","tag","งบแยกหมวดและรายสัปดาห์",(cbT>0?`รวม ${f(cbT)} ฿ ต่อเดือน`:"ยังไม่ตั้ง")+(WB().tot>0?` · สัปดาห์ ${f(WB().tot)} ฿`:""))+`</div></div>`;
  h+=`<div><h2 class="gt">ตัวช่วยบันทึก</h2><div class="menu">`+row("quick","bolt","ปุ่มลัด",`${S.quick.length} ปุ่ม`)+row("scan","camera","สแกนสลิป",useAI()?"ใช้ Claude":"OCR ในเครื่อง (ไม่ใช้ AI)")+`</div></div>`;
  h+=`<div><h2 class="gt">ข้อมูล</h2><div class="menu">`+row("sheet","cloud","ซิงก์ Google Sheet",esc(S.shMsg||"ยังไม่ได้เชื่อมต่อ"))+row("bk","download","สำรองและกู้ข้อมูล","")+`</div></div>`;
  return h}
